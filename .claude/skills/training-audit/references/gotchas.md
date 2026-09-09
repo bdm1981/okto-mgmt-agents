@@ -3,6 +3,23 @@
 Every trap that has produced a wrong or unfair finding. Read before trusting a grade; add
 to it when you hit a new one.
 
+## Platform — READ THIS FIRST (9 Sep 2026)
+
+- **Training moved off Zoom to Zoho Meeting.** The last training recording on
+  `training@oktorocket.com` is 3 Sep 2026. Everything from ~8 Sep runs in Zoho Meeting, on the
+  revamped weekly schedule (Advisor / Admin Part 1 / Admin Part 2 / CRM / Shop Analytics,
+  ~16 sessions a week, all Central).
+- **This skill is Zoom-only end to end and currently audits nothing.** Discovery returns zero
+  and the run reports "no new sessions found" — a false all-clear, not a quiet day. Treat a
+  zero-session run as a failure until Zoho access exists.
+- **No Zoho Meeting access is provisioned.** No MCP connector exists for it (registry search
+  is empty); the connected Zoho servers are CRM, Desk, Analytics/Sprints and Projects only;
+  the meetings MCP server that *is* connected is Zoom. The shared `ZOHO_REFRESH_TOKEN` carries
+  no `ZohoMeeting.*` scope. See the run notes of 9 Sep for the setup checklist.
+- **Unconfirmed blocker: does Zoho Meeting produce a transcript?** The entire grading method
+  assumes a machine-readable transcript. If Zoho only yields audio/video, this needs a
+  speech-to-text stage before any of the rest works. Verify before building anything.
+
 ## Transcripts
 
 - **Only the host is reliably transcribed.** In two of the four seed sessions the attendee
