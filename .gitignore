@@ -5,3 +5,14 @@ map.json
 daily.html
 *.pdf
 .DS_Store
+
+# training-audit run outputs
+sessions.json
+findings.jsonl
+reports.json
+raw/
+compact/
+report-*.html
+dashboard.html
+__pycache__/
+*.pyc
