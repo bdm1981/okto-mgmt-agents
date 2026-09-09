@@ -21,7 +21,8 @@ except ImportError:
 
 AT_RISK_LABELS = {"lost", "cancel", "cancelled", "canceled", "escalation", "escalated",
                   "complaint", "churn", "refund", "billing_issue"}
-MISS_LABELS = {"missed", "voicemail", "abandoned"}
+MISS_LABELS = {"missed"}                       # a miss is the label, nothing inferred
+END_LABELS = {"missed", "voicemail", "abandoned"}  # for "day ended on..." risk signals
 
 
 def load_rows(paths):
@@ -103,6 +104,13 @@ def main():
     have_ext = sum(1 for r in cust if r.get("answeringExtension"))
     have_iq = sum(1 for r in cust if r.get("advisorIqScore") is not None)
     print(f"- attributed to an extension: {have_ext}/{len(cust)}")
+    # Missed is counted on ALL non-internal inbound rows: most missed legs land on the
+    # routing-target extensions that --exclude-ext removes from `cust`.
+    all_inb = [r for r in rows if not is_internal(r) and r.get("direction") == "inbound"]
+    missed_all = [r for r in all_inb if MISS_LABELS & set(r.get("labels") or [])]
+    vm_all = [r for r in all_inb if "voicemail" in (r.get("labels") or [])]
+    print(f"- missed calls (`missed` label, before extension exclusion): **{len(missed_all)}** "
+          f"from {len({r.get('from') for r in missed_all})} callers; {len(vm_all)} voicemails")
     print(f"- carry an AdvisorIQ score: {have_iq}/{len(cust)}")
     ts = [parse_dt(r.get("date")) for r in cust]
     ts = [t for t in ts if t]
@@ -116,6 +124,11 @@ def main():
         t = parse_dt(r.get("date"))
         if t:
             by_day[t.astimezone(tz).date()].append(r)
+    missed_by_day = collections.Counter()
+    for r in missed_all:
+        t = parse_dt(r.get("date"))
+        if t:
+            missed_by_day[t.astimezone(tz).date()] += 1
     if len(by_day) > 1:
         print("\n## Per-day\n")
         print("| Day | Calls | In/Out | Missed | Neg IQ | Talk hours |")
@@ -123,7 +136,7 @@ def main():
         for d in sorted(by_day):
             rs = by_day[d]
             inb = sum(1 for r in rs if r.get("direction") == "inbound")
-            missed = sum(1 for r in rs if MISS_LABELS & set(r.get("labels") or []))
+            missed = missed_by_day[d]
             neg = sum(1 for r in rs if r.get("advisorIqScore") == -1)
             hrs = sum(secs(r, "talkTimeSeconds") for r in rs) / 3600.0
             print(f"| {d:%a %Y-%m-%d} | {len(rs)} | {inb}/{len(rs)-inb} | {missed} "
@@ -195,9 +208,9 @@ def main():
         if any(r.get("advisorIqScore") == -1 for r in rs):
             strong.append("negative AdvisorIQ")
         last = rs[-1]
-        if MISS_LABELS & set(last.get("labels") or []):
+        if END_LABELS & set(last.get("labels") or []):
             strong.append("day ended on a missed call/voicemail")
-        if peak == 2 and MISS_LABELS & set(rs[0].get("labels") or []):
+        if peak == 2 and END_LABELS & set(rs[0].get("labels") or []):
             strong.append("called back after a missed call")
             weak = [w for w in weak if "called back" not in w]
         reasons = strong + weak if strong else []

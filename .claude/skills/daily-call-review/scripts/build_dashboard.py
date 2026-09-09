@@ -64,16 +64,15 @@ def internal(r):
 excl = {e for e, v in roster.items() if v.get("team") == "exclude"}
 cust = [r for r in calls if local(r).date() == day and not internal(r) and r.get("answeringExtension") not in excl]
 T = lambda r: r.get("talkTimeSeconds") or 0
-MISS = {"missed", "voicemail"}
-
 # ---- department numbers
 inb = [r for r in cust if r["direction"] == "inbound"]
 talk_h = sum(T(r) for r in cust) / 3600
-by_from = collections.defaultdict(list)
-for r in cust: by_from[r.get("from")].append(r)
-def stranded(g):
-    return not any(T(m) > 0 for m in by_from[g.get("from")] if m is not g and abs((D(m["date"]) - D(g["date"])).total_seconds()) <= 180)
-missed_waited = [r for r in inb if T(r) == 0 and MISS & set(r.get("labels") or []) and (r.get("ringTimeSeconds") or 0) >= 15 and stranded(r)]
+# Missed = rows carrying the `missed` label, counted BEFORE the extension exclusion:
+# most missed legs land on routing-target extensions (8765/8000) that `excl` removes.
+dayrows = [r for r in calls if local(r).date() == day and not internal(r) and r["direction"] == "inbound"]
+missed = [r for r in dayrows if "missed" in (r.get("labels") or [])]
+voicemail = [r for r in dayrows if "voicemail" in (r.get("labels") or [])]
+missed_callers = len({r.get("from") for r in missed})
 tday = [t for t in tickets if D(t["createdTime"]).astimezone(tz).date() == day]
 tclosed = [t for t in tickets if t.get("closedTime") and D(t["closedTime"]).astimezone(tz).date() == day]
 topen = [t for t in tickets if t["statusType"] == "Open"]
@@ -158,7 +157,7 @@ a.id:hover{{color:var(--accent-ink);text-decoration-style:solid}}</style>
 <section class="board">
 <div class="tile"><div class="k">Customer calls</div><div class="v num">{len(cust)}</div><div class="s">{len(inb)} in · {len(cust)-len(inb)} out · {talk_h:.1f} talk-hours</div></div>
 <div class="tile"><div class="k">Support team</div><div class="v num">{len(sup)}</div><div class="s">{100*len(sup)//max(1,len(cust))}% of calls · {sum(T(r) for r in sup)/3600:.1f} h talk</div></div>
-<div class="tile {"crit" if missed_waited else ""}"><div class="k">Missed &amp; waited</div><div class="v num">{len(missed_waited)}</div><div class="s">rang ≥15 s, nobody answered</div></div>
+<div class="tile {"crit" if missed else ""}"><div class="k">Missed calls</div><div class="v num">{len(missed)}</div><div class="s">`missed` label · {missed_callers} callers · {len(voicemail)} voicemails</div></div>
 <div class="tile"><div class="k">Tickets opened</div><div class="v num">{len(tday)}</div><div class="s">{sum(1 for t in tday if t.get("channel")=="Phone")} by phone · {len(tclosed)} closed today</div></div>
 <div class="tile warn"><div class="k">Open &amp; overdue</div><div class="v num">{len(overdue)}</div><div class="s">of {len(topen)} open in window</div></div>
 <div class="tile"><div class="k">Call-issue tickets</div><div class="v num">{len(call_issue)}</div><div class="s">{" · ".join(f"{E(c)} {n}" for c,n in cats)}</div></div>

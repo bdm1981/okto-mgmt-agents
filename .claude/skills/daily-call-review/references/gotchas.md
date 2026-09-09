@@ -8,7 +8,7 @@ Everything here was learned the hard way in the first two weeks of running the r
 - `advisorIqScore` is −1 / 0 / +1 and absent on ~25 % of calls. It tracks customer frustration, not rep quality — every −1 call read so far was competent work. Use it to pick what to read, never as the finding.
 - `scorecardScore` / `scorecardMaxScore` / `scorecardTemplate` appear on `get_call` when a scorecard ran. That is the only objective quality number.
 - The `vendor` **boolean is always false**; the signal is the `vendor` **label**. A refused cold-call gets tagged `lost` and will look like churn unless you filter on the label.
-- 0-second call legs are ring-group artefacts (another extension answered), not dropped calls. Treat a caller as genuinely missed only if ring ≥ 15 s and nobody connected within 3 minutes.
+- **A missed call is a row carrying the `missed` label. Count that, nothing else.** Do not infer misses from ring time, 0-second legs or "nobody connected within 3 minutes" — those heuristics undercounted 21 labelled misses as 1 on 2026-09-08. Most missed legs land on the routing-target extensions 8765 and 8000, so never drop labelled misses when excluding those extensions. `voicemail` is a separate label; report it alongside, not inside, the missed count. 0-second legs *without* the label are ring-group artefacts and are not misses.
 - Extensions `8765` and `8000` take inbound calls, never answer, and are in no roster — routing targets, not people.
 - The key sees exactly one site (`634c8538a3be38fc4c8ed28c`, OktoRocket's own tenant). `get_ro_summary` / `get_advisor_attribution` are empty for it.
 

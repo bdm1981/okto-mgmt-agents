@@ -154,7 +154,7 @@ then publish with `url:`). Same link every day; a publish without `url` makes a 
 ### Support-manager daily summary (what the dashboard contains)
 One page, same day, two halves:
 
-**Department** — calls, inbound/outbound, talk hours, missed customers who waited >=15s, tickets
+**Department** — calls, inbound/outbound, talk hours, missed calls (rows carrying the `missed` label; voicemails shown alongside), tickets
 opened vs closed (from Desk), open-overdue count, top 3 categories, remote-session rate, and the
 two or three account arcs that need an owner tomorrow (3+ calls / 3+ people / open ticket).
 
