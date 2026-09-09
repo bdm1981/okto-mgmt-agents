@@ -100,3 +100,27 @@ discovery would keep offering the same four sessions back as unaudited.
 | 2026-08-18 | `uuid:aRMS5aVyT8CR+bca1lsodQ==` | Aaron | `admin.invite-expiry.one-hour` | wrong_high | 09:14 | dc-server/modules/cognitoService.js:418-455 |
 | 2026-08-04 | `uuid:5DLC6CWcRySruihidAnu/Q==` | Aaron | `admin.stale-tasks.closes-everything-older` | incomplete | 101:18 | dc-server/modules/cleanup.js:663-672 |
 | 2026-08-11 | `uuid:3+wKfi9hQLSzEcnEEmhqnw==` | Aaron | `admin.stale-tasks.closes-everything-older` | incomplete | 84:29 | dc-server/modules/cleanup.js:663-672 |
+| 2026-09-02 | `uuid:bF1OyLAERomUgiIeREr+0w==` | TeDarrell | `campaigns.on-deck.card-vs-queue` | correct | 63:24 | dc-user/src/js/common/components/campaigns/OnDeckTile.js:56, dc-server/routes/campaigns.js:806, dc-user/src/js/admin/components/campaigns/CampaignHistory.js:101 |
+| 2026-09-02 | `uuid:bF1OyLAERomUgiIeREr+0w==` | TeDarrell | `campaigns.email-vs-sms.same-builder` | incomplete | 67:26 | dc-user/src/js/admin/components/campaigns/AddCampaign.js:832, dc-user/src/js/admin/components/campaigns/AddCampaign.js:862 |
+| 2026-09-02 | `uuid:bF1OyLAERomUgiIeREr+0w==` | TeDarrell | `inbox.translate.language-direction` | incomplete | 47:15 | dc-user/src/js/user/components/inbox/TaskSMS/helpers/translate.helpers.ts:11, dc-user/src/js/user/components/inbox/TaskSMS/MessageBubble.tsx:162 |
+| 2026-09-02 | `uuid:bF1OyLAERomUgiIeREr+0w==` | TeDarrell | `campaigns.keyword-detection.auto-response` | correct | 66:19 | dc-user/src/js/admin/components/campaigns/KeywordDetector.tsx:203, dc-server/modules/campaigns/keywordDetectionHandler.js:47 |
+| 2026-09-02 | `uuid:bF1OyLAERomUgiIeREr+0w==` | TeDarrell | `campaigns.appointment-lead.no-trigger` | correct | 76:03 | dc-user/src/js/admin/components/campaigns/campaignTypes.js:1 |
+| 2026-09-02 | `uuid:bF1OyLAERomUgiIeREr+0w==` | TeDarrell | `campaigns.advisor-permission.needs-manage-campaigns` | correct | 63:04 | dc-user/src/js/common/schema/accountPermissions.json:2 |
+| 2026-09-02 | `uuid:bF1OyLAERomUgiIeREr+0w==` | TeDarrell | `admin.last-login.updates-on-session` | incomplete | 34:58 | dc-server/routes/auth.js:472, dc-server/routes/auth.js:725, dc-server/models/user.js:64 |
+| 2026-09-02 | `uuid:bF1OyLAERomUgiIeREr+0w==` | TeDarrell | `campaigns.call-campaigns.no-customer-send` | correct | 51:57 | dc-server/modules/campaigns/callCampaigns.js:185 |
+| 2026-09-02 | `uuid:bF1OyLAERomUgiIeREr+0w==` | TeDarrell | `campaigns.auto-approve.bypasses-queue` | correct | 63:55 | dc-server/modules/campaignBuilder.js:641 |
+| 2026-09-02 | `uuid:bF1OyLAERomUgiIeREr+0w==` | TeDarrell | `reviews.google-floor.routes-low-scores` | unverifiable | 71:42 | — |
+| 2026-09-02 | `uuid:bF1OyLAERomUgiIeREr+0w==` | TeDarrell | `billing.migration-services.no-cost` | unverifiable | 14:58 | — |
+| 2026-09-03 | `uuid:u/cHE7tER/Cjp4RghN+lPg==` | unidentified | `admin.directly-assigned.admins-can-see` | wrong_contained | 31:10 | dc-server/modules/taskVisibility.ts:28, dc-server/modules/taskVisibility.ts:143, dc-server/routes/messages.js:786 |
+| 2026-09-03 | `uuid:u/cHE7tER/Cjp4RghN+lPg==` | unidentified | `admin.disable-user.toggle-spares-private` | incomplete | 11:59 | dc-server/routes/users.js:465, dc-server/routes/users.js:482 |
+| 2026-09-03 | `uuid:u/cHE7tER/Cjp4RghN+lPg==` | unidentified | `admin.stale-tasks.closes-everything-older` | incomplete | 66:51 | dc-server/modules/cleanup.js:663, dc-server/modules/cleanup.js:669 |
+| 2026-09-03 | `uuid:u/cHE7tER/Cjp4RghN+lPg==` | unidentified | `admin.last-login.updates-on-session` | correct | 07:35 | dc-server/routes/auth.js:472, dc-server/routes/auth.js:725 |
+| 2026-09-03 | `uuid:u/cHE7tER/Cjp4RghN+lPg==` | unidentified | `admin.holidays.block-booking` | correct | 43:11 | dc-server/modules/appointment-availability/appointment-availability.service.ts:1275 |
+| 2026-09-03 | `uuid:u/cHE7tER/Cjp4RghN+lPg==` | unidentified | `admin.holiday-types.three` | correct | 42:48 | dc-server/models/holiday.ts:28, dc-server/models/holiday.ts:44 |
+| 2026-09-03 | `uuid:u/cHE7tER/Cjp4RghN+lPg==` | unidentified | `scheduler.after-hours.resources-are-uploads` | correct | 49:34 | dc-user/src/js/admin/components/sites/booking/BookingSpecs.tsx:336 |
+| 2026-09-03 | `uuid:u/cHE7tER/Cjp4RghN+lPg==` | unidentified | `admin.close-site-early.now-permission-gated` | correct | 22:05 | dc-user/src/js/common/schema/accountPermissions.json:4, dc-server/routes/sites.js:1641, dc-user/src/js/user/components/calls/Calls.js:20 |
+| 2026-09-03 | `uuid:u/cHE7tER/Cjp4RghN+lPg==` | unidentified | `admin.report-permissions.group-disables-individual` | correct | 25:53 | dc-user/src/js/admin/components/users/edit/UserEditSettings.tsx:100, dc-user/src/js/admin/components/users/edit/UserEditSettings.tsx:140 |
+| 2026-09-03 | `uuid:u/cHE7tER/Cjp4RghN+lPg==` | unidentified | `admin.extension.one-per-user` | correct | 28:13 | dc-user/src/js/admin/components/users/shared/forms/AdminFormInputs.tsx:97, dc-user/src/js/admin/components/sites/extensions/FSextensionAdd.js:32 |
+| 2026-09-03 | `uuid:u/cHE7tER/Cjp4RghN+lPg==` | unidentified | `admin.invite-expiry.one-hour` | correct | 13:42 | dc-server/modules/cognitoService.js:19, dc-server/modules/cognitoService.js:196 |
+| 2026-09-03 | `uuid:u/cHE7tER/Cjp4RghN+lPg==` | unidentified | `admin.recording-retention.365-purge` | unverifiable | 65:37 | — |
+| 2026-09-03 | `uuid:u/cHE7tER/Cjp4RghN+lPg==` | unidentified | `billing.oktoassist.liftoff-countdown-packages` | unverifiable | 44:56 | — |

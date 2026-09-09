@@ -42,6 +42,14 @@ to it when you hit a new one.
 - **`explainDelete` is inverted relative to its legacy label.** See `product-bugs.md`.
 - **"On Deck" is two different things.** The approval queue, and a campaign card counter
   that is `recipients − built` (a *skip* count). Check which surface a claim is about.
+  Both surfaces are live at once: `OnDeckTile.js:56` renders `approved/total` under the label
+  "Messages on Deck", while `CampaignHistory.js:101` renders the skip count under "On Deck".
+  A trainer describing the tile as approved-over-total is **right** — check which one is on
+  screen before reusing `campaigns.on-deck.card-vs-queue`.
+- **A safety toggle may not cover every task class.** Disabling a user with "close their open
+  tasks" off spares shared tasks but still force-completes private ones
+  (`dc-server/routes/users.js:482`). When a trainer teaches a toggle as a safeguard, check
+  whether a later unconditional write undoes it — this is the "off branch" trap one level down.
 - **Many features are gated to one trigger, channel or DMS.** Campaign-level scheduling is
   trigger 5 only; structured waiter/drop-off messages need SMS + trigger 5 + Tekmetric or
   Shop-Ware; review de-dup belongs to trigger 16. A generic-sounding claim usually isn't.
@@ -69,3 +77,17 @@ to it when you hit a new one.
   mistake into a fake curriculum defect. `ledger.py` refuses a session it has already seen.
 - **The seed rows use `seed-*` ids**, not Zoom UUIDs — the first four sessions were audited
   from local VTT files before S2S access existed. They will never collide with a real UUID.
+
+## Scripts
+
+- **`session_index.py --add` writes six columns into a seven-column table.** It emits
+  date/uuid/course/minutes/spoke/trainer and omits `att`, so every row it appends shifts the
+  trainer into the attendance column. Both 9 Sep rows had to be repaired by hand. Check the
+  appended rows against the header until the script is fixed; the real attendance comes from
+  `zoom_client.attendees()`, which the script never calls.
+- **`fetch_transcript.py` takes `--sessions <file> --uuid <uuid>`, not `--session`.** The
+  SKILL.md procedure and the scheduled-task file both write `--session <uuid>`, which exits 1
+  with "give --url, or --sessions with --uuid".
+- **`build_report.py` needs `--fragment` for anything going to the Artifact tool.** Without it
+  the renderer emits a full `<!doctype html>` document, which the publisher wraps in a second
+  head/body skeleton.

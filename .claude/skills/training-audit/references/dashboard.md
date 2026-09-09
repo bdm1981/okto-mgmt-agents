@@ -32,3 +32,5 @@ that the same feature is described three incompatible ways across runs.
 | 2026-08-27 | Deep Dive | https://claude.ai/code/artifact/dd17ce3f-ccf4-4d50-8346-928aa5c41744 |
 | 2026-09-03 | Deep Dive (both 27 Aug errors fixed; first Okto Assist audit) | https://claude.ai/code/artifact/8b4e9948-a765-4a68-9058-786be1e73928 |
 | 2026-08 (15 runs) | **Foundations, August** — course-level | https://claude.ai/code/artifact/78db82b4-5edc-46e4-a8d4-9215c7998b61 |
+| 2026-09-02 | Foundations (On Deck fixed; last-login hedge) | https://claude.ai/code/artifact/e1d1b737-88c8-4490-ad49-7c2abe84566e |
+| 2026-09-03 | Deep Dive (disable-user private-task gap) | https://claude.ai/code/artifact/c0f57918-6b71-4d38-b833-84173f7ce919 |
