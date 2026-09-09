@@ -1,6 +1,6 @@
 ---
 name: daily-call-review
-description: Daily review of OktoRocket support call transcripts via the oktorocket partner MCP, surfacing customers at risk, technician performance, customer success performance, and patterns management should see. Use for "daily call review", "review yesterday's calls", "how did support do today", "which customers are at risk", "call review for <date>", or any scheduled/routine end-of-day call read. Read-only.
+description: Daily review of OktoRocket support call transcripts via the oktorocket partner MCP, surfacing customers at risk, technician performance, customer success performance, and patterns management should see. Use for "daily call review", "review yesterday's calls", "how did support do today", "which customers are at risk", "call review for a specific date", or any scheduled/routine end-of-day call read. Read-only.
 ---
 
 # Daily call review
