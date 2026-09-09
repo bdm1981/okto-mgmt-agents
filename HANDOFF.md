@@ -6,6 +6,15 @@ opens one link each morning and never touches the tooling.
 
 Time to set up: about 45 minutes. Everything below is read-only against production systems.
 
+**Where things run.** The desktop app has two tabs and they are different products:
+- **Code** tab — this is Claude Code. The `/daily-call-review` skill, the MCP servers in `~/.claude.json`, and the
+  scheduled task all live here. Every `/…` command in this document goes in the **Code** tab's message box.
+- **Chat** tab — has its own slash menu and connectors; it does not see Claude Code skills. If `/daily-call-review`
+  autocompletes in Chat but not in Code, you are looking at a different `/` item — the skill is not installed for Code yet.
+- Shell commands (`git`, `ln`, `claude mcp add`, `python3`) go in a **terminal** — the Terminal panel inside the Code
+  tab, or Terminal.app. Never paste them into a chat box.
+Skills are loaded when a Code session starts: after installing or symlinking, start a **new** session.
+
 ---
 
 ## 0. Before you start — what has to be true
@@ -34,7 +43,13 @@ The symlink makes `/daily-call-review` available from any directory. `git pull` 
 
 ## 2. Connect the data sources (15 min)
 
-**Partner MCP** — add to `~/.claude.json` under `mcpServers` (create the key in the partner API admin first; never commit it anywhere):
+**Partner MCP** — in a terminal (create the key in the partner API admin first; never commit it anywhere):
+
+```bash
+claude mcp add --transport http --scope user oktorocket https://okto-partner-api.oktorocket.io/mcp --header "x-api-key: PASTE_KEY_HERE"
+```
+
+That writes the following into `~/.claude.json` under `mcpServers`; add it by hand if the CLI is unavailable:
 
 ```json
 "oktorocket": {
@@ -46,7 +61,7 @@ The symlink makes `/daily-call-review` available from any directory. `git pull` 
 
 **Zoho Desk** — desktop app → Connectors → Zoho Desk → authorise. Org `841585781`, department `943174000000006907`.
 
-Restart the desktop app, open a session, and verify all three in one go by asking:
+Quit and reopen the desktop app (MCP servers load at startup), open a **Code** session, and verify all three in one go by asking:
 
 > Call oktorocket list_sites, oktorocket list_users for site 634c8538a3be38fc4c8ed28c with pageSize 5, and Zoho Desk searchTickets for org 841585781 limit 1. Just confirm each returns data.
 
