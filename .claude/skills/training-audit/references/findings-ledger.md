@@ -45,3 +45,11 @@ detectable. Written by `scripts/ledger.py`; do not hand-edit rows.
 | 2026-08-24 | `uuid:seed-20260824-foundations` | Aaron | `campaigns.on-deck.card-vs-queue` | incomplete | 41:38 | dc-user/src/js/admin/components/campaigns/CampaignHistory.js:42 |
 | 2026-08-24 | `uuid:seed-20260824-foundations` | Aaron | `calls.role-access.by-extension` | correct | 48:55 | dc-user/src/js/admin/components/calls/CallModalTabs/CallModalTabs.tsx:168 |
 | 2026-08-24 | `uuid:seed-20260824-foundations` | Aaron | `marketing.only-platform-with-call-campaigns` | unverifiable | 42:41 | — |
+| 2026-08-27 | `uuid:wj2mARB6RtWx2Ij1/K/xIw==` | Aaron | `admin.stale-tasks.unread-are-safe` | wrong_high | 74:29 | dc-server/modules/cleanup.js:657-686, dc-server/models/tracker.js:37 |
+| 2026-08-27 | `uuid:wj2mARB6RtWx2Ij1/K/xIw==` | Aaron | `admin.invite-expiry.one-hour` | wrong_high | 14:31 | dc-server/modules/cognitoService.js:303,349,418-455 |
+| 2026-08-27 | `uuid:wj2mARB6RtWx2Ij1/K/xIw==` | Aaron | `admin.directly-assigned.admins-can-see` | wrong_contained | 30:00 | dc-server/modules/taskVisibility.ts:24-29, dc-server/modules/taskVisibility.ts:61-97, dc-server/routes/messages.js:786-787 |
+| 2026-08-27 | `uuid:wj2mARB6RtWx2Ij1/K/xIw==` | Aaron | `admin.disable-user.tasks-marked-unread` | incomplete | 12:28 | dc-server/routes/users.js:460-490, dc-server/models/tracker.js:37,106 |
+| 2026-08-27 | `uuid:wj2mARB6RtWx2Ij1/K/xIw==` | Aaron | `scheduler.after-hours.resources-are-uploads` | correct | 54:06 | dc-user/src/js/admin/components/sites/booking/BookingSpecs.tsx:336-437 |
+| 2026-08-27 | `uuid:wj2mARB6RtWx2Ij1/K/xIw==` | Aaron | `admin.holiday-types.three` | correct | 43:09 | dc-server/models/holiday.ts:28,44-53 |
+| 2026-08-27 | `uuid:wj2mARB6RtWx2Ij1/K/xIw==` | Aaron | `admin.holidays.block-booking` | correct | 43:36 | dc-server/modules/appointment-availability/appointment-availability.service.ts:1275-1314 |
+| 2026-08-27 | `uuid:wj2mARB6RtWx2Ij1/K/xIw==` | Aaron | `billing.calls-unlimited` | unverifiable | 69:35 | — |

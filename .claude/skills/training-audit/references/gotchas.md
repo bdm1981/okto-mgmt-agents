@@ -16,6 +16,15 @@ to it when you hit a new one.
 - **No VTT means no audit.** Transcription must have been enabled *at meeting time*.
   Retro-enabling does not backfill. Skip and note it.
 
+## Attribution
+
+- **The Zoom host is a shared account, so the host name is NOT the trainer.** Every session runs
+  through `training@oktorocket.com`, which Zoom reports as "OktoRocket Training";
+  `aaron@oktorocket.com` has no recordings of his own. Identify the trainer from the transcript
+  ("My name is Aaron", usually in the first two minutes) and put *that* in the ledger.
+  Attributing a session to the host name splits one person across two identities and manufactures
+  a false curriculum defect the first time a claim repeats.
+
 ## Code baseline
 
 - **Never grade against the working tree.** Always `git grep <pat> $OKTO_SHA -- <path>`.
