@@ -1,0 +1,7 @@
+# run outputs live in the session scratchpad, never here
+notes.jsonl
+narrative.json
+map.json
+daily.html
+*.pdf
+.DS_Store

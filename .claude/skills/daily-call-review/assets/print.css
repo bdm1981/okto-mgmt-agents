@@ -1,0 +1,11 @@
+@page { size: Letter; margin: 14mm 12mm; }
+html { color-scheme: light; }
+body { background:#fff !important; font-size:12.5px; }
+.wrap { max-width:none; padding:0; }
+.tile .v { font-size:24px; }
+.chartrow { grid-template-columns: 1fr; }
+.techs { grid-template-columns: 1fr 1fr; gap:12px; }
+.tech, .owner, .panel, .pattern, .note { break-inside: avoid; page-break-inside: avoid; }
+h2 { break-after: avoid; page-break-after: avoid; margin-top:28px; }
+a.id { text-decoration: none; color: inherit; }
+.track span { transition: none; }
