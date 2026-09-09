@@ -33,3 +33,12 @@ speakers and had 3 people present for the full 67 minutes.
 | 2026-08-26 | `uuid:KhqtymUkTieJKHLqJ2pmYA==` | Foundations | 68 | 3 | 2 | unidentified |
 | 2026-09-03 | `uuid:yLMACd4kQIiCsc4B4HbohA==` | Deep Dive | 103 | 2 | 2 | unidentified |
 | 2026-08-27 | `uuid:wj2mARB6RtWx2Ij1/K/xIw==` | Deep Dive | 81 | 2 | 2 | Aaron |
+| 2026-08-04 | `uuid:5DLC6CWcRySruihidAnu/Q==` | Deep Dive | 104 | 1 | 1 | unidentified |
+| 2026-08-11 | `uuid:3+wKfi9hQLSzEcnEEmhqnw==` | Deep Dive | 92 | 1 | 1 | unidentified |
+| 2026-08-11 | `uuid:b2Vg6XwHQRSZVSdA1tejCw==` | Deep Dive | 81 | 2 | 1 | unidentified |
+| 2026-08-13 | `uuid:uCywCuRBQTytICm4SXPM4Q==` | Deep Dive | 95 | 2 | 1 | TeDarrell |
+| 2026-08-18 | `uuid:aRMS5aVyT8CR+bca1lsodQ==` | Deep Dive | 92 | 1 | 1 | unidentified |
+| 2026-08-18 | `uuid:soPPPxPbQM27OrTnms/e7Q==` | Deep Dive | 77 | 2 | 1 | Taderio |
+| 2026-08-18 | `uuid:7ijjvF/RRY2Bxmp82YBiZg==` | Deep Dive | 60 | 1 | 1 | unidentified |
+| 2026-08-18 | `uuid:td91y+XvRjKDUHHW6X/NjQ==` | Deep Dive | 56 | 1 | 1 | TeDarrell |
+| 2026-08-20 | `uuid:KNq5QbshQX2wxaWGkNWnwQ==` | Deep Dive | 74 | 2 | 1 | unidentified |

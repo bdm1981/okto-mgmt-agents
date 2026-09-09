@@ -188,6 +188,13 @@ against the working tree.
     └── gotchas.md                data traps
 ```
 
+## Handoff
+
+Setting this up on another machine: **[HANDOFF-training-audit.md](HANDOFF-training-audit.md)**.
+Read its two Blockers first — artifact ownership (a different Claude account silently forks the
+dashboard instead of updating it) and credential placement (`~/.zshrc` is invisible to scheduled
+runs).
+
 ## Scheduling
 
 | skill | when | how |

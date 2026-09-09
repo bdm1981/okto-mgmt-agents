@@ -94,3 +94,9 @@ discovery would keep offering the same four sessions back as unaudited.
 | 2026-08-19 | `uuid:AqXc21WgRqqpPCinTZZ63g==` | unidentified | `inbox.mark-new.removes-ownership` | correct | ~28:30 | dc-user/src/js/user/components/inbox/ActionMenu/TransferModal.tsx:119, dc-user/src/js/user/components/inbox/ActionMenu/ActionMenu.tsx:449 |
 | 2026-08-24 | `uuid:cLKwX8jvQQiPFgYxjRhUFA==` | Aaron | `inbox.mark-new.removes-ownership` | correct | ~28:30 | dc-user/src/js/user/components/inbox/ActionMenu/TransferModal.tsx:119, dc-user/src/js/user/components/inbox/ActionMenu/ActionMenu.tsx:449 |
 | 2026-08-26 | `uuid:KhqtymUkTieJKHLqJ2pmYA==` | unidentified | `inbox.mark-new.removes-ownership` | correct | ~28:30 | dc-user/src/js/user/components/inbox/ActionMenu/TransferModal.tsx:119, dc-user/src/js/user/components/inbox/ActionMenu/ActionMenu.tsx:449 |
+| 2026-08-04 | `uuid:5DLC6CWcRySruihidAnu/Q==` | Aaron | `admin.invite-expiry.one-hour` | correct | 09:00ish | dc-server/modules/cognitoService.js:418-455 |
+| 2026-08-11 | `uuid:3+wKfi9hQLSzEcnEEmhqnw==` | Aaron | `admin.invite-expiry.one-hour` | correct | 09:00ish | dc-server/modules/cognitoService.js:418-455 |
+| 2026-08-20 | `uuid:KNq5QbshQX2wxaWGkNWnwQ==` | Aaron | `admin.invite-expiry.one-hour` | correct | 09:00ish | dc-server/modules/cognitoService.js:418-455 |
+| 2026-08-18 | `uuid:aRMS5aVyT8CR+bca1lsodQ==` | Aaron | `admin.invite-expiry.one-hour` | wrong_high | 09:14 | dc-server/modules/cognitoService.js:418-455 |
+| 2026-08-04 | `uuid:5DLC6CWcRySruihidAnu/Q==` | Aaron | `admin.stale-tasks.closes-everything-older` | incomplete | 101:18 | dc-server/modules/cleanup.js:663-672 |
+| 2026-08-11 | `uuid:3+wKfi9hQLSzEcnEEmhqnw==` | Aaron | `admin.stale-tasks.closes-everything-older` | incomplete | 84:29 | dc-server/modules/cleanup.js:663-672 |
