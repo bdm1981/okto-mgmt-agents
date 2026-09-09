@@ -7,10 +7,15 @@ sessions are hosted by the training account, so an audit run driven by anyone
 else's identity sees nothing. An account-level admin recording scope is the only
 path that can enumerate another host's recordings unattended.
 
-Credentials (env, never committed):
+Credentials — from the process environment, or from a credentials file
+(`$OKTO_ZOOM_ENV`, default `~/.config/okto/zoom.env`, mode 600):
     ZOOM_ACCOUNT_ID
     ZOOM_CLIENT_ID
     ZOOM_CLIENT_SECRET
+
+Do NOT put these in `~/.zshrc`: that file is sourced only by interactive zsh, so
+a scheduled (non-interactive) run would not see them and would fail silently
+every week.
 
 Required app scopes (granular — Zoom retired the coarse `recording:read:admin`):
     cloud_recording:read:list_user_recordings:admin   list a host's recordings + download the VTT
@@ -38,17 +43,56 @@ class ZoomError(RuntimeError):
     pass
 
 
+KEYS = ("ZOOM_ACCOUNT_ID", "ZOOM_CLIENT_ID", "ZOOM_CLIENT_SECRET")
+
+# Default location for the credentials file. Deliberately NOT the shell profile:
+# `~/.zshrc` is sourced only by INTERACTIVE zsh, so credentials exported there are
+# invisible to every non-interactive shell — which is what a scheduled run uses.
+# That failure mode is silent and weekly, so the job loads its own file instead.
+CRED_FILE = os.environ.get("OKTO_ZOOM_ENV") or os.path.expanduser(
+    "~/.config/okto/zoom.env"
+)
+
+
+def _load_cred_file(path: str = "") -> int:
+    """Read KEY=value lines from the credentials file into os.environ.
+
+    Process env always wins, so an explicit export still overrides the file.
+    Missing file is not an error — env alone is a valid setup.
+    """
+    path = path or CRED_FILE
+    if not os.path.isfile(path):
+        return 0
+    loaded = 0
+    with open(path, encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if line.startswith("export "):
+                line = line[len("export ") :]
+            if "=" not in line:
+                continue
+            k, v = line.split("=", 1)
+            k = k.strip()
+            v = v.strip().strip('"').strip("'")
+            if k in KEYS and not os.environ.get(k):
+                os.environ[k] = v
+                loaded += 1
+    return loaded
+
+
 def _require_env():
-    missing = [
-        k
-        for k in ("ZOOM_ACCOUNT_ID", "ZOOM_CLIENT_ID", "ZOOM_CLIENT_SECRET")
-        if not os.environ.get(k)
-    ]
+    _load_cred_file()
+    missing = [k for k in KEYS if not os.environ.get(k)]
     if missing:
         raise ZoomError(
-            "missing env: "
+            "missing credentials: "
             + ", ".join(missing)
-            + "\nSee references/sources.md for how to create the S2S app."
+            + f"\nLooked in the process environment and {CRED_FILE}."
+            + "\nNote: exports in ~/.zshrc are invisible to non-interactive shells"
+            + " (scheduled runs included) — use the credentials file."
+            + "\nSee references/sources.md."
         )
 
 

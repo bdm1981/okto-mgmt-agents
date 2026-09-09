@@ -10,23 +10,38 @@ account would pull in standups and 1:1s, which is both wasteful and a privacy pr
 
 | host | who | notes |
 |---|---|---|
-| training@oktorocket.com | OktoRocket Training | the shared training account — CRM, Foundations, Deep Dive, Shop Analytics |
+| training@oktorocket.com | OktoRocket Training | the shared training account. Verified: 18 recordings 20–31 Aug 2026, all of them trainings |
 
-> Replace with the real address(es). `scripts/zoom_client.py` run directly prints every
-> active user with their id and email, which is the easy way to fill this in.
+Verified that `aaron@oktorocket.com` hosts **zero** recordings of his own — every session runs
+through the shared account, so this one host is sufficient. `scripts/zoom_client.py` run directly
+prints every active user with id and email, which is how to add another.
 
-## Topic patterns
+## Topic excludes
 
-Case-insensitive regexes matched against the meeting topic. A recording must match
-at least one.
+Regexes matched against the meeting topic. A recording from an allowlisted host is audited
+**unless** it matches one of these.
 
-| pattern | matches |
+| pattern | why excluded |
 |---|---|
-| `training` | "CRM Training", "Foundations Training" |
-| `foundations` | Foundations sessions with a bare topic |
-| `deep ?dive` | admin Deep Dive |
-| `shop analytics` | Shop Analytics webinars |
-| `onboarding` | onboarding walkthroughs |
+| `standup` | internal, not a customer training |
+| `retro` | internal |
+| `interview` | hiring |
+| `internal` | anything explicitly marked internal |
+
+Patterns must not contain a `|` — the table parser splits on it, and an escaped `\|` leaves a
+trailing backslash that fails to compile. Use one row per alternative. An unparseable pattern is
+warned about and ignored rather than aborting the run.
+
+This started life as an *include* list — a required topic match — and that was wrong. Two of the
+four seed sessions ("OktoRocket CRM - Campaigns & Schedules 4:30 pm cst" and "Mastering Sales
+Analytics") matched none of the obvious patterns and would have been silently dropped, including
+the session with the most severe findings. Topics are hand-typed and drift: the same window
+contains "Founations" twice.
+
+On a dedicated training account an include list can only ever *lose* sessions, and it fails
+silently. Excluding is the safer default for an audit tool — err toward auditing something
+irrelevant over missing something real. `discover_sessions.py` prints every exclusion by topic so
+a bad rule is visible rather than quiet.
 
 ## Thresholds
 

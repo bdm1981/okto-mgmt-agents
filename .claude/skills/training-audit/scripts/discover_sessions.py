@@ -46,10 +46,26 @@ def _table_rows(md: str, heading: str) -> list[list[str]]:
     return rows
 
 
+def _compile_all(patterns: list[str]) -> list:
+    """Compile exclude patterns, warning on and dropping any that don't parse.
+
+    A malformed rule in a config file must not abort the whole audit — but it
+    must also not pass silently, because a dropped exclude changes what gets
+    audited.
+    """
+    out = []
+    for pat in patterns:
+        try:
+            out.append(re.compile(pat, re.I))
+        except re.error as e:
+            print(f"warn: ignoring unparseable exclude /{pat}/: {e}", file=sys.stderr)
+    return out
+
+
 def load_sources() -> dict:
     md = (REF / "sources.md").read_text(encoding="utf-8")
     hosts = [r[0] for r in _table_rows(md, "## Hosts") if r and r[0]]
-    patterns = [r[0] for r in _table_rows(md, "## Topic patterns") if r and r[0]]
+    excludes = [r[0] for r in _table_rows(md, "## Topic excludes") if r and r[0]]
     m = re.search(r"min_duration_minutes:\s*(\d+)", md)
     min_dur = int(m.group(1)) if m else 20
     m = re.search(r"slack_channel:\s*(\S+)", md)
@@ -58,7 +74,7 @@ def load_sources() -> dict:
         sys.exit("sources.md lists no hosts under '## Hosts' — nothing can be discovered.")
     return {
         "hosts": hosts,
-        "patterns": [re.compile(p, re.I) for p in patterns] or [re.compile(r".")],
+        "excludes": _compile_all(excludes),
         "min_duration": min_dur,
         "slack_channel": channel,
     }
@@ -103,7 +119,7 @@ def main():
     except zc.ZoomError as e:
         sys.exit(f"Zoom auth/scope problem: {e}")
 
-    out, skipped = [], {"already_audited": 0, "no_transcript": 0, "too_short": 0, "topic": 0}
+    out, skipped = [], {"already_audited": 0, "no_transcript": 0, "too_short": 0, "excluded_topic": 0}
     for host in src["hosts"]:
         for a, b in month_chunks(args.frm, args.to):
             try:
@@ -118,12 +134,22 @@ def main():
                 if uuid in seen:
                     skipped["already_audited"] += 1
                     continue
-                if not any(p.search(topic) for p in src["patterns"]):
-                    skipped["topic"] += 1
+                hit = next((p for p in src["excludes"] if p.search(topic)), None)
+                if hit:
+                    # Loud, not silent: a bad exclude rule that eats real sessions
+                    # is the worst failure this script can have.
+                    skipped["excluded_topic"] += 1
+                    print(
+                        f"excluded by /{hit.pattern}/: {topic!r} "
+                        f"({m.get('start_time','?')[:16]})",
+                        file=sys.stderr,
+                    )
                     continue
                 if int(m.get("duration") or 0) < src["min_duration"]:
                     skipped["too_short"] += 1
                     continue
+                # Zoom keeps 0-minute shells for false starts; they carry no VTT
+                # and are filtered above by duration, but say so if one slips through.
                 vtt = zc.transcript_url(m)
                 if not vtt:
                     skipped["no_transcript"] += 1
