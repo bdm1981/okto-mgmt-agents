@@ -69,10 +69,36 @@ recordings, all hosted by that same account, and none of the four training sessi
 
 Create one Server-to-Server OAuth app (Zoom Marketplace → Develop → Build App → S2S OAuth):
 
-| scope | why |
-|---|---|
-| `cloud_recording:read:list_user_recordings:admin` | list a host's cloud recordings, and download the VTT via the `download_url` it returns |
-| `user:read:list_users:admin` | resolve `host_id` to a name, so reports say "Aaron" not an opaque id |
+| scope | why | held? |
+|---|---|---|
+| `cloud_recording:read:list_user_recordings:admin` | list a host's cloud recordings, and download the VTT via the `download_url` it returns | ✅ |
+| `user:read:list_users:admin` | resolve `host_id` to a name, so reports say "Aaron" not an opaque id | ✅ |
+| a meeting-participants scope | **exact attendee counts** — see below | ❌ |
+
+### Attendee counts need one more scope
+
+The dashboard's Sessions table has a `spoke` column: distinct non-trainer speakers in the
+transcript. It is a **floor**, not attendance — anyone who never unmutes is invisible. For the
+August Foundations runs it reads 0–2, and two full-length sessions show 0 speakers, so for
+one-to-one training it is close to useless as a proxy.
+
+Exact counts come from a Zoom participants endpoint. All three are currently refused with
+`code 4711 — Invalid access token, does not contain scopes`, which confirms the endpoints and the
+UUID encoding are fine and only the grant is missing:
+
+```
+GET /past_meetings/{doubly-encoded-uuid}/participants
+GET /report/meetings/{doubly-encoded-uuid}/participants
+GET /metrics/meetings/{doubly-encoded-uuid}/participants
+```
+
+Add whichever the scope picker offers under **Meeting** or **Report** — search for
+`participants`. Prefer the narrowest that returns a list of past-meeting participants. UUIDs
+containing `/` or `==` must be **double URL-encoded**; `zoom_client` does not do this for you on
+these paths.
+
+Until then the column stays labelled `spoke` and the dashboard says why. Do not relabel it
+"attendees" — the number would be wrong and the error is invisible to a reader.
 
 Zoom has replaced the old coarse scopes (`recording:read:admin`, `user:read:admin`) with granular
 ones; searching the picker for the old names returns unrelated results. Search for

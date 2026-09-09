@@ -11,6 +11,7 @@ The dashboard answers three questions the per-session reports cannot:
 
 import argparse
 import json
+import re
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -18,6 +19,29 @@ import ledger as L
 import render as R
 
 REF = Path(__file__).resolve().parent.parent / "references"
+
+
+def session_index() -> dict:
+    """uuid -> {course, minutes, spoke, trainer} from references/sessions-index.md.
+
+    Missing entries are normal (a session audited before the index existed), so
+    the Sessions table renders an em dash rather than dropping the row.
+    """
+    p = REF / "sessions-index.md"
+    if not p.exists():
+        return {}
+    out = {}
+    for line in p.read_text(encoding="utf-8").splitlines():
+        t = line.strip()
+        if not t.startswith("| 2026"):
+            continue
+        c = [x.strip() for x in t.strip("|").split("|")]
+        if len(c) < 6:
+            continue
+        out[re.sub(r"^`uuid:|`$", "", c[1])] = {
+            "course": c[2], "minutes": c[3], "spoke": c[4], "trainer": c[5],
+        }
+    return out
 
 BAD = ("wrong_high", "wrong_contained", "incomplete")
 
@@ -168,13 +192,24 @@ def main():
         if rows_md:
             out.append(R.table(["What", "Where", "Effect", "Status"], [r[:4] for r in rows_md]))
 
+    idx = session_index()
     out.append("<h2>Sessions</h2>")
     out.append(
+        '<p class="sec-note"><strong>Spoke</strong> counts distinct non-trainer speakers in the '
+        "transcript. It is a <em>floor</em> on attendance, not attendance: anyone who never "
+        "unmutes is invisible to it, and most one-to-one runs show 0 or 1. Exact counts need a "
+        "Zoom participants scope the audit app does not hold — see "
+        '<span class="mono">references/sources.md</span>.</p>'
+    )
+    out.append(
         R.table(
-            ["Date", "Trainer", "Claims", "Not correct", "Report"],
+            ["Date", "Course", "Min", "Spoke", "Trainer", "Claims", "Not correct", "Report"],
             [
                 [
                     v["date"],
+                    idx.get(u, {}).get("course", "—"),
+                    idx.get(u, {}).get("minutes", "—"),
+                    idx.get(u, {}).get("spoke", "—"),
                     v["trainer"],
                     v["n"],
                     v["bad"],
@@ -184,6 +219,13 @@ def main():
             ],
         )
     )
+    total_min = sum(int(m) for m in (idx.get(u, {}).get("minutes") for u in sessions)
+                    if str(m).isdigit())
+    if total_min:
+        out.append(
+            f'<p class="sec-note">{len(sessions)} sessions · '
+            f"{total_min:,} minutes of training audited ({total_min/60:.1f} hours).</p>"
+        )
 
     out.append("<h2>By trainer</h2>")
     out.append(
