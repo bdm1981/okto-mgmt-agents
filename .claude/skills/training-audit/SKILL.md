@@ -34,7 +34,9 @@ Every subsequent grep runs against that ref (`git grep <pat> <commit> -- <path>`
 scripts/discover_sessions.py --from 2026-09-01 --to 2026-09-08 > sessions.json
 ```
 
-Reads `references/sources.md` for the host allowlist and topic patterns, calls Zoom, and drops anything whose meeting UUID already appears in `references/findings-ledger.md`. **Never re-audit a session** — the ledger is the record and duplicates corrupt repeat detection.
+Reads `references/sources.md` for the host allowlist and topic **excludes**, calls Zoom, and drops anything whose meeting UUID already appears in `references/findings-ledger.md`. **Never re-audit a session** — the ledger is the record and duplicates corrupt repeat detection.
+
+Everything from an allowlisted host is audited *unless* it matches an exclude. That direction is deliberate: an include list silently loses sessions whose topic was typed differently, and it already would have dropped two of the four seed sessions. Err toward auditing something irrelevant over missing something real.
 
 If it returns zero sessions, post nothing and stop. A quiet week is a quiet week.
 
