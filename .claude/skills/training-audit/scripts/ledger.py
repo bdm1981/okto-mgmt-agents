@@ -23,6 +23,24 @@ LEDGER = REF / "findings-ledger.md"
 
 GRADES = ("wrong_high", "wrong_contained", "incomplete", "correct", "unverifiable")
 
+# Zoom mis-transcribes spoken names, and a trainer spelled two ways splits one
+# person into two and manufactures a cross-trainer "curriculum defect" that does
+# not exist. Canonical spellings and every variant seen live in
+# references/trainers.md; this mirrors its alias table.
+TRAINER_ALIASES = {
+    "tadario": "Tedario",
+    "tedarios": "Tedario",
+    "tadirio": "Tedario",
+    "tedario": "Tedario",
+    "crm trainer": "Tedario",
+    "aaron": "Aaron",
+    "aaron viratos": "Aaron",
+}
+
+
+def canonical_trainer(name: str) -> str:
+    return TRAINER_ALIASES.get((name or "").strip().lower(), (name or "?").strip())
+
 HEADER = """# Findings ledger
 
 Append-only. One row per graded claim, oldest first. `claim_id` is the join key:
@@ -59,6 +77,18 @@ def load() -> list[dict]:
     return rows
 
 
+# "unidentified" is the honest value when a transcript never states the trainer's
+# name (5 of 15 August Foundations runs). It must NOT count as a distinct person:
+# treating it as one turns "Aaron said this twice" into a cross-trainer
+# curriculum defect, which is the exact false positive references/trainers.md
+# exists to prevent.
+UNKNOWN_TRAINER = "unidentified"
+
+
+def named(trainers) -> set:
+    return {t for t in trainers if t and t.lower() != UNKNOWN_TRAINER}
+
+
 def repeats(rows: list[dict]) -> dict:
     by_claim = defaultdict(list)
     for r in rows:
@@ -73,7 +103,9 @@ def repeats(rows: list[dict]) -> dict:
                 "count": len(rs),
                 "sessions": sorted(sessions),
                 "trainers": sorted(trainers),
-                "curriculum_defect": len(trainers) > 1,
+                # Two *named* trainers means the curriculum is at fault. An
+                # unidentified run cannot establish that on its own.
+                "curriculum_defect": len(named(trainers)) > 1,
                 "worst": min(rs, key=lambda r: GRADES.index(r["grade"]) if r["grade"] in GRADES else 9)["grade"],
             }
     return out
@@ -101,8 +133,8 @@ def contradictions(rows: list[dict]) -> dict:
         # disagreement — resolutions() owns that case. Only treat it as a
         # contradiction when the wrong and right versions come from DIFFERENT
         # trainers, which is what makes it a curriculum problem.
-        wrong_t = {r["trainer"] for r in wrong}
-        right_t = {r["trainer"] for r in right}
+        wrong_t = named({r["trainer"] for r in wrong})
+        right_t = named({r["trainer"] for r in right})
         cross_trainer = bool(wrong_t - right_t) and bool(right_t - wrong_t)
         if wrong and right and cross_trainer:
             out[cid] = {
@@ -175,7 +207,7 @@ def append(findings: list[dict], dry: bool) -> dict:
             "| {date} | `uuid:{uuid}` | {trainer} | `{cid}` | {grade} | {stamp} | {ev} |".format(
                 date=f.get("date", ""),
                 uuid=f["session"],
-                trainer=f.get("trainer", "?"),
+                trainer=canonical_trainer(f.get("trainer", "?")),
                 cid=f["claim_id"],
                 grade=f["grade"],
                 stamp=f.get("stamp", ""),
@@ -193,7 +225,7 @@ def append(findings: list[dict], dry: bool) -> dict:
         {
             "date": f.get("date", ""),
             "uuid": f["session"],
-            "trainer": f.get("trainer", "?"),
+            "trainer": canonical_trainer(f.get("trainer", "?")),
             "claim_id": f["claim_id"],
             "grade": f["grade"],
             "stamp": f.get("stamp", ""),
