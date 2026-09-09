@@ -28,11 +28,15 @@ GRADES = ("wrong_high", "wrong_contained", "incomplete", "correct", "unverifiabl
 # not exist. Canonical spellings and every variant seen live in
 # references/trainers.md; this mirrors its alias table.
 TRAINER_ALIASES = {
-    "tadario": "Tedario",
-    "tedarios": "Tedario",
-    "tadirio": "Tedario",
-    "tedario": "Tedario",
-    "crm trainer": "Tedario",
+    # Zoom rendered this one name four ways and got none of them right; the
+    # canonical spelling came from a human, not from the plurality
+    # transcription. See references/trainers.md.
+    "tedarrell": "TeDarrell",
+    "tedario": "TeDarrell",
+    "tadario": "TeDarrell",
+    "tedarios": "TeDarrell",
+    "tadirio": "TeDarrell",
+    "crm trainer": "TeDarrell",
     "aaron": "Aaron",
     "aaron viratos": "Aaron",
 }

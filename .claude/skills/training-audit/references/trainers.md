@@ -9,7 +9,7 @@ exist. This file is the canonical spelling.
 | canonical | Zoom account | notes |
 |---|---|---|
 | Aaron | aaron@oktorocket.com | Aaron Viratos. Runs Foundations, Deep Dive, Shop Analytics |
-| Tedario | — | Runs Foundations and CRM. No individual Zoom account seen; hosts via the shared training account |
+| TeDarrell | — | Runs Foundations and CRM. No individual Zoom account seen; hosts via the shared training account |
 
 ## Aliases
 
@@ -17,14 +17,21 @@ Zoom's transcription mangles spoken names. Every variant seen so far, all one pe
 
 | variant | canonical |
 |---|---|
-| Tedario | Tedario |
-| Tadario | Tedario |
-| Tedarios | Tedario |
-| Tadirio | Tedario |
-| CRM trainer | Tedario |
+| TeDarrell | TeDarrell |
+| Tedario | TeDarrell |
+| Tadario | TeDarrell |
+| Tedarios | TeDarrell |
+| Tadirio | TeDarrell |
+| CRM trainer | TeDarrell |
 
-Four spellings of one name appeared across four August Foundations runs. Normalise before
-writing a ledger row.
+Four spellings appeared across four August Foundations runs, and **none of them was correct** —
+the real name is TeDarrell, confirmed by a human. The audit originally canonicalised on
+"Tedario" simply because it was the most frequent transcription, which was wrong.
+
+**The canonical spelling must come from a person or a Zoom account, never from a transcript.**
+Zoom's speech-to-text is the source of the variants; it cannot also be the arbiter of which one
+is right. When a new name appears, add the variant and ask someone rather than picking the
+plurality spelling.
 
 ## Identifying the trainer
 
