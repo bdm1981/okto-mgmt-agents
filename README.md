@@ -1,8 +1,11 @@
 # okto-mgmt-agents
 
 Claude Code skills that turn OktoRocket's operational data into management reviews.
-Today there is one: **`daily-call-review`**, which reads every Support call transcript from a day,
-joins it to Zoho Desk, and republishes a fixed dashboard page the support manager opens each morning.
+
+| skill | reads | produces |
+|---|---|---|
+| **`daily-call-review`** | every Support call transcript for a day, joined to Zoho Desk | **Support Desk Daily** — one fixed dashboard page, republished each morning |
+| **`training-audit`** | recorded customer training sessions from Zoom, graded against product source | a per-session report, the rolling **Training QA** dashboard, and a Slack summary |
 
 ## What `daily-call-review` produces
 
@@ -102,7 +105,107 @@ The skill walks these steps (all in `SKILL.md`):
     └── gotchas.md                data traps
 ```
 
+## `training-audit`
+
+Grades what a trainer **told a customer** against what the code **actually does**, then records it
+so the same mistake is detectable when a different trainer makes it.
+
+Three things come out of a run:
+
+- **A per-session report** — every checkable claim graded `wrong_high` / `wrong_contained` /
+  `incomplete` / `correct` / `unverifiable`, each with a `path:line` citation on a pinned commit,
+  the trainer's own words quoted, and a "say instead" line.
+- **The rolling Training QA dashboard** — the part a schedule buys you:
+  - **repeats** — the same misconception in more than one session. More than one trainer means a
+    curriculum defect, not a coaching note.
+  - **contradictions** — taught *wrong* in one session and *correctly* in another. Nobody is
+    consistently wrong so it never shows as a repeat, yet the curriculum is inconsistent and the
+    fix is free, because a correct script already exists in a recording.
+  - **open product bugs** found while auditing, several of which are the product contradicting
+    itself in its own labels.
+- **A Slack summary** to the limited channel in `references/sources.md`.
+
+### Requirements
+
+**Zoom Server-to-Server OAuth** — the Zoom *connector* cannot do this job. It is per-user OAuth and
+only returns the authenticated user's own recordings, so a run driven by anyone but the training
+account sees nothing. Verified against 20–31 Aug 2026: 10 recordings returned, all one host, none of
+them training. Create an S2S app with `cloud_recording:read:list_user_recordings:admin` + `user:read:list_users:admin` (the granular scopes — Zoom retired the coarse `recording:read:admin`) and export
+`ZOOM_ACCOUNT_ID`, `ZOOM_CLIENT_ID`, `ZOOM_CLIENT_SECRET`. Full steps in
+`references/sources.md`; verify with `scripts/zoom_client.py`.
+
+Also needs a clone of `oktorocket` (default `~/Documents/DEV/oktorocket`, override with
+`OKTO_REPO`) — claims are graded against `origin/development` at a commit pinned per run, never
+against the working tree.
+
+### Run
+
+```
+/training-audit                       # the last 7 days
+/training-audit 2026-09-07            # one day
+/training-audit last two weeks
+```
+
+### Maintain
+
+- **`references/grading.md`** — the taxonomy and the **fairness rules**. Read before grading:
+  separate transcription noise from error, credit self-corrections, and credit a trainer who
+  contradicts wrong in-app copy. Breaking these produces findings that are technically right and
+  unfair, which is worse than reporting nothing.
+- **`references/findings-ledger.md`** — append-only, one row per graded claim. `claim_id` is the
+  join key for repeat and contradiction detection. Written by `scripts/ledger.py`; never hand-edit
+  rows, never re-audit a session, never rename an id.
+- **`references/sources.md`** — Zoom host allowlist, topic patterns, minimum duration, Slack channel.
+- **`references/product-bugs.md`** — bugs found while auditing. A bug that keeps appearing across
+  sessions is evidence for prioritising it.
+- **`references/gotchas.md`** — every trap that has produced a wrong or unfair finding.
+
+### Layout
+
+```
+.claude/skills/training-audit/
+├── SKILL.md                      procedure, grading contract, guardrails
+├── scripts/
+│   ├── zoom_client.py            S2S OAuth; list recordings, download VTT (stdlib only)
+│   ├── discover_sessions.py      new training sessions in a window, minus anything already audited
+│   ├── fetch_transcript.py       download one session's VTT
+│   ├── compact_vtt.py            2,000 cues -> ~500 readable "[mm:ss] Speaker: text" lines
+│   ├── pin_baseline.sh           fetch + pin origin/development for the run
+│   ├── ledger.py                 append findings; detect repeats and contradictions
+│   ├── render.py                 shared HTML helpers (numbers computed, words authored)
+│   ├── build_report.py           per-session report
+│   ├── build_dashboard.py        rolling Training QA dashboard
+│   └── export_pdf.sh             Letter PDF, findings never split across pages
+├── assets/
+│   ├── report.css                page design, both themes
+│   └── print.css                 print overrides
+└── references/
+    ├── sources.md                hosts, topic patterns, Zoom S2S setup, Slack channel
+    ├── grading.md                taxonomy + fairness rules + claim_id conventions
+    ├── findings-ledger.md        append-only graded claims
+    ├── product-bugs.md           open bugs found while auditing
+    ├── dashboard.md              fixed artifact URLs
+    └── gotchas.md                data traps
+```
+
+## Handoff
+
+Setting this up on another machine: **[HANDOFF-training-audit.md](HANDOFF-training-audit.md)**.
+Read its two Blockers first — artifact ownership (a different Claude account silently forks the
+dashboard instead of updating it) and credential placement (`~/.zshrc` is invisible to scheduled
+runs).
+
 ## Scheduling
 
-Intended to run each weekday after support closes (7:30 pm Central) from one account, republishing the same URL.
-Not yet scheduled — the skill has to be invoked.
+| skill | when | how |
+|---|---|---|
+| `daily-call-review` | weekdays after support closes (7:30 pm Central) | not yet scheduled — invoke it |
+| `training-audit` | Mondays 09:27 local, covering the previous 7 days | scheduled task `training-audit-weekly` |
+
+Scheduled tasks live in `~/.claude/scheduled-tasks/<id>/SKILL.md` and run while the desktop app is
+open; a task due while it is closed runs on next launch. Both reviews republish to a **fixed**
+artifact URL — publishing without `url:` creates a second page and the team ends up reading a stale
+one.
+
+`training-audit-weekly` checks its Zoom credentials first and posts nothing if they are missing, so
+it is safe to leave scheduled before the S2S app exists.
