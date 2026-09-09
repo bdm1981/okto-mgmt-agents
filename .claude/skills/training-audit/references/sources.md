@@ -73,63 +73,29 @@ Create one Server-to-Server OAuth app (Zoom Marketplace → Develop → Build Ap
 |---|---|---|
 | `cloud_recording:read:list_user_recordings:admin` | list a host's cloud recordings, and download the VTT via the `download_url` it returns | ✅ |
 | `user:read:list_users:admin` | resolve `host_id` to a name, so reports say "Aaron" not an opaque id | ✅ |
-| a meeting-participants scope | **exact attendee counts** — see below | ❌ |
+| `meeting:read:list_past_participants:admin` | **exact attendee counts** — see below | ✅ |
 
-### Attendee counts need one more scope
+### Attendee counts
 
-The dashboard's Sessions table has a `spoke` column: distinct non-trainer speakers in the
-transcript. It is a **floor**, not attendance — anyone who never unmutes is invisible. For the
-August Foundations runs it reads 0–2, and two full-length sessions show 0 speakers, so for
-one-to-one training it is close to useless as a proxy.
+`GET /past_meetings/{uuid}/participants`, via `zoom_client.attendees()`. All August training
+recordings are `type: 8` (recurring meeting) — **zero webinars** — so the webinar variant of this
+scope is deliberately not granted.
 
-Exact counts come from a Zoom participants endpoint. All three are currently refused with
-`code 4711 — Invalid access token, does not contain scopes`, which confirms the endpoints and the
-UUID encoding are fine and only the grant is missing:
+Three traps, all found in live data:
 
-```
-GET /past_meetings/{doubly-encoded-uuid}/participants
-GET /report/meetings/{doubly-encoded-uuid}/participants
-GET /metrics/meetings/{doubly-encoded-uuid}/participants
-```
+1. **One record per JOIN, not per person.** A participant who drops and rejoins appears twice, so
+   `total_records` overcounts — 5 records for 3 people in the session this was built against.
+2. **`user_id` is per-join, not per-person.** The same guest returned as `16793600` and
+   `16794624`. `id` and `user_email` are both empty for external guests, so the only stable key is
+   the display name lowercased and trimmed — which also collapses "Scott"/"scott".
+3. **Waiting-room entries look like attendance.** `status == "in_waiting_room"` records carry a
+   duration (24 s in one case) but the person never got in.
 
-Add whichever the scope picker offers under **Meeting** or **Report** — search for
-`participants`. Prefer the narrowest that returns a list of past-meeting participants. UUIDs
-containing `/` or `==` must be **double URL-encoded**; `zoom_client` does not do this for you on
-these paths.
+**A meeting UUID containing `/` or `==` must be double URL-encoded.** Single-encoded, Zoom answers
+400 and it reads like a malformed request. Before the scope was granted the same call returned
+`400 code 4711 — does not contain scopes`, which also reads like a bad request; if this endpoint
+starts failing, check the scope before the encoding.
 
-Until then the column stays labelled `spoke` and the dashboard says why. Do not relabel it
-"attendees" — the number would be wrong and the error is invisible to a reader.
-
-Zoom has replaced the old coarse scopes (`recording:read:admin`, `user:read:admin`) with granular
-ones; searching the picker for the old names returns unrelated results. Search for
-`list_user_recordings` and `list_users` instead.
-
-Deliberately **not** granted: `cloud_recording:read:list_account_recordings:admin`, which would
-list every recording on the account. Per-host enumeration against the allowlist above means the
-job can only ever read the training accounts' recordings, not anyone's 1:1s. Keep it that way.
-
-There is no separate download scope — the recording read scope authorises fetching the file at
-the `download_url` with the bearer token.
-
-Then export three values in the runner's environment — never commit them:
-
-```bash
-export ZOOM_ACCOUNT_ID=…
-export ZOOM_CLIENT_ID=…
-export ZOOM_CLIENT_SECRET=…
-```
-
-Verify before scheduling anything:
-
-```bash
-scripts/zoom_client.py          # prints "OK — authenticated, N active users visible"
-```
-
-Notes that will save an hour:
-
-- Cloud recording **and** audio transcription must be on for the host, and transcription
-  must have been on *at the time of the meeting*. Retro-enabling does not generate a VTT
-  for past recordings — those sessions are permanently unauditable and get skipped.
-- Recordings age out of the cloud on the account's retention setting. Run at least weekly,
-  or the window closes on sessions you never audited.
-- Zoom caps one recordings query at a month; `discover_sessions.py` chunks wider windows.
+The dashboard keeps a second `spoke` column (distinct non-trainer transcript speakers) because the
+*gap* is informative: 3 attended / 0 spoke is a passive session. `spoke` alone is not a usable
+proxy — 05 Aug 18:00 read 0 speakers and had 3 people present for the full 67 minutes.

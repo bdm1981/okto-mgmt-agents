@@ -23,6 +23,9 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from ledger import canonical_trainer  # noqa: E402  (shared alias map)
+
 REF = Path(__file__).resolve().parent.parent / "references"
 INDEX = REF / "sessions-index.md"
 
@@ -68,9 +71,18 @@ def speakers(path: str) -> tuple[int, list[str]]:
 
 
 def trainer_of(path: str) -> str:
+    """Trainer name from the transcript's own introduction, canonicalised.
+
+    Zoom mis-transcribes spoken names (one trainer came back four ways), so the
+    raw capture goes through the ledger's alias map rather than into a row as-is
+    — otherwise the index and the ledger disagree about who ran a session and
+    the dashboard shows both spellings.
+    """
     txt = Path(path).read_text(encoding="utf-8", errors="replace")[:9000]
     m = re.search(r"my name is ([A-Z][A-Za-z]+)", txt, re.I)
-    return m.group(1) if m else "unidentified"
+    if not m:
+        return "unidentified"
+    return canonical_trainer(m.group(1))
 
 
 def existing() -> set:

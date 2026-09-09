@@ -36,10 +36,10 @@ def session_index() -> dict:
         if not t.startswith("| 2026"):
             continue
         c = [x.strip() for x in t.strip("|").split("|")]
-        if len(c) < 6:
+        if len(c) < 7:
             continue
         out[re.sub(r"^`uuid:|`$", "", c[1])] = {
-            "course": c[2], "minutes": c[3], "spoke": c[4], "trainer": c[5],
+            "course": c[2], "minutes": c[3], "att": c[4], "spoke": c[5], "trainer": c[6],
         }
     return out
 
@@ -195,20 +195,21 @@ def main():
     idx = session_index()
     out.append("<h2>Sessions</h2>")
     out.append(
-        '<p class="sec-note"><strong>Spoke</strong> counts distinct non-trainer speakers in the '
-        "transcript. It is a <em>floor</em> on attendance, not attendance: anyone who never "
-        "unmutes is invisible to it, and most one-to-one runs show 0 or 1. Exact counts need a "
-        "Zoom participants scope the audit app does not hold — see "
-        '<span class="mono">references/sources.md</span>.</p>'
+        '<p class="sec-note"><strong>Att</strong> is real attendance from Zoom — distinct '
+        "non-host names, waiting-room-only joins excluded, per-join duplicates collapsed. "
+        "<strong>Spoke</strong> is distinct non-trainer speakers in the transcript. The gap "
+        "between them is the point: 3 attended / 0 spoke is a passive session, and the "
+        "transcript alone would have reported that as nobody there.</p>"
     )
     out.append(
         R.table(
-            ["Date", "Course", "Min", "Spoke", "Trainer", "Claims", "Not correct", "Report"],
+            ["Date", "Course", "Min", "Att", "Spoke", "Trainer", "Claims", "Not correct", "Report"],
             [
                 [
                     v["date"],
                     idx.get(u, {}).get("course", "—"),
                     idx.get(u, {}).get("minutes", "—"),
+                    idx.get(u, {}).get("att", "—"),
                     idx.get(u, {}).get("spoke", "—"),
                     v["trainer"],
                     v["n"],
@@ -221,10 +222,13 @@ def main():
     )
     total_min = sum(int(m) for m in (idx.get(u, {}).get("minutes") for u in sessions)
                     if str(m).isdigit())
+    total_att = sum(int(a) for a in (idx.get(u, {}).get("att") for u in sessions)
+                    if str(a).isdigit())
     if total_min:
         out.append(
             f'<p class="sec-note">{len(sessions)} sessions · '
-            f"{total_min:,} minutes of training audited ({total_min/60:.1f} hours).</p>"
+            f"{total_min:,} minutes of training audited ({total_min/60:.1f} hours) · "
+            f"{total_att} customer attendances.</p>"
         )
 
     out.append("<h2>By trainer</h2>")

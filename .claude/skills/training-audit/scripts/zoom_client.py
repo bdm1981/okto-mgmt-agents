@@ -211,6 +211,71 @@ def download(url: str, dest: str) -> int:
     return len(data)
 
 
+def past_participants(meeting_uuid: str) -> list[dict]:
+    """Raw participant records for one past meeting.
+
+    NOTE the double URL-encoding. A meeting UUID containing "/" or "==" must be
+    encoded TWICE or Zoom rejects the path — this is the single most common way
+    this endpoint appears broken.
+
+    Needs `meeting:read:list_past_participants:admin`. Without it Zoom answers
+    400 code 4711 ("does not contain scopes"), which reads like a bad request.
+    """
+    enc = urllib.parse.quote(urllib.parse.quote(meeting_uuid, safe=""), safe="")
+    out, tok = [], None
+    while True:
+        page = _get(
+            f"/past_meetings/{enc}/participants",
+            {"page_size": 300, "next_page_token": tok},
+        )
+        out.extend(page.get("participants", []))
+        tok = page.get("next_page_token") or None
+        if not tok:
+            return out
+
+
+def attendees(meeting_uuid: str, host_name: str = "OktoRocket Training") -> dict:
+    """Distinct real attendees, excluding the host and waiting-room-only joins.
+
+    Three traps, all found in live data rather than reasoned about:
+
+    1. **One record per JOIN, not per person.** A participant who drops and
+       rejoins appears twice. `total_records` is therefore an overcount — 5
+       records for 3 people in the session this was built against.
+    2. **`user_id` is per-join, not per-person.** The same "seades" came back
+       as 16793600 and 16794624, so it cannot dedupe. `id` and `user_email` are
+       both empty for external guests. The only stable key is the display
+       name, lowercased and trimmed — which also collapses "Scott"/"scott".
+    3. **Waiting-room entries look like attendance.** `status ==
+       "in_waiting_room"` records carry a duration (24s in one case) but the
+       person never got in.
+
+    Returns counts plus per-attendee seconds, so a drive-by join (8 minutes of
+    a 70-minute session) is distinguishable from someone who sat the whole thing.
+    """
+    recs = past_participants(meeting_uuid)
+    guests = [
+        p for p in recs
+        if (p.get("name") or "").strip().lower() != host_name.strip().lower()
+        and p.get("status") != "in_waiting_room"
+    ]
+    seconds: dict[str, int] = {}
+    display: dict[str, str] = {}
+    for p in guests:
+        key = (p.get("name") or "?").strip().lower()
+        seconds[key] = seconds.get(key, 0) + int(p.get("duration") or 0)
+        display.setdefault(key, (p.get("name") or "?").strip())
+    return {
+        "count": len(seconds),
+        "raw_records": len(recs),
+        "waiting_room_only": sum(1 for p in recs if p.get("status") == "in_waiting_room"),
+        "attendees": [
+            {"name": display[k], "seconds": v}
+            for k, v in sorted(seconds.items(), key=lambda kv: -kv[1])
+        ],
+    }
+
+
 if __name__ == "__main__":
     # Smoke test: prove the credentials work and the scopes are right.
     try:

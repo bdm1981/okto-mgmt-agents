@@ -51,6 +51,18 @@ to it when you hit a new one.
 - **Feature flags look like unreleased features.** Campaign attribution and the DNI report
   ship today and are per-tenant flagged. "Not released yet" is almost always "not enabled".
 
+## Probes and counting
+
+- **Validate a probe regex against a loose word match before treating its absence as a finding.**
+  Scanning 9 Deep Dive runs, tight patterns reported 0/9 for "holidays block booking" and
+  "directly assigned tasks" — both topics actually appear in 9/9 and 6/9. A tight regex reads
+  exactly like a coverage gap and would have produced a confident, wrong finding. Loose-match
+  first, then tighten.
+- **Zoom participant records are per-join, not per-person.** See `references/sources.md`; use
+  `zoom_client.attendees()` rather than `total_records`.
+- **Transcript speaker count is not attendance.** It reads 0 for sessions that had three people
+  present for over an hour. Never label it "attendees".
+
 ## Ledger
 
 - **Never re-audit a session.** Duplicate rows inflate repeat counts and turn a single

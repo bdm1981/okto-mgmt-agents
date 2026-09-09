@@ -44,13 +44,25 @@ def e(s) -> str:
 
 def rich(s) -> str:
     """Escape, then re-allow the small inline vocabulary a reviewer writes:
-    `code`, **bold**, *italic*. Keeps authored prose readable without letting
-    arbitrary HTML through from a transcript quote."""
+    `code`, **bold**, *italic*, [text](url).
+
+    Everything is HTML-escaped first, so a transcript quote can never inject
+    markup. Link hrefs are restricted to http/https after unescaping the `&amp;`
+    that escaping introduced — an unrestricted href here would let a quote carry
+    a `javascript:` URL into a published page.
+    """
     out = e(s)
     out = re.sub(r"`([^`]+)`", r"<code>\1</code>", out)
     out = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", out)
     out = re.sub(r"(?<!\*)\*([^*]+)\*(?!\*)", r"<em>\1</em>", out)
-    return out
+
+    def _link(m):
+        text, href = m.group(1), m.group(2).replace("&amp;", "&")
+        if not re.match(r"https?://", href, re.I):
+            return m.group(0)
+        return f'<a href="{html.escape(href, quote=True)}">{text}</a>'
+
+    return re.sub(r"\[([^\]]+)\]\(([^)\s]+)\)", _link, out)
 
 
 def head(title: str, standalone: bool) -> str:
