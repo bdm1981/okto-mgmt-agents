@@ -47,12 +47,18 @@ a bad rule is visible rather than quiet.
 
 ```
 min_duration_minutes: 20
-slack_channel: #training-qa
+slack_channel: #team-training-audits
+slack_channel_id: C0C1HH5P0RW
 ```
 
 - **min_duration_minutes** — anything shorter is a false start or a no-show, not a session.
-- **slack_channel** — where the run posts its summary. Keep this a **limited channel**:
-  these reports assess named employees. It must not be a customer-facing or all-hands channel.
+  Verified against 20–31 Aug 2026: 7 of 18 recordings on the training account were Zoom's
+  0-minute shells for false starts, plus 7- and 11-minute fragments. All correctly dropped.
+- **slack_channel** — where the run posts its summary. `#team-training-audits` is **private**
+  (created 2026-09-09), which is the right shape: these reports assess named employees and must
+  not reach a customer-facing or all-hands channel. Prefer the **ID** over the name when posting —
+  a rename silently breaks name-based posting, and the failure comes at the very end of a run
+  after all the work is done.
 
 ## Zoom access — Server-to-Server OAuth
 
