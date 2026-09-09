@@ -4,7 +4,7 @@
 Why this exists rather than the Zoom MCP connector: the connector is per-user
 OAuth and only ever returns the *authenticated user's* own recordings. Training
 sessions are hosted by the training account, so an audit run driven by anyone
-else's identity sees nothing. Account-level `recording:read:admin` is the only
+else's identity sees nothing. An account-level admin recording scope is the only
 path that can enumerate another host's recordings unattended.
 
 Credentials (env, never committed):
@@ -12,9 +12,9 @@ Credentials (env, never committed):
     ZOOM_CLIENT_ID
     ZOOM_CLIENT_SECRET
 
-Required app scopes:
-    recording:read:admin        list + download recordings for any host
-    user:read:admin             resolve host_id -> name/email
+Required app scopes (granular — Zoom retired the coarse `recording:read:admin`):
+    cloud_recording:read:list_user_recordings:admin   list a host's recordings + download the VTT
+    user:read:list_users:admin                        resolve host_id -> name/email
 
 Standard library only.
 """

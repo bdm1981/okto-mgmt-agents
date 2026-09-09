@@ -130,7 +130,7 @@ Three things come out of a run:
 **Zoom Server-to-Server OAuth** — the Zoom *connector* cannot do this job. It is per-user OAuth and
 only returns the authenticated user's own recordings, so a run driven by anyone but the training
 account sees nothing. Verified against 20–31 Aug 2026: 10 recordings returned, all one host, none of
-them training. Create an S2S app with `recording:read:admin` + `user:read:admin` and export
+them training. Create an S2S app with `cloud_recording:read:list_user_recordings:admin` + `user:read:list_users:admin` (the granular scopes — Zoom retired the coarse `recording:read:admin`) and export
 `ZOOM_ACCOUNT_ID`, `ZOOM_CLIENT_ID`, `ZOOM_CLIENT_SECRET`. Full steps in
 `references/sources.md`; verify with `scripts/zoom_client.py`.
 

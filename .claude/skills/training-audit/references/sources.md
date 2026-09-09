@@ -50,8 +50,19 @@ Create one Server-to-Server OAuth app (Zoom Marketplace → Develop → Build Ap
 
 | scope | why |
 |---|---|
-| `recording:read:admin` | list + download recordings for **any** host in the account |
-| `user:read:admin` | resolve `host_id` to a name, so reports say "Aaron" not an opaque id |
+| `cloud_recording:read:list_user_recordings:admin` | list a host's cloud recordings, and download the VTT via the `download_url` it returns |
+| `user:read:list_users:admin` | resolve `host_id` to a name, so reports say "Aaron" not an opaque id |
+
+Zoom has replaced the old coarse scopes (`recording:read:admin`, `user:read:admin`) with granular
+ones; searching the picker for the old names returns unrelated results. Search for
+`list_user_recordings` and `list_users` instead.
+
+Deliberately **not** granted: `cloud_recording:read:list_account_recordings:admin`, which would
+list every recording on the account. Per-host enumeration against the allowlist above means the
+job can only ever read the training accounts' recordings, not anyone's 1:1s. Keep it that way.
+
+There is no separate download scope — the recording read scope authorises fetching the file at
+the `download_url` with the bearer token.
 
 Then export three values in the runner's environment — never commit them:
 
