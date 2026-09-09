@@ -97,7 +97,14 @@ def contradictions(rows: list[dict]) -> dict:
     for cid, rs in by_claim.items():
         wrong = [r for r in rs if r["grade"] in ("wrong_high", "wrong_contained", "incomplete")]
         right = [r for r in rs if r["grade"] == "correct"]
-        if wrong and right and {r["uuid"] for r in wrong} != {r["uuid"] for r in right}:
+        # A claim one trainer got wrong and then right is an improvement, not a
+        # disagreement — resolutions() owns that case. Only treat it as a
+        # contradiction when the wrong and right versions come from DIFFERENT
+        # trainers, which is what makes it a curriculum problem.
+        wrong_t = {r["trainer"] for r in wrong}
+        right_t = {r["trainer"] for r in right}
+        cross_trainer = bool(wrong_t - right_t) and bool(right_t - wrong_t)
+        if wrong and right and cross_trainer:
             out[cid] = {
                 "wrong_in": sorted({r["uuid"] for r in wrong}),
                 "right_in": sorted({r["uuid"] for r in right}),
@@ -106,6 +113,46 @@ def contradictions(rows: list[dict]) -> dict:
                 # A correct version exists, so this is fixable by copying it.
                 "fix_exists": True,
             }
+    return out
+
+
+def resolutions(rows: list[dict]) -> dict:
+    """Claims a trainer got WRONG earlier and RIGHT later — i.e. fixed.
+
+    Distinct from a contradiction, and the distinction matters on the dashboard:
+    "two trainers disagree" is a curriculum defect to fix, while "he corrected
+    it the following week" is the script working. Both look identical to
+    `contradictions()`, which keys only on the mix of grades present.
+
+    A claim counts as resolved when, for the SAME trainer, every wrong grade
+    predates every correct one. Ledger rows are ordered oldest-first and carry
+    a date, so ordering is available without extra state.
+    """
+    by_claim = defaultdict(list)
+    for r in rows:
+        by_claim[r["claim_id"]].append(r)
+
+    out = {}
+    for cid, rs in by_claim.items():
+        by_trainer = defaultdict(list)
+        for r in rs:
+            by_trainer[r["trainer"]].append(r)
+        for trainer, trs in by_trainer.items():
+            wrong = [r for r in trs if r["grade"] in ("wrong_high", "wrong_contained", "incomplete")]
+            right = [r for r in trs if r["grade"] == "correct"]
+            if not (wrong and right):
+                continue
+            last_wrong = max(r["date"] for r in wrong)
+            first_right = min(r["date"] for r in right)
+            if first_right > last_wrong:
+                out.setdefault(cid, []).append(
+                    {
+                        "trainer": trainer,
+                        "last_wrong": last_wrong,
+                        "first_right": first_right,
+                        "was": max(wrong, key=lambda r: r["date"])["grade"],
+                    }
+                )
     return out
 
 
@@ -168,6 +215,10 @@ def append(findings: list[dict], dry: bool) -> dict:
         "all_repeating": rep_after,
         "newly_contradicting": newly_contra,
         "all_contradicting": con_after,
+        "newly_resolved": {
+            k: v for k, v in resolutions(after).items() if k not in resolutions(before)
+        },
+        "all_resolved": resolutions(after),
         "new_product_bugs": [
             {"claim_id": f["claim_id"], "reality": f.get("reality", ""), "evidence": f.get("evidence", [])}
             for f in new_bugs
@@ -181,6 +232,7 @@ def main():
     ap.add_argument("--check", metavar="findings.jsonl")
     ap.add_argument("--repeats", action="store_true")
     ap.add_argument("--contradictions", action="store_true")
+    ap.add_argument("--resolved", action="store_true")
     args = ap.parse_args()
 
     if args.repeats:
@@ -193,9 +245,14 @@ def main():
         print()
         return
 
+    if args.resolved:
+        json.dump(resolutions(load()), sys.stdout, indent=2)
+        print()
+        return
+
     path = args.add or args.check
     if not path:
-        ap.error("give --add, --check, --repeats or --contradictions")
+        ap.error("give --add, --check, --repeats, --contradictions or --resolved")
 
     findings = []
     for i, line in enumerate(Path(path).read_text(encoding="utf-8").splitlines(), 1):

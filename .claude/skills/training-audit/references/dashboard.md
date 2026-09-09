@@ -24,4 +24,5 @@ was said and what the code did on that day's commit.
 |---|---|---|
 | 2026-08-25 | CRM & scheduler | https://claude.ai/code/artifact/1c83803b-606c-4f7a-b413-f89ec077f9c2 |
 | 2026-08-24…25 | Analytics · Deep Dive · Foundations | https://claude.ai/code/artifact/253dda9e-77ef-4e75-acfc-3fb12e49a195 |
-| 2026-08-27 | Deep Dive (first scripted run) | https://claude.ai/code/artifact/dd17ce3f-ccf4-4d50-8346-928aa5c41744 |
+| 2026-08-27 | Deep Dive | https://claude.ai/code/artifact/dd17ce3f-ccf4-4d50-8346-928aa5c41744 |
+| 2026-09-03 | Deep Dive (both 27 Aug errors fixed; first Okto Assist audit) | https://claude.ai/code/artifact/8b4e9948-a765-4a68-9058-786be1e73928 |

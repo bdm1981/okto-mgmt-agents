@@ -58,3 +58,9 @@ discovery would keep offering the same four sessions back as unaudited.
 | 2026-08-27 | `uuid:wj2mARB6RtWx2Ij1/K/xIw==` | Aaron | `admin.holiday-types.three` | correct | 43:09 | dc-server/models/holiday.ts:28,44-53 |
 | 2026-08-27 | `uuid:wj2mARB6RtWx2Ij1/K/xIw==` | Aaron | `admin.holidays.block-booking` | correct | 43:36 | dc-server/modules/appointment-availability/appointment-availability.service.ts:1275-1314 |
 | 2026-08-27 | `uuid:wj2mARB6RtWx2Ij1/K/xIw==` | Aaron | `billing.calls-unlimited` | unverifiable | 69:35 | — |
+| 2026-09-03 | `uuid:yLMACd4kQIiCsc4B4HbohA==` | Aaron | `admin.stale-tasks.unread-are-safe` | correct | 91:18 | dc-server/modules/cleanup.js:657-686 |
+| 2026-09-03 | `uuid:yLMACd4kQIiCsc4B4HbohA==` | Aaron | `admin.stale-tasks.closes-everything-older` | incomplete | 91:32 | dc-server/modules/cleanup.js:663-672 |
+| 2026-09-03 | `uuid:yLMACd4kQIiCsc4B4HbohA==` | Aaron | `admin.invite-expiry.one-hour` | correct | 17:56 | dc-server/modules/cognitoService.js:418-455 |
+| 2026-09-03 | `uuid:yLMACd4kQIiCsc4B4HbohA==` | Aaron | `oktoassist.limit-falls-back-to-voicemail` | correct | 53:43 | dc-server/models/call.js:115-119 |
+| 2026-09-03 | `uuid:yLMACd4kQIiCsc4B4HbohA==` | Aaron | `oktoassist.estimated-revenue-is-your-revenue` | incomplete | 52:41 | dc-user/src/js/admin/components/sites/settings/OktoAssistSettings/constants.ts:7, dc-user/src/js/admin/components/sites/settings/OktoAssistSettings/EstimatedBookingValue.tsx:18,36 |
+| 2026-09-03 | `uuid:yLMACd4kQIiCsc4B4HbohA==` | Aaron | `billing.oktoassist.250-calls-75-cents` | unverifiable | 52:36 | — |

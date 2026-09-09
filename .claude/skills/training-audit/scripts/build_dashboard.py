@@ -78,6 +78,7 @@ def main():
                 (grades.get("correct", 0), "Verified correct", "ok"),
                 (len(reps), "Repeating", "warn"),
                 (len(L.contradictions(rows)), "Contradictions", "warn"),
+                (len(L.resolutions(rows)), "Fixed", "ok"),
             ]
         )
     )
@@ -106,6 +107,25 @@ def main():
         )
     else:
         out.append('<p class="sec-note">No claim has yet been graded wrong in more than one session.</p>')
+
+    res = L.resolutions(rows)
+    if res:
+        out.append("<h2>Fixed</h2>")
+        out.append(
+            '<p class="sec-note">A claim the same trainer got wrong earlier and right later. Worth '
+            "showing as prominently as the failures: it is the evidence that flagging things works, "
+            "and leaving a corrected error standing as an open repeat would be unfair.</p>"
+        )
+        out.append(
+            R.table(
+                ["Claim", "Trainer", "Was", "Wrong through", "Right from"],
+                [
+                    [f"`{cid}`", e["trainer"], e["was"], e["last_wrong"], e["first_right"]]
+                    for cid, entries in sorted(res.items())
+                    for e in entries
+                ],
+            )
+        )
 
     cons = L.contradictions(rows)
     if cons:
