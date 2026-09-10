@@ -105,10 +105,25 @@ Claude so a fresh consent runs. `zsoid` **796393835**.
 - `ZohoWebinar_listWebinars` returns an empty `session` array for every listtype/index/department
   combination tried, despite recordings existing. Use `getAllRecordings` for discovery instead.
 
-**Transcription is per-session and silently absent.** Of the six customer sessions since the Zoom
-cutover, five have `isTranscriptGenerated: true` and one does **not**: Advisor Training Wednesday
-1 pm cst, 9 Sep, 66 min. That session cannot be audited and cannot be backfilled. Check this flag
-during discovery and report unaudited sessions loudly rather than skipping them silently.
+**Transcription is per-session and silently absent — but IS recoverable.** Of the six customer
+sessions since the Zoom cutover, five have `isTranscriptGenerated: true` and one does **not**:
+Advisor Training Wednesday 1 pm cst, 9 Sep, 66 min. **Correction to an earlier note here: this
+can be backfilled.** The recording page offers a **"Generate transcript"** button when none
+exists (verified 10 Sep). Zoom's "transcription must be on at meeting time, no backfill" rule
+does NOT carry over to Zoho — do not write a session off as unauditable. Check the flag during
+discovery and surface missing transcripts as an action, not a loss.
+
+**Org defaults are already correct**, so a missing transcript is a per-webinar setting, not a
+global one: Settings → Organization → Recording has both *Auto-record webinars* and *AI-generated
+transcripts for webinar recordings* enabled. `Advisor Training Wednesday 1 pm cst` is a recurring
+series with ~41 instances through 23 Jun 2027, each with its own `meetingKey`; the transcription
+setting rides on the series, so one bad series silently loses a year of sessions. The API exposes
+no transcription flag on the webinar record — only on recordings after the fact — so future
+instances can only be checked in the UI.
+
+**The `.txt` transcript export drops timestamps.** The in-page transcript is timestamped
+(`00:23`, `00:29`, …); the downloaded file is plain prose with none. Ledger rows cite a `stamp`,
+so grade from the page transcript, not the export. Neither carries speaker labels.
 
 ## Transcripts
 
