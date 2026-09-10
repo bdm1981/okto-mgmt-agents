@@ -25,24 +25,32 @@ to it when you hit a new one.
   `transcriptionPublicDownloadUrl` unauthenticated returns 403, so downloading still needs a
   Zoho OAuth credential (Self Client, meeting + recording read scopes, `~/.config/okto/zoho.env`)
   driving a `zoho_client.py` alongside the MCP.
-- **BLOCKER: the recurring training sessions are not in Zoho Meeting org 796393835 at all.**
-  Department scoping was investigated and **ruled out**: bdm@oktorocket.com was added to the
-  "OktoRocket Training" department (`3764623000000193905`, members Aaron Viratos, TeDarrell
-  Cantrell, Allie Gratton, Jada Baker) and *nothing changed* — `listMeetings` still returns the
-  same 28 sessions with the newest at 26 Aug 2026, and every row still reads
-  `departmentAdmin: false`. The decisive evidence is `listtype=upcoming` returning **zero**
-  sessions while a ~16-session-per-week schedule is demonstrably running: if that schedule lived
-  in this org's Meeting product, upcoming would be full of it.
-  Remaining candidates, in order: (1) the sessions are **Zoho Webinars**, not Meetings — the org
-  is webinar-licensed, `webinarDepartment` is enabled so a webinar can sit in the same
-  "OktoRocket Training" department, the curriculum uses registration language, and this connector
-  exposes **no webinar endpoints whatsoever**; (2) a **second Zoho org** — `getUserOrganizationId`
-  returns only the caller's default org (`isDefault: true`) and there is no list-orgs endpoint
-  here; (3) sessions generated through **Zoho Bookings** (several past rows carry
-  `source: "BOOKINGS"`).
-  **Do not conclude the cause from the department name alone — that inference was made once and
-  was wrong.** Confirm from the Zoho UI whether a session opens under Meeting or Webinar, and
-  which org it belongs to, before building discovery.
+- **RESOLVED 9 Sep 2026: the training sessions are Zoho WEBINARS, not Zoho Meetings.**
+  Confirmed by Brad after two wrong guesses on this point — record the reasoning so it is not
+  re-litigated. The Meeting API cannot see them at all: `listMeetings` returns 28 sessions with
+  the newest at 26 Aug 2026, `listtype=upcoming` returns **zero** while a ~16-session-per-week
+  schedule is running, and `getAllRecordings` returns 13 recordings, newest 26 Aug. None of that
+  changed after adding the audit identity to the "OktoRocket Training" department, which
+  **ruled department scoping out** — the department was a red herring, and the sessions being
+  *filed* under a department name says nothing about which product they live in.
+- **The connected Zoho Meeting MCP server is useless for this audit.** It exposes only
+  meeting-scoped operations (listMeetings, getAllRecordings, getSpecificRecording,
+  getParticipantReport, user/department reads). A search across every connected MCP server for
+  `webinar` returns **nothing**. No amount of permission granting will surface webinars through it.
+- **Webinars do carry transcripts.** The org feature set includes `webinarRecording`,
+  `webinarRecordingTranscription`, `webinarLiveTranscript` and `revAI`, so the no-speech-to-text
+  conclusion still holds — but it must be re-verified against a real webinar recording, since it
+  was originally confirmed against *meeting* recordings.
+- **Path forward: direct Zoho Webinar REST, not the MCP.** One Self Client credential solves both
+  open problems at once — webinar discovery *and* transcript download (the MCP only ever returned
+  a transcript URL, which 403s unauthenticated). Org `zsoid` is already known: **796393835**.
+  Scope names are in the `ZohoMeeting.*` family and were not verified; Zoho rejects the whole
+  list if one entry is wrong, so use the halving workaround documented in
+  `dc-manager/dc-nervecenter/modules/integrations/zoho/README.md`.
+- **Webinar attendance is a different endpoint from `getParticipantReport`.** Do not assume the
+  Zoom `attendees()` helper ports across unchanged. Webinars distinguish *registrants* from
+  *attendees*, which is richer than anything Zoom gave us — the old transcripts' "you're the only
+  one registered" line was registration data all along.
 - **No shared training account in Zoho.** Unlike Zoom's `training@oktorocket.com`, trainers host
   under their own logins, so the host *is* the trainer. Attribution should stop producing
   `unidentified` sessions once discovery moves over.
