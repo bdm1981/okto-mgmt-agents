@@ -51,9 +51,31 @@ to it when you hit a new one.
   Zoom `attendees()` helper ports across unchanged. Webinars distinguish *registrants* from
   *attendees*, which is richer than anything Zoom gave us — the old transcripts' "you're the only
   one registered" line was registration data all along.
-- **No shared training account in Zoho.** Unlike Zoom's `training@oktorocket.com`, trainers host
-  under their own logins, so the host *is* the trainer. Attribution should stop producing
-  `unidentified` sessions once discovery moves over.
+- **CORRECTION — attribution is NOT solved by the move.** An earlier note here claimed trainers
+  host under their own logins so the host is the trainer. That is wrong. Every training webinar
+  recording is owned by **Jada Baker**, who is not the trainer — the same shared-host problem as
+  Zoom's `training@oktorocket.com`, wearing a different name. Keep identifying the trainer from
+  the transcript and canonicalising through `references/trainers.md`.
+- **Webinar recordings live in the UI at** `/meeting/{zsoid}/{deptId}/files/my-recordings`,
+  under the **Webinar** tab of the Meeting/Webinar toggle (Files → Recordings). The Meeting tab
+  there shows exactly the 13 records `getAllRecordings` returns, which also **disproves the
+  truncation theory** — `meta.count: 40` is not a total, and the Meeting API is complete for
+  meetings. Webinars are simply a separate list it cannot reach.
+- **Department is not a usable filter.** Training webinars are split across both "My Department"
+  and "OktoRocket Training" with no obvious rule — today's 3 pm Admin Part 2 sits in
+  "My Department" while the 9 am, 11 am and 1 pm sessions sit in "OktoRocket Training".
+- **Mock/rehearsal webinars are recorded alongside real ones** and must be excluded: "Admin 2
+  Mock Training - Aaron Viratos" (4 Sep), "Allie's Mock Training (1on1 w/Aaron)" (4 Sep),
+  "Admin 1 Mock Training - TeDarrell Cantrell" (2 Sep), "Mock Advisor Training - Allie Gratton"
+  (31 Aug). Add `mock` to the topic excludes in `references/sources.md` when discovery is rebuilt.
+- **The transcript UI gives Summary / Transcript / Chapters tabs.** The transcript is timestamped
+  `MM:SS` and complete — but carries **no speaker labels**, unlike Zoom's VTT. Speaker separation
+  must be inferred from turn-taking, so `compact_vtt.py`'s `[mm:ss] Speaker: text` shape does not
+  port directly and the "only the host is transcribed" gotcha no longer applies — the attendee is
+  captured, just unlabelled.
+- **Backlog as of 9 Sep 2026: six customer sessions since the Zoom cutover (3 Sep).**
+  9 Sep — Admin Part 1 (9:00, 1:10), CRM Overview (10:58, 1:06), Advisor (12:57, 1:06),
+  Admin Part 2 (14:58, 1:24). 8 Sep — Shop Analytics (11:25, 1:18), Admin Part 1 (14:57, 1:00).
 
 ## Transcripts
 
