@@ -124,3 +124,15 @@ discovery would keep offering the same four sessions back as unaudited.
 | 2026-09-03 | `uuid:u/cHE7tER/Cjp4RghN+lPg==` | unidentified | `admin.invite-expiry.one-hour` | correct | 13:42 | dc-server/modules/cognitoService.js:19, dc-server/modules/cognitoService.js:196 |
 | 2026-09-03 | `uuid:u/cHE7tER/Cjp4RghN+lPg==` | unidentified | `admin.recording-retention.365-purge` | unverifiable | 65:37 | — |
 | 2026-09-03 | `uuid:u/cHE7tER/Cjp4RghN+lPg==` | unidentified | `billing.oktoassist.liftoff-countdown-packages` | unverifiable | 44:56 | — |
+| 2026-09-08 | `uuid:1038378490` | unidentified | `analytics.recommended-goals.six-month-average` | wrong_contained | 17:21 | dc-user/src/js/admin/components/reports/sales-analytics/goals/GoalWizardShopPage.tsx:388, dc-user/src/js/admin/components/reports/sales-analytics/goals/GoalWizardShopPage.tsx:405 |
+| 2026-09-08 | `uuid:1038378490` | unidentified | `analytics.recommended-goals.overwrites-other-fields` | incomplete | 17:57 | dc-user/src/js/admin/components/reports/sales-analytics/goals/GoalWizardShopPage.tsx:408, dc-user/src/js/admin/components/reports/sales-analytics/goals/GoalWizardShopPage.tsx:424 |
+| 2026-09-08 | `uuid:1038378490` | unidentified | `analytics.thresholds.presets` | correct | 31:15 | dc-user/src/js/admin/components/reports/sales-analytics/GoalsThresholdsPage.tsx:52 |
+| 2026-09-08 | `uuid:1038378490` | unidentified | `analytics.rocket-gauge.every-metric-has-recommendation` | wrong_contained | 1:07:05 | moto-sales-tracker-api/Services/Service/RocketGaugeStaticResponseService.cs:5, dc-user/src/js/admin/components/reports/sales-analytics/widgets/RocketGauge.tsx:61 |
+| 2026-09-08 | `uuid:1038378490` | unidentified | `analytics.rocket-gauge.not-ai-generated` | correct | 1:08:19 | moto-sales-tracker-api/Services/Service/RocketGaugeStaticResponseService.cs:5 |
+| 2026-09-08 | `uuid:1038378490` | unidentified | `analytics.sync-intervals.per-dms` | unverifiable | 11:19 | — |
+| 2026-09-09 | `uuid:1028334905` | Aaron | `inbox.translate.language-direction` | correct | 30:58 | dc-user/src/js/user/components/inbox/TaskSMS/helpers/translate.helpers.ts:12, dc-user/src/js/user/components/inbox/TaskSMS/MessageBubble.tsx:164 |
+| 2026-09-09 | `uuid:1028334905` | Aaron | `campaigns.send-window.three-pm` | incomplete | 49:22 | dc-server/modules/dispatcher.js:400, dc-server/modules/dispatcher.js:416 |
+| 2026-09-09 | `uuid:1028334905` | Aaron | `campaigns.on-deck.card-vs-queue` | correct | 47:58 | dc-user/src/js/common/components/campaigns/OnDeckTile.js:56 |
+| 2026-09-09 | `uuid:1026452860` | unidentified | `campaigns.advisor-permission.needs-manage-campaigns` | correct | 33:35 | dc-user/src/js/common/schema/accountPermissions.json:3 |
+| 2026-09-09 | `uuid:1026452860` | unidentified | `admin.holiday-types.three` | correct | 43:49 | dc-server/models/holiday.ts:28 |
+| 2026-09-09 | `uuid:1026452860` | unidentified | `reviews.google-floor.routes-low-scores` | unverifiable | 1:06:45 | — |

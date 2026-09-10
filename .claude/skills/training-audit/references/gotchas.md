@@ -77,6 +77,21 @@ to it when you hit a new one.
   9 Sep — Admin Part 1 (9:00, 1:10), CRM Overview (10:58, 1:06), Advisor (12:57, 1:06),
   Admin Part 2 (14:58, 1:24). 8 Sep — Shop Analytics (11:25, 1:18), Admin Part 1 (14:57, 1:00).
 
+## Zoho session identifiers and `spoke`
+
+- **Zoho sessions are keyed by `meetingKey`** (a plain 10-digit number), recorded in the ledger's
+  uuid column. Zoom UUIDs contain `/` and `==`, so the two namespaces cannot collide.
+- **`spoke` is not derivable from a Zoho transcript** — there are no speaker labels, so distinct
+  non-trainer speakers cannot be counted. Record `—`, and rely on `att` from
+  `ZohoWebinar_getAttendeeReport`, which is richer than Zoom's anyway.
+- **`session_index.py` is Zoom-shaped** (it wants `sessions.json` plus `<date>-<HHMM>.txt`
+  transcripts and omits the `att` column). For Zoho runs, append index rows directly until it is
+  rewritten.
+- **Extracting a Zoho transcript:** open the recording page, click the Transcript tab, then
+  `get_page_text` with `max_chars` well above 60000 — the default truncates a 78-minute session
+  around the 60-minute mark, which looks like a complete transcript and is not. Collapse the
+  `MM:SS`-then-text layout into `[mm:ss] text` cues.
+
 ## Zoho Webinar API — verified 10 Sep 2026
 
 Connector `76bf9a32…` with Meeting + Webinar + Workdrive apps, "Authorization on Demand".
