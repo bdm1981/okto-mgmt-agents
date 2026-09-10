@@ -77,15 +77,26 @@ to it when you hit a new one.
   9 Sep — Admin Part 1 (9:00, 1:10), CRM Overview (10:58, 1:06), Advisor (12:57, 1:06),
   Admin Part 2 (14:58, 1:24). 8 Sep — Shop Analytics (11:25, 1:18), Admin Part 1 (14:57, 1:00).
 
-## `ledger.py` contradiction detector misses some pairs
+## Attribution errors masquerade as tool bugs
 
-Two claims went `wrong_high` (TeDarrell, 25 Aug) then `correct` (unidentified, 9 Sep) —
-`campaigns.campaign-schedule.is-general` and `reports.campaign-attribution.unreleased` — and
-neither appeared in `contradictions()` output, while `scheduler.after-hours.resources-are-uploads`
-with the same shape did. Those are precisely the "a correct script already exists in-house" cases
-the function was written to surface, so the miss matters. Until it is fixed, cross-check
-wrong→correct pairs by hand when reporting; do not treat an empty contradictions block as proof
-there are none.
+A note here previously claimed `ledger.py`'s `contradictions()` was missing wrong→correct pairs,
+citing `campaigns.campaign-schedule.is-general` and `reports.campaign-attribution.unreleased`.
+**That was wrong and the tool was fine.** Both were recorded as taught-right by `unidentified`
+because the trainer had not been identified; once Brad confirmed CRM was Aaron, the detector
+surfaced both immediately. Before blaming a script, check whether the input is complete.
+
+## Without speaker labels, do not attribute a first-person line to the trainer
+
+The costliest mistake of the 10 Sep run. Admin Part 2 (9 Sep) contains, at 01:49, "this is the
+third one, the one I did earlier today for the CRM, I was the only one to[o]" — read as the
+trainer, it "proves" CRM and Admin Part 2 share a trainer. They do not: CRM was Aaron and Admin
+Part 2 was TeDarrell. The line was **the customer**, Jason Simms, who attended both, as the
+attendee reports show. The following turns give it away — "Oh yeah, you've been busy today, huh?"
+answered by "I got to get this stuff in because if I don't do it, I just won't do it."
+
+Zoho transcripts have no speaker labels, so **any** first-person claim ("I", "my", "earlier today")
+is unassigned by default. Cross-check against the attendee report before building on it: a customer
+attending several sessions in a week produces first-person lines that read exactly like a trainer's.
 
 ## `isTranscriptGenerated` is not trustworthy
 

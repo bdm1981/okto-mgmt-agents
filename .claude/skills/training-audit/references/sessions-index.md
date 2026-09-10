@@ -44,8 +44,8 @@ speakers and had 3 people present for the full 67 minutes.
 | 2026-08-20 | `uuid:KNq5QbshQX2wxaWGkNWnwQ==` | Deep Dive | 74 | 2 | 1 | unidentified |
 | 2026-09-02 | `uuid:bF1OyLAERomUgiIeREr+0w==` | Foundations | 78 | 2 | 2 | TeDarrell |
 | 2026-09-03 | `uuid:u/cHE7tER/Cjp4RghN+lPg==` | Deep Dive | 71 | 1 | 1 | unidentified |
-| 2026-09-08 | `uuid:1038378490` | Shop Analytics | 78 | 1 | — | unidentified |
+| 2026-09-08 | `uuid:1038378490` | Shop Analytics | 78 | 1 | — | Aaron |
 | 2026-09-09 | `uuid:1028334905` | Admin Part 1 | 70 | 2 | — | Aaron |
-| 2026-09-09 | `uuid:1026452860` | Admin Part 2 | 84 | 1 | — | unidentified |
+| 2026-09-09 | `uuid:1026452860` | Admin Part 2 | 84 | 1 | — | TeDarrell |
 | 2026-09-08 | `uuid:1066665484` | Admin Part 1 | 60 | 2 | — | unidentified |
-| 2026-09-09 | `uuid:1096244864` | CRM Overview | 66 | 1 | — | unidentified |
+| 2026-09-09 | `uuid:1096244864` | CRM Overview | 66 | 1 | — | Aaron |

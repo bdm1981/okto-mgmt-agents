@@ -58,10 +58,27 @@ transcript — the transcript for that session still does not exist. Treat it as
 derived, and confirm with a human before it hardens into ledger history. It also does not license
 using summaries for grading: a summary is a paraphrase and cannot support a `path:line` finding.
 
-**It also refutes a tempting inference.** The Admin Part 2 trainer said at 01:49 "this is the
-third one, the one I did earlier today for the CRM", which invites reading CRM + Advisor + Admin
-Part 2 as one person's three sessions on 9 Sep. Advisor was Allie, so that chain is wrong. CRM and
-Admin Part 2 remain linked to each other; the third session is something else.
+**The inference built on that line was wrong twice over.** "This is the third one, the one I did
+earlier today for the CRM" (Admin Part 2, 01:49) was read as the trainer and used to link CRM and
+Admin Part 2 to one person. It was **the customer** — Jason Simms, who attended both. Confirmed
+10 Sep: CRM was **Aaron**, Admin Part 2 was **TeDarrell**, Advisor was **Allie**. See gotchas.md,
+"Without speaker labels, do not attribute a first-person line to the trainer".
+
+## Confirmed attributions, 8-9 Sep 2026 (from Brad, 10 Sep)
+
+| session | trainer | how |
+|---|---|---|
+| 8 Sep Shop Analytics | Aaron | Brad |
+| 8 Sep Admin Part 1 | *still unidentified* | — |
+| 9 Sep Admin Part 1 | Aaron | stated in transcript |
+| 9 Sep CRM Overview | Aaron | Brad |
+| 9 Sep Advisor | Allie | AI summary, confirmed by Brad |
+| 9 Sep Admin Part 2 | TeDarrell | Brad |
+
+Re-attribution changed the analysis, which is the whole reason it matters: the two Shop Analytics
+repeats became **Aaron twice** (coaching) rather than cross-trainer (curriculum), and two claims
+became genuine **TeDarrell-wrong / Aaron-right** contradictions where the correct script already
+exists on a recording.
 
 ## Zoho attribution: every metadata route is a dead end
 
