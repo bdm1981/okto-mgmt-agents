@@ -136,3 +136,16 @@ discovery would keep offering the same four sessions back as unaudited.
 | 2026-09-09 | `uuid:1026452860` | unidentified | `campaigns.advisor-permission.needs-manage-campaigns` | correct | 33:35 | dc-user/src/js/common/schema/accountPermissions.json:3 |
 | 2026-09-09 | `uuid:1026452860` | unidentified | `admin.holiday-types.three` | correct | 43:49 | dc-server/models/holiday.ts:28 |
 | 2026-09-09 | `uuid:1026452860` | unidentified | `reviews.google-floor.routes-low-scores` | unverifiable | 1:06:45 | — |
+| 2026-09-09 | `uuid:1096244864` | unidentified | `campaigns.campaign-schedule.is-general` | correct | 19:53 | dc-server/modules/dispatcher.js:175, dc-server/modules/dispatcher.js:184 |
+| 2026-09-09 | `uuid:1096244864` | unidentified | `campaigns.send-window.three-pm` | correct | 13:47 | dc-server/modules/dispatcher.js:400, dc-server/modules/dispatcher.js:416 |
+| 2026-09-09 | `uuid:1096244864` | unidentified | `campaigns.send-limits.300-cap` | correct | 31:58 | dc-user/src/js/admin/components/campaigns/OnDemandInputs.js:72, dc-user/src/js/admin/components/campaigns/OnDemandInputs.js:80 |
+| 2026-09-09 | `uuid:1096244864` | unidentified | `campaigns.email-ignores-send-limit` | correct | 42:12 | dc-user/src/js/admin/components/campaigns/OnDemandInputs.js:80 |
+| 2026-09-09 | `uuid:1096244864` | unidentified | `campaigns.blast-interval.defaults-ten-ten` | correct | 34:59 | dc-user/src/js/admin/components/campaigns/AddCampaign.js:457, dc-user/src/js/admin/components/campaigns/OnDemandInputs.js:121 |
+| 2026-09-09 | `uuid:1096244864` | unidentified | `reports.campaign-attribution.unreleased` | correct | 37:24 | dc-user/src/js/common/components/campaignsV2/featureFlag.ts:23 |
+| 2026-09-09 | `uuid:1096244864` | unidentified | `campaigns.keyword-detection.auto-response` | correct | 39:26 | dc-server/modules/campaigns/keywordMatch.js:24, dc-server/modules/campaigns/keywordMatch.js:20 |
+| 2026-09-09 | `uuid:1096244864` | unidentified | `campaigns.keyword-detection.match-type` | incomplete | 39:48 | dc-server/modules/campaigns/keywordMatch.js:28, dc-server/modules/campaigns/keywordMatch.js:30 |
+| 2026-09-09 | `uuid:1096244864` | unidentified | `marketing.competitor-comparison` | unverifiable | 24:11 | — |
+| 2026-09-08 | `uuid:1066665484` | unidentified | `campaigns.explain-delete.is-confirmation` | wrong_high | 37:51 | dc-user/src/js/common/components/campaigns/DeleteCampaignButton.js:15, dc-user/src/js/admin/components/campaigns/AddCampaign.js:733 |
+| 2026-09-08 | `uuid:1066665484` | unidentified | `campaigns.message-rotation.randomizes-order` | incomplete | 38:59 | dc-server/modules/campaigns/campaignUtils.ts:414 |
+| 2026-09-08 | `uuid:1066665484` | unidentified | `campaigns.on-deck.card-vs-queue` | correct | 34:45 | dc-user/src/js/common/components/campaigns/OnDeckTile.js:56 |
+| 2026-09-08 | `uuid:1066665484` | unidentified | `compliance.sms-consent-optout-only` | unverifiable | 41:39 | — |

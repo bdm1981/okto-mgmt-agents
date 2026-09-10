@@ -77,6 +77,16 @@ to it when you hit a new one.
   9 Sep — Admin Part 1 (9:00, 1:10), CRM Overview (10:58, 1:06), Advisor (12:57, 1:06),
   Admin Part 2 (14:58, 1:24). 8 Sep — Shop Analytics (11:25, 1:18), Admin Part 1 (14:57, 1:00).
 
+## `ledger.py` contradiction detector misses some pairs
+
+Two claims went `wrong_high` (TeDarrell, 25 Aug) then `correct` (unidentified, 9 Sep) —
+`campaigns.campaign-schedule.is-general` and `reports.campaign-attribution.unreleased` — and
+neither appeared in `contradictions()` output, while `scheduler.after-hours.resources-are-uploads`
+with the same shape did. Those are precisely the "a correct script already exists in-house" cases
+the function was written to surface, so the miss matters. Until it is fixed, cross-check
+wrong→correct pairs by hand when reporting; do not treat an empty contradictions block as proof
+there are none.
+
 ## Zoho session identifiers and `spoke`
 
 - **Zoho sessions are keyed by `meetingKey`** (a plain 10-digit number), recorded in the ledger's

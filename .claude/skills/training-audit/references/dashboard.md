@@ -34,3 +34,8 @@ that the same feature is described three incompatible ways across runs.
 | 2026-08 (15 runs) | **Foundations, August** — course-level | https://claude.ai/code/artifact/78db82b4-5edc-46e4-a8d4-9215c7998b61 |
 | 2026-09-02 | Foundations (On Deck fixed; last-login hedge) | https://claude.ai/code/artifact/e1d1b737-88c8-4490-ad49-7c2abe84566e |
 | 2026-09-03 | Deep Dive (disable-user private-task gap) | https://claude.ai/code/artifact/c0f57918-6b71-4d38-b833-84173f7ce919 |
+| 2026-09-08 | Shop Analytics (goal formula; Rocket Gauge gap) | https://claude.ai/code/artifact/3eb616fa-5637-4e7c-934a-d69cec0a11f3 |
+| 2026-09-08 | Admin Part 1 (inverted Require Delete Reason) | https://claude.ai/code/artifact/5e30a542-2607-4c09-b981-b32450b24142 |
+| 2026-09-09 | Admin Part 1 — Aaron (**translate defect closed**) | https://claude.ai/code/artifact/da58725d-412e-458c-aa56-3f25730f33af |
+| 2026-09-09 | CRM Overview (two Aug errors taught right) | https://claude.ai/code/artifact/8fa59e6a-574a-4109-82fa-759d14c04508 |
+| 2026-09-09 | Admin Part 2 (live tenant change flagged) | https://claude.ai/code/artifact/85d76d26-0f6e-4072-afba-543cc1075474 |

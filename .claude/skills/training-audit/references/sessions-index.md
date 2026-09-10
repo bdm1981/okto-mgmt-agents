@@ -47,3 +47,5 @@ speakers and had 3 people present for the full 67 minutes.
 | 2026-09-08 | `uuid:1038378490` | Shop Analytics | 78 | 1 | — | unidentified |
 | 2026-09-09 | `uuid:1028334905` | Admin Part 1 | 70 | 2 | — | Aaron |
 | 2026-09-09 | `uuid:1026452860` | Admin Part 2 | 84 | 1 | — | unidentified |
+| 2026-09-08 | `uuid:1066665484` | Admin Part 1 | 60 | 2 | — | unidentified |
+| 2026-09-09 | `uuid:1096244864` | CRM Overview | 66 | 1 | — | unidentified |
