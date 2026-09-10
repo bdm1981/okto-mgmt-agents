@@ -77,6 +77,39 @@ to it when you hit a new one.
   9 Sep — Admin Part 1 (9:00, 1:10), CRM Overview (10:58, 1:06), Advisor (12:57, 1:06),
   Admin Part 2 (14:58, 1:24). 8 Sep — Shop Analytics (11:25, 1:18), Admin Part 1 (14:57, 1:00).
 
+## Zoho Webinar API — verified 10 Sep 2026
+
+Connector `76bf9a32…` with Meeting + Webinar + Workdrive apps, "Authorization on Demand".
+Adding tools does NOT widen an existing OAuth grant — the connector must be reconnected in
+Claude so a fresh consent runs. `zsoid` **796393835**.
+
+**Works:**
+- `ZohoWebinar_getAllRecordings` — the discovery call. Returns topic, `sDate`/`startTimeinMs`,
+  `durationInMins`, `meetingKey`, `isTranscriptGenerated`, `transcriptionDownloadUrl`.
+  Returns 20 rows with `moreRecords: true` and **no pagination parameter** — a hard ceiling,
+  fine for a 7-day window but it cannot walk history.
+- `ZohoWebinar_getWebinarRecording` — per-recording detail, same URLs.
+- `ZohoWebinar_getAttendeeReport` — **richer than Zoom ever was**: registered/joined/left times,
+  duration, polls answered, questions asked, email, country. Replaces `zoom_client.attendees()`
+  outright; no per-join dedup needed.
+
+**Does NOT work — the one remaining gap:**
+- **Transcript content is unreachable via the connector.** `ZohoWebinar_downloadRecording`
+  resolves to `webinar.zoho.com` and returns a 404 HTML page; the transcript actually lives at
+  `download.zoho.com/download?x-service=webinar&event-id=…`. That looks like a wrong base URL in
+  the connector's spec, not a config error. The `transcriptionPublicDownloadUrl` variant on
+  `files-accl.zohopublic.com` returns **403** unauthenticated (tested for both a meeting and a
+  webinar recording). `workdriveResourceId` is the **MP4**, not the transcript, and the parent
+  is the org-wide "General" workspace — so the transcript is not addressable as a WorkDrive file
+  either. Closing this needs an OAuth bearer able to GET that URL.
+- `ZohoWebinar_listWebinars` returns an empty `session` array for every listtype/index/department
+  combination tried, despite recordings existing. Use `getAllRecordings` for discovery instead.
+
+**Transcription is per-session and silently absent.** Of the six customer sessions since the Zoom
+cutover, five have `isTranscriptGenerated: true` and one does **not**: Advisor Training Wednesday
+1 pm cst, 9 Sep, 66 min. That session cannot be audited and cannot be backfilled. Check this flag
+during discovery and report unaudited sessions loudly rather than skipping them silently.
+
 ## Transcripts
 
 - **Only the host is reliably transcribed.** In two of the four seed sessions the attendee
