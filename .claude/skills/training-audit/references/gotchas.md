@@ -25,13 +25,17 @@ to it when you hit a new one.
   `transcriptionPublicDownloadUrl` unauthenticated returns 403, so downloading still needs a
   Zoho OAuth credential (Self Client, meeting + recording read scopes, `~/.config/okto/zoho.env`)
   driving a `zoho_client.py` alongside the MCP.
-- **BLOCKER: no September 2026 sessions are visible.** Newest meeting *and* newest recording are
-  both 26 Aug 2026 — not even unrecorded past meetings from September appear. An **"OktoRocket
-  Training" department** exists (created by Jada, 24 Jun 2026) and everything visible has
-  `departmentId: ""`, while Brad reads `departmentAdmin: false` / `isPrivilegedUser: false`
-  despite being an org Administrator. The other candidate is that the sessions run as **Zoho
-  Webinars** rather than Meetings — the org is webinar-licensed, the training uses registration
-  language, and this connector exposes no webinar endpoints at all. Settle which before building.
+- **BLOCKER (diagnosed 9 Sep 2026): training runs in the "OktoRocket Training" department
+  (`departmentId` 3764623000000193905) and the audit identity cannot see it.** Confirmed by Brad;
+  not webinars. Newest meeting *and* recording visible to `bdm@oktorocket.com` are both
+  26 Aug 2026, and every visible record has `departmentId: ""`. Department meetings are scoped to
+  department members and department admins — Brad is an org Administrator but is **not a member**,
+  and `getAdminsInDepartment` returns **empty**, so the department has no admin at all.
+  Members are Aaron Viratos, TeDarrell Cantrell, Allie Gratton and Jada Baker.
+  **Fix:** add the audit identity to that department, as a department admin. Then re-run
+  `listMeetings`/`getAllRecordings` and confirm September sessions appear before building
+  discovery. Non-department meetings are already org-visible, which is why the 2025 training
+  recordings and the 26 Aug meet-now sessions show up and the current curriculum does not.
 - **No shared training account in Zoho.** Unlike Zoom's `training@oktorocket.com`, trainers host
   under their own logins, so the host *is* the trainer. Attribution should stop producing
   `unidentified` sessions once discovery moves over.
