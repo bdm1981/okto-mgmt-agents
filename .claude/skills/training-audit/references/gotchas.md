@@ -12,13 +12,29 @@ to it when you hit a new one.
 - **This skill is Zoom-only end to end and currently audits nothing.** Discovery returns zero
   and the run reports "no new sessions found" — a false all-clear, not a quiet day. Treat a
   zero-session run as a failure until Zoho access exists.
-- **No Zoho Meeting access is provisioned.** No MCP connector exists for it (registry search
-  is empty); the connected Zoho servers are CRM, Desk, Analytics/Sprints and Projects only;
-  the meetings MCP server that *is* connected is Zoom. The shared `ZOHO_REFRESH_TOKEN` carries
-  no `ZohoMeeting.*` scope. See the run notes of 9 Sep for the setup checklist.
-- **Unconfirmed blocker: does Zoho Meeting produce a transcript?** The entire grading method
-  assumes a machine-readable transcript. If Zoho only yields audio/video, this needs a
-  speech-to-text stage before any of the rest works. Verify before building anything.
+- **Zoho Meeting MCP connector is live** (org `zsoid` 796393835, authenticated as
+  bdm@oktorocket.com, org Administrator, 12 licensed users). It exposes listMeetings,
+  getAllRecordings, getSpecificRecording, getParticipantReport (real attendance, replaces the
+  Zoom `attendees()` helper) and user/department reads.
+- **RESOLVED: Zoho Meeting does produce transcripts.** The plan carries
+  `meetingRecordingTranscription` and `revAI`; recordings return `isTranscriptGenerated: true`
+  plus `transcriptionDownloadUrl`. No speech-to-text stage is needed. But transcription is
+  **per-meeting, not account-wide** — several recordings show `isTranscriptionEnabled: false`,
+  the same "must be on at meeting time" trap as Zoom.
+- **The connector returns the transcript URL, not the text.** Fetching
+  `transcriptionPublicDownloadUrl` unauthenticated returns 403, so downloading still needs a
+  Zoho OAuth credential (Self Client, meeting + recording read scopes, `~/.config/okto/zoho.env`)
+  driving a `zoho_client.py` alongside the MCP.
+- **BLOCKER: no September 2026 sessions are visible.** Newest meeting *and* newest recording are
+  both 26 Aug 2026 — not even unrecorded past meetings from September appear. An **"OktoRocket
+  Training" department** exists (created by Jada, 24 Jun 2026) and everything visible has
+  `departmentId: ""`, while Brad reads `departmentAdmin: false` / `isPrivilegedUser: false`
+  despite being an org Administrator. The other candidate is that the sessions run as **Zoho
+  Webinars** rather than Meetings — the org is webinar-licensed, the training uses registration
+  language, and this connector exposes no webinar endpoints at all. Settle which before building.
+- **No shared training account in Zoho.** Unlike Zoom's `training@oktorocket.com`, trainers host
+  under their own logins, so the host *is* the trainer. Attribution should stop producing
+  `unidentified` sessions once discovery moves over.
 
 ## Transcripts
 

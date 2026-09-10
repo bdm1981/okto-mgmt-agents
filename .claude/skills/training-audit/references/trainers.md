@@ -9,7 +9,7 @@ exist. This file is the canonical spelling.
 | canonical | Zoom account | notes |
 |---|---|---|
 | Aaron | aaron@oktorocket.com | Aaron Viratos. Runs Foundations, Deep Dive, Shop Analytics |
-| TeDarrell | — | Runs Foundations and CRM. No individual Zoom account seen; hosts via the shared training account |
+| TeDarrell | tedarrell@oktorocket.com | TeDarrell Cantrell. Runs Foundations and CRM. No individual *Zoom* account; hosts Zoom sessions via the shared training account. Confirmed 9 Sep 2026 from his Zoho Meeting user record — the first non-human-memory source for this spelling |
 
 ## Aliases
 
