@@ -87,6 +87,19 @@ the function was written to surface, so the miss matters. Until it is fixed, cro
 wrong→correct pairs by hand when reporting; do not treat an empty contradictions block as proof
 there are none.
 
+## `isTranscriptGenerated` is not trustworthy
+
+Verified 10 Sep 2026 on Advisor Training Wednesday 1 pm cst (`1056342748`). The API reports
+`isTranscriptGenerated: true` and `isSummaryGenerated: true`, while the recording page still shows
+**"No transcript generated"** with the Generate button live. Only the summary had in fact been
+produced. So the flag can go true off the back of a summary, and discovery cannot rely on it to
+decide a session is auditable — check that transcript text actually comes back before grading, and
+report a session as unaudited if it does not.
+
+**Never grade from the AI summary.** It is a paraphrase, several steps from what was said, and it
+cannot support a `path:line` finding. It is usable for one narrow thing — attribution, when it
+records the host stating their own name (see references/trainers.md, Advisor Training 9 Sep).
+
 ## Zoho session identifiers and `spoke`
 
 - **Zoho sessions are keyed by `meetingKey`** (a plain 10-digit number), recorded in the ledger's

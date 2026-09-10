@@ -24,6 +24,8 @@ Zoom's transcription mangles spoken names. Every variant seen so far, all one pe
 | Tedarios | TeDarrell |
 | Tadirio | TeDarrell |
 | CRM trainer | TeDarrell |
+| Ali | Allie |
+| Aldith | Allie |
 
 Four spellings appeared across four August Foundations runs, and **none of them was correct** —
 the real name is TeDarrell, confirmed by a human. The audit originally canonicalised on
@@ -43,6 +45,23 @@ plurality spelling.
    sessions on 8-9 Sep), do not guess from writing style. Record `unidentified` and say so in the
    report's caveats. A wrong attribution is worse than a missing one: it invents a cross-trainer
    defect or hides a real one.
+
+## Attributed via the AI summary — Advisor Training, 9 Sep 2026 = Allie
+
+The one Zoho session with a name attached, and it came from an unexpected place. The recording's
+**AI summary** opens: *"Webinar host introduced self as new trainer Ali and confirmed the session
+comprises two attendees despite scheduling three."* `Ali` → **Allie** (Allie Gratton), consistent
+with her being newly added to the bench and with "Mock Advisor Training - Allie Gratton" (31 Aug).
+
+**Caveat that must travel with this attribution:** it is Zoho's *generated summary*, not verbatim
+transcript — the transcript for that session still does not exist. Treat it as strong but
+derived, and confirm with a human before it hardens into ledger history. It also does not license
+using summaries for grading: a summary is a paraphrase and cannot support a `path:line` finding.
+
+**It also refutes a tempting inference.** The Admin Part 2 trainer said at 01:49 "this is the
+third one, the one I did earlier today for the CRM", which invites reading CRM + Advisor + Admin
+Part 2 as one person's three sessions on 9 Sep. Advisor was Allie, so that chain is wrong. CRM and
+Admin Part 2 remain linked to each other; the third session is something else.
 
 ## Zoho attribution: every metadata route is a dead end
 
