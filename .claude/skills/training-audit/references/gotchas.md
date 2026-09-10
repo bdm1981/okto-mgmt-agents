@@ -25,17 +25,24 @@ to it when you hit a new one.
   `transcriptionPublicDownloadUrl` unauthenticated returns 403, so downloading still needs a
   Zoho OAuth credential (Self Client, meeting + recording read scopes, `~/.config/okto/zoho.env`)
   driving a `zoho_client.py` alongside the MCP.
-- **BLOCKER (diagnosed 9 Sep 2026): training runs in the "OktoRocket Training" department
-  (`departmentId` 3764623000000193905) and the audit identity cannot see it.** Confirmed by Brad;
-  not webinars. Newest meeting *and* recording visible to `bdm@oktorocket.com` are both
-  26 Aug 2026, and every visible record has `departmentId: ""`. Department meetings are scoped to
-  department members and department admins — Brad is an org Administrator but is **not a member**,
-  and `getAdminsInDepartment` returns **empty**, so the department has no admin at all.
-  Members are Aaron Viratos, TeDarrell Cantrell, Allie Gratton and Jada Baker.
-  **Fix:** add the audit identity to that department, as a department admin. Then re-run
-  `listMeetings`/`getAllRecordings` and confirm September sessions appear before building
-  discovery. Non-department meetings are already org-visible, which is why the 2025 training
-  recordings and the 26 Aug meet-now sessions show up and the current curriculum does not.
+- **BLOCKER: the recurring training sessions are not in Zoho Meeting org 796393835 at all.**
+  Department scoping was investigated and **ruled out**: bdm@oktorocket.com was added to the
+  "OktoRocket Training" department (`3764623000000193905`, members Aaron Viratos, TeDarrell
+  Cantrell, Allie Gratton, Jada Baker) and *nothing changed* — `listMeetings` still returns the
+  same 28 sessions with the newest at 26 Aug 2026, and every row still reads
+  `departmentAdmin: false`. The decisive evidence is `listtype=upcoming` returning **zero**
+  sessions while a ~16-session-per-week schedule is demonstrably running: if that schedule lived
+  in this org's Meeting product, upcoming would be full of it.
+  Remaining candidates, in order: (1) the sessions are **Zoho Webinars**, not Meetings — the org
+  is webinar-licensed, `webinarDepartment` is enabled so a webinar can sit in the same
+  "OktoRocket Training" department, the curriculum uses registration language, and this connector
+  exposes **no webinar endpoints whatsoever**; (2) a **second Zoho org** — `getUserOrganizationId`
+  returns only the caller's default org (`isDefault: true`) and there is no list-orgs endpoint
+  here; (3) sessions generated through **Zoho Bookings** (several past rows carry
+  `source: "BOOKINGS"`).
+  **Do not conclude the cause from the department name alone — that inference was made once and
+  was wrong.** Confirm from the Zoho UI whether a session opens under Meeting or Webinar, and
+  which org it belongs to, before building discovery.
 - **No shared training account in Zoho.** Unlike Zoom's `training@oktorocket.com`, trainers host
   under their own logins, so the host *is* the trainer. Attribution should stop producing
   `unidentified` sessions once discovery moves over.
