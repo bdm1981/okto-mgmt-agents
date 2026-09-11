@@ -73,9 +73,69 @@ to it when you hit a new one.
   must be inferred from turn-taking, so `compact_vtt.py`'s `[mm:ss] Speaker: text` shape does not
   port directly and the "only the host is transcribed" gotcha no longer applies — the attendee is
   captured, just unlabelled.
-- **Backlog as of 9 Sep 2026: six customer sessions since the Zoom cutover (3 Sep).**
-  9 Sep — Admin Part 1 (9:00, 1:10), CRM Overview (10:58, 1:06), Advisor (12:57, 1:06),
-  Admin Part 2 (14:58, 1:24). 8 Sep — Shop Analytics (11:25, 1:18), Admin Part 1 (14:57, 1:00).
+- **Backlog status as of 11 Sep 2026.** Of the eight customer sessions since the Zoom cutover
+  (3 Sep), **five are audited** — 8 Sep Shop Analytics and Admin Part 1, 9 Sep Admin Part 1, CRM
+  Overview and Admin Part 2. **Two remain open**, both Advisor (9 Sep `1056342748`, 10 Sep
+  `1062515451`), blocked on transcripts — see "Advisor Training is the one course with zero audited
+  sessions". The eighth, Shop Analytics 10 Sep, is a 16-minute no-show shell and is not auditable
+  work.
+
+## Advisor Training is the one course with zero audited sessions (11 Sep 2026)
+
+Not a one-off. Both customer Advisor sessions since the Zoho cutover are ungradeable, while
+**every** Admin Part 1 / Admin Part 2 / CRM / Shop Analytics session in the same period produced a
+usable transcript. Six customer attendances unchecked, on the newest course and the newest trainer.
+
+- **Advisor, Wed 9 Sep, `1056342748`, 66 min, 3 joined** — `isTranscriptGenerated: true`,
+  `isTranscriptionEnabled: true`, `transcriptionDownloadUrl` present, `openAIStatus: SUCCESS`,
+  chapters and summary both generated — and the recording page still shows **"No transcript
+  generated"** with the Generate button live. Re-verified 11 Sep: unchanged from 10 Sep, so this is
+  not a processing delay. The flag is wrong, not late.
+- **Advisor, Thu 10 Sep, `1062515451`, 63 min, 3 joined** — honest `false`: transcription was off
+  for the series. No summary either.
+
+The two Advisor webinars are **different recurring series** ("Wednesday 1 pm", "Thursdays 2 pm"),
+so this is not one misconfigured series. Check Advisor specifically on every run until a transcript
+lands; org-level recording defaults are already correct, so the setting must be fixed per series.
+
+## Never ledger a session you could not grade
+
+A discovered-but-ungradeable session must **not** go into `findings-ledger.md` or
+`sessions-index.md`. `ledger.py` refuses a uuid it has already seen and `discover_sessions.py`
+drops anything in the ledger, so recording a no-transcript session retires it permanently and the
+gap becomes invisible. Report it as an open coverage gap instead and leave it discoverable. The
+run on 11 Sep published it as a **Coverage gap** section on the dashboard for exactly this reason.
+
+## Zero graded sessions is a report, not silence
+
+The scheduled-task file says a zero-session run posts nothing. That rule is for *discovery*
+returning nothing. A run that discovers sessions and grades none of them because the transcripts
+are missing is a **failure with a named cause** and must be posted — staying quiet reproduces the
+false all-clear the Zoom-to-Zoho cutover already caused once.
+
+## Distinguishing "not held" from "recording lost"
+
+A course missing from `getAllRecordings` is usually a session that never ran. The UI's
+**Webinars → Past** list settles it: it shows registrants and attended-count with a percentage for
+every scheduled instance, held or not. Verified 11 Sep — Thursday 10 Sep shows only two past
+webinars (Advisor 4 reg / 3 attended, Shop Analytics 1 reg / 0 attended), so the absent Thursday
+Admin sessions were never held rather than recorded and lost. The 16-minute Shop Analytics
+recording that day is a no-show shell: `noAudioRecording: true`, 0 attendees, correctly dropped by
+`min_duration_minutes: 20`.
+
+## `build_dashboard.py --reports` must be rebuilt every run
+
+Two traps, both silent:
+
+- **Keys are bare uuids** (`1028334905`, `yAuBNF7bROKsAG2GhRFbkA==`), **not** the ledger's
+  `` `uuid:…` `` display form. A prefixed key matches nothing and every Report cell renders `—`.
+- **The map is not persisted anywhere.** Omit `--reports` and the republished dashboard silently
+  loses all 27 report links — the page still renders, so nothing fails. Rebuild it from the table
+  in `references/dashboard.md` before every republish, joining on date + course.
+
+The renderer also has **no coverage-gap section**; the 11 Sep run injected one into the fragment by
+hand after generating it. Worth adding to the script — a hand-patched section disappears the next
+time someone republishes without repeating the patch.
 
 ## Attribution errors masquerade as tool bugs
 
