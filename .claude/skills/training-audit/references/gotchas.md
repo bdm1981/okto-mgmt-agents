@@ -79,6 +79,11 @@ to it when you hit a new one.
   `1062515451`), blocked on transcripts — see "Advisor Training is the one course with zero audited
   sessions". The eighth, Shop Analytics 10 Sep, is a 16-minute no-show shell and is not auditable
   work.
+- **Backlog unchanged as of 14 Sep 2026.** Re-checked both stuck Advisor recordings in the UI:
+  9 Sep `1056342748` and 10 Sep `1062515451` both still show **"No transcript generated"** with the
+  Generate button live — five and four days after the sessions ran. Nothing new was recorded between
+  11 and 14 Sep (no training runs Fri-Sun), so the 7-day window produced **zero new gradeable
+  sessions** and the only open work is still Advisor. Six customer attendances remain unchecked.
 
 ## Advisor Training is the one course with zero audited sessions (11 Sep 2026)
 
@@ -97,6 +102,66 @@ usable transcript. Six customer attendances unchecked, on the newest course and 
 The two Advisor webinars are **different recurring series** ("Wednesday 1 pm", "Thursdays 2 pm"),
 so this is not one misconfigured series. Check Advisor specifically on every run until a transcript
 lands; org-level recording defaults are already correct, so the setting must be fixed per series.
+
+## Advisor transcripts: the per-series Preferences pane is NOT the cause (14 Sep 2026)
+
+The standing hypothesis here — "the transcription setting rides on the series, so one bad series
+silently loses a year of sessions" — was tested directly in the UI on 14 Sep and **does not hold**.
+Webinar → Preferences exposes no "generate a transcript for the recording" toggle at all. It offers
+only *Start recording automatically*, *Record session with webcam video included*, a *Preferred
+language for recording transcript* dropdown, and, under Others, *Live transcript for webinars*.
+
+Compared across a known-good and a known-bad series:
+
+| series | auto-record | language | Live transcript | recording transcript? |
+|---|---|---|---|---|
+| Admin Part 1 Mon or Wed 9 am | on | Auto | **on** | yes (9 Sep) |
+| Shop Analytics Tues 11 am | on | Auto | **off** | **yes** (8 Sep) |
+| Advisor Training Mondays 11 am | on | Auto | off | — |
+
+Shop Analytics has *Live transcript for webinars* **off** and still produced a transcript, so that
+checkbox is live captions and is **not** the switch. Recording preferences are otherwise identical
+between a series that transcribes and one that does not. Do not "fix" Advisor by ticking that box
+and do not report it as the cause — the real switch is not exposed on the webinar record, and the
+only reliable recovery remains the **Generate transcript** button on the recording page.
+
+**Generating a transcript is a write.** The button is live on both stuck Advisor recordings, but the
+audit is read-only and the scheduled task does not authorise it. Surface it as an action for a human
+every run; never click it.
+
+## Advisor runs as FOUR weekly series, not two (14 Sep 2026)
+
+An earlier note here said "the two Advisor webinars are different recurring series". There are four,
+all live and all recurring ~41-59 instances into 2027:
+
+- Advisor Training **Mondays 11 am** cst
+- Advisor Training **Tuesdays 12 pm** cst
+- Advisor Training **Wednesday 1 pm** cst  (9 Sep — flag true, no transcript)
+- Advisor Training **Thursdays 2 pm** cst  (10 Sep — flag false, no transcript)
+
+The Tuesday series ran 8 Sep with 1 registrant and **0 attended**, which is why it never reached
+`getAllRecordings` and why the gap read as two series rather than four. Check all four every run.
+
+## Co-organizers do not disambiguate the trainer
+
+`trainers.md` suggests adding the trainer as a Zoho co-organizer so the API can read it. They already
+are — and it does not help: the Advisor Mondays webinar lists **Aaron Viratos, Allie Gratton and
+TeDarrell Cantrell together** as co-organizers, on the series rather than the instance. Every series
+carries the same bench. Attribution still has to come from the transcript or a human.
+
+## Where the webinar UI actually lives
+
+`webinar.zoho.com/meeting/...` 404s for list pages. The working host is **meeting.zoho.com**:
+
+- Past / Upcoming: `https://meeting.zoho.com/meeting/796393835/3764623000000012011/webinar/my-webinars/past`
+  (and `/upcoming`) — `3764623000000012011` is the department id in the URL.
+- A recording page is still `webinar.zoho.com/meeting/videoprv?recordingId=<erecordingId>&x-meeting-org=796393835`,
+  which is the `shareUrl` / `playUrl` returned by `getWebinarRecording`.
+
+The Past list is the authority on held-vs-not-held: it shows registrants, attended and a percentage
+for every instance. Verified 14 Sep — **no training was held Fri 11 Sep through Sun 13 Sep**, so the
+four-day recording gap after 10 Sep is the weekend plus a Friday with nothing scheduled, not lost
+recordings. All course series run Monday-Thursday only.
 
 ## Never ledger a session you could not grade
 
