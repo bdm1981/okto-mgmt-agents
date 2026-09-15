@@ -39,3 +39,5 @@ that the same feature is described three incompatible ways across runs.
 | 2026-09-09 | Admin Part 1 — Aaron (**translate defect closed**) | https://claude.ai/code/artifact/da58725d-412e-458c-aa56-3f25730f33af |
 | 2026-09-09 | CRM Overview (two Aug errors taught right) | https://claude.ai/code/artifact/8fa59e6a-574a-4109-82fa-759d14c04508 |
 | 2026-09-09 | Admin Part 2 (live tenant change flagged) | https://claude.ai/code/artifact/85d76d26-0f6e-4072-afba-543cc1075474 |
+| 2026-09-14 | Admin Part 1 — Aaron (8 attendees; all checkable claims correct) | https://claude.ai/artifact/MXM5PWMeEbhpmGi8DMZWZh |
+| 2026-09-14 | Admin Part 2 — TeDarrell (**block-customer permission inverted**) | https://claude.ai/artifact/7jsXWm3vnTT5ZCwjvJw9CN |

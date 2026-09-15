@@ -149,3 +149,19 @@ discovery would keep offering the same four sessions back as unaudited.
 | 2026-09-08 | `uuid:1066665484` | unidentified | `campaigns.message-rotation.randomizes-order` | incomplete | 38:59 | dc-server/modules/campaigns/campaignUtils.ts:414 |
 | 2026-09-08 | `uuid:1066665484` | unidentified | `campaigns.on-deck.card-vs-queue` | correct | 34:45 | dc-user/src/js/common/components/campaigns/OnDeckTile.js:56 |
 | 2026-09-08 | `uuid:1066665484` | unidentified | `compliance.sms-consent-optout-only` | unverifiable | 41:39 | — |
+| 2026-09-14 | `uuid:1045495612` | Aaron | `campaigns.on-deck.card-vs-queue` | correct | 49:19 | dc-user/src/js/common/components/campaigns/OnDeckTile.js:56 |
+| 2026-09-14 | `uuid:1045495612` | Aaron | `inbox.mark-new.removes-ownership` | correct | 35:35 | dc-user/src/js/user/components/inbox/ActionMenu/ActionMenu.tsx:441-450 |
+| 2026-09-14 | `uuid:1045495612` | Aaron | `reviews.reply.admin-and-site-manager-only` | correct | 29:24 | dc-user/src/js/common/components/reviews/SiteReviewDetail.tsx:73, dc-user/src/js/common/components/reviews/SiteReviewDetail.tsx:200 |
+| 2026-09-14 | `uuid:1045495612` | Aaron | `reviews.match.available-to-advisors` | correct | 1:11:16 | dc-user/src/js/common/components/reviews/SiteReviewDetail.tsx:210 |
+| 2026-09-14 | `uuid:1045495612` | Aaron | `inbox.advisor-iq.vendors-excluded` | correct | 55:51 | dc-server/models/call.js:111, dc-user/src/js/admin/components/calls/CallAnalyzerModal/CallAnalyzerModal.tsx:835-838 |
+| 2026-09-14 | `uuid:1045495612` | Aaron | `campaigns.campaign-hours.window-930-to-3` | unverifiable | 48:43 | — |
+| 2026-09-14 | `uuid:1045495612` | Aaron | `integrations.tekmetric.three-year-history` | unverifiable | 1:14:29 | — |
+| 2026-09-14 | `uuid:1045495612` | Aaron | `reviews.review-dedup.not-released` | unverifiable | 1:11:34 | — |
+| 2026-09-14 | `uuid:1088001673` | TeDarrell | `admin.block-customer-permission.is-a-grant` | wrong_high | 26:37 | dc-user/src/js/user/components/inbox/ActionMenu/ActionMenu.tsx:467, dc-user/src/js/common/components/customers/CustomerActionPanel/CustomerActionPanel.tsx:80, dc-user/src/js/common/schema/accountPermissions.json:5 |
+| 2026-09-14 | `uuid:1088001673` | TeDarrell | `campaigns.advisor-permission.needs-manage-campaigns` | correct | 21:24 | dc-user/src/js/common/schema/accountPermissions.json:3 |
+| 2026-09-14 | `uuid:1088001673` | TeDarrell | `admin.close-site-early.reopens-next-day` | correct | 26:07 | dc-server/routes/sites.js:1688-1702 |
+| 2026-09-14 | `uuid:1088001673` | TeDarrell | `reviews.review-gate.four-star-floor` | correct | 41:23 | dc-user/src/js/cust/components/reviews/ReviewCard.js:64-71, dc-user/src/js/admin/components/sites/integrations/google/GoogleBusinessIntegrationModal.tsx:237 |
+| 2026-09-14 | `uuid:1088001673` | TeDarrell | `scheduler.waiters.day-cap-trumps-slot` | correct | 58:05 | dc-server/modules/appointment-availability/appointment-availability.service.ts:1145-1152, dc-server/modules/appointment-availability/appointment-availability.service.ts:954 |
+| 2026-09-14 | `uuid:1088001673` | TeDarrell | `admin.contact-details.three-review-checkboxes` | correct | 39:43 | dc-user/src/js/admin/components/sites/settings/ContactDetailsSettings.js:651, dc-user/src/js/admin/components/sites/settings/ContactDetailsSettings.js:654, dc-user/src/js/admin/components/sites/settings/ContactDetailsSettings.js:657 |
+| 2026-09-14 | `uuid:1088001673` | TeDarrell | `admin.report-permissions.per-user-not-global` | correct | 28:20 | dc-user/src/js/admin/components/users/edit/UserEditSettings.tsx:178 |
+| 2026-09-14 | `uuid:1088001673` | TeDarrell | `scheduler.after-hours.resources-are-uploads` | incomplete | 55:53 | dc-user/src/js/admin/components/sites/booking/BookingSpecs.tsx:336-345 |

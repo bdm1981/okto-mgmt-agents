@@ -387,3 +387,92 @@ so grade from the page transcript, not the export. Neither carries speaker label
 - **`build_report.py` needs `--fragment` for anything going to the Artifact tool.** Without it
   the renderer emits a full `<!doctype html>` document, which the publisher wraps in a second
   head/body skeleton.
+
+## Reading a Zoho transcript: the two traps that silently truncate it (15 Sep 2026)
+
+Both of these make a **complete** transcript look short, which is worse than an obvious failure.
+
+- **Timestamps switch from `MM:SS` to `H:MM:SS` past the hour.** A cue-counting regex of
+  `^\d{1,2}:\d{2}$` matches nothing after 59:59, so an 86-minute session reports its last cue at
+  `54:52` and looks truncated at the 60-minute mark. This is the *same symptom* as the
+  `max_chars` trap recorded below and a completely different cause — check the tail text before
+  concluding anything is missing. The transcript panel is **not** virtualised: the container
+  `div.transTimeStampMainContainer` holds every cue in the DOM at once, so scrolling is not
+  needed and `innerText` on that one element is the whole transcript.
+- **`javascript_tool` truncates its own return at roughly 1-2 KB**, so it cannot carry a
+  95,000-character transcript back no matter how you slice it. What works: read the container's
+  `innerText` into a page global, then insert a `<pre>` holding a <50,000-char slice as the
+  first child of `<body>` and read it with `get_page_text` (which caps at 50,000 and reads from
+  the top of the body). Two passes covers a 90-minute session. Remove the `<pre>` between passes.
+
+The in-app browser is still not authenticated against Zoho — use **Claude in Chrome**, where
+Brad's session is live. Nothing else about the recording page changed.
+
+## The transcript gap is no longer Advisor-only (15 Sep 2026)
+
+Until 10 Sep every non-Advisor course transcribed reliably, which is what made "Advisor is the
+one broken course" a usable theory. It no longer holds. Two more recordings, on two other
+courses, came back with `isTranscriptionEnabled: false`:
+
+- **CRM Overview Monday 1 pm**, 14 Sep, `1026984660`, 73 min — this course transcribed fine on 9 Sep.
+- **Admin Part 2 Tues/Thurs 9 am**, 15 Sep, `1020522825`, 82 min — the Mon/Wed 3 pm instance of the
+  same course transcribed fine the day before.
+
+So the failure is **per-recording and intermittent**, not per-course and not per-series. That
+also retires the remaining temptation to explain it by something about Advisor specifically.
+Treat any recording as at risk and check `isTranscriptionEnabled` on every discovery pass.
+The *Generate transcript* button remains the only known recovery and remains a write.
+
+## Same-day sessions can be missed by an evening run (15 Sep 2026)
+
+The 14 Sep run concluded "nothing new was recorded between 11 and 14 Sep", but **two** 14 Sep
+sessions (Admin Part 1 at 09:01, Admin Part 2 at 15:03) were both present and transcribed when
+this run looked the next afternoon. Whatever the cause — processing lag behind the 18:00 run, or
+a discovery window that excludes the current day — a run that reports a quiet day for a weekday
+is suspicious on its face: the schedule puts training on every Monday through Thursday. Check the
+Past list before believing an empty result on a weekday.
+
+## `ledger.py`'s alias table has drifted from `trainers.md`
+
+`TRAINER_ALIASES` in `scripts/ledger.py` mirrors only the TeDarrell family and Aaron. It contains
+**no entry for Allie** at all (`allie`, `ali`, `aldith` are all in `trainers.md` and none is in the
+script), and as of 15 Sep it also lacks `serio` / `trader serio`. An unmatched name passes through
+unchanged and splits that trainer into two rows, which is exactly the false-curriculum-defect
+failure the table exists to prevent.
+
+Until the two are reconciled, **canonicalise the name yourself and put the canonical spelling in
+`findings.jsonl`** rather than relying on the script to do it.
+
+## New variant: "Serio" / "Trader Serio" = TeDarrell (15 Sep 2026, unconfirmed)
+
+Admin Part 2 on 14 Sep opens "My name is Serio"; the generated summary renders it "Trader Serio".
+Nobody by that name is on the roster. Read as another mis-transcription of the same name that has
+already produced Tedario, Tadario, Tadirio and Tedarios, and corroborated by the series: Brad
+confirmed the 9 Sep instance of this same Mon/Wed 3 pm Admin Part 2 series as TeDarrell.
+Recorded as TeDarrell with the caveat travelling alongside — **a human should confirm** before it
+hardens, exactly as with the Allie attribution. Add the variant to `trainers.md` and to
+`ledger.py` when someone does.
+
+## The customer-facing review microsite IS in this repo
+
+Worth recording because a reasonable first guess is that anything under `/customer/...` on
+`digitalconcierge.io` is a separately deployed app and therefore ungradeable. It is not:
+it lives at **`dc-user/src/js/cust/`**, routed from `dc-user/src/js/cust/App.js`.
+
+That is where the review gate actually decides: `cust/components/reviews/ReviewCard.js:64`
+reads `settings.business_info.minGoogleRating || 4` and sends anything **below** it to an internal
+feedback form instead of the public review options. So the "four stars or up goes to Google" claim
+is checkable after all — and the floor is per-site configurable from the Google Business
+integration modal, defaulting to 4 only when it has never been set.
+
+## `restrictAdvisorBlockCustomer` is the one account permission that means the opposite
+
+Of the four entries in `accountPermissions.json`, three are grants and this one is a **restriction**.
+Both surfaces render Block Contact only when it is absent — `ActionMenu.tsx:467` and
+`CustomerActionPanel.tsx:80` both test `!hasRestrictAdvisorBlockCustomer`. Turning it **on** takes
+the ability away.
+
+Unlike the `explainDelete` case, this is **not** a product bug: the label "Restrict Advisor Block
+Customer" does parse correctly as *restrict the advisor from blocking*. It is a genuinely easy
+misread, though, and it has now been taught as a grant once. Check which way a trainer takes it
+every time this permission comes up.
