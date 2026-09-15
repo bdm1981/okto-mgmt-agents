@@ -41,3 +41,5 @@ that the same feature is described three incompatible ways across runs.
 | 2026-09-09 | Admin Part 2 (live tenant change flagged) | https://claude.ai/code/artifact/85d76d26-0f6e-4072-afba-543cc1075474 |
 | 2026-09-14 | Admin Part 1 — Aaron (8 attendees; all checkable claims correct) | https://claude.ai/artifact/MXM5PWMeEbhpmGi8DMZWZh |
 | 2026-09-14 | Admin Part 2 — TeDarrell (**block-customer permission inverted**) | https://claude.ai/artifact/7jsXWm3vnTT5ZCwjvJw9CN |
+| 2026-09-15 | Admin Part 1 — TeDarrell? (**block-customer inverted again**; Require Delete Reason) | https://claude.ai/artifact/TDUauToxAN91qyM9Vy1yuk |
+| 2026-09-15 | Shop Analytics (trainer caught Outrunning Overhead colour bug live) | https://claude.ai/artifact/J7Ttwhd6bLFLskNDb7kRq5 |

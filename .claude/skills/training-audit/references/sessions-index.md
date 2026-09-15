@@ -51,3 +51,5 @@ speakers and had 3 people present for the full 67 minutes.
 | 2026-09-09 | `uuid:1096244864` | CRM Overview | 66 | 1 | — | Aaron |
 | 2026-09-14 | `uuid:1045495612` | Admin Part 1 | 86 | 8 | — | Aaron |
 | 2026-09-14 | `uuid:1088001673` | Admin Part 2 | 82 | 3 | — | TeDarrell |
+| 2026-09-15 | `uuid:1041064344` | Admin Part 1 | 78 | 4 | — | TeDarrell |
+| 2026-09-15 | `uuid:1023136224` | Shop Analytics | 67 | 3 | — | unidentified |

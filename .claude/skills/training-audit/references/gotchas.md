@@ -476,3 +476,43 @@ Unlike the `explainDelete` case, this is **not** a product bug: the label "Restr
 Customer" does parse correctly as *restrict the advisor from blocking*. It is a genuinely easy
 misread, though, and it has now been taught as a grant once. Check which way a trainer takes it
 every time this permission comes up.
+
+## The evening run must re-check the same day's afternoon sessions (15 Sep 2026, evening)
+
+The earlier 15 Sep run listed Shop Analytics Tues 11 am (`1023136224`) and Advisor Tuesdays 12 pm
+(`1017030712`) as "still processing" and graded neither. By evening `1023136224` had transcribed
+and was fully auditable — 11 checkable claims — and the 3 pm Admin Part 1 (`1041064344`, 78 min)
+had appeared and transcribed too. **Two gradeable sessions would have been lost** had this run
+trusted the earlier pass.
+
+Recordings on this account land in `getAllRecordings` within minutes of the session ending but the
+transcript follows later. So: a session recorded **the same day** is not settled until a later run
+re-checks it. Never carry "still processing" forward as a conclusion — re-read the flag, and if it
+is true, try to pull the text before writing the session off.
+
+## Trigger 5 does NOT hide the campaign delivery sliders — check the nesting before grading
+
+`AddCampaign.js:704` opens `{props.values.trigger !== "5" && (` immediately above the Auto Approve /
+Require Delete Reason / Do not track outcomes block, which reads exactly like "these settings are
+hidden for Appointment Reminder campaigns" and would make a trainer's whole walkthrough of them
+wrong. It is not: that gate closes at `:721` and wraps **only** the Minimum RO Spend field. The
+sliders below are gated on `type != "call"` (`:722`) and the vCard on `type === "email"` (`:747`).
+
+Print the region with line numbers before concluding a gate applies. A JSX conditional two lines
+above a block is not evidence that it wraps the block.
+
+## `git grep` line numbers drift from the ledger's citations
+
+`ActionMenu.tsx:467` and `CustomerActionPanel.tsx:80` are cited correctly in the 14 Sep rows, but
+a fresh `git grep` for `restrictAdvisorBlockCustomer` at a newer baseline returns `:323` and `:52`
+— those are the *declaration* sites, and the render gates are still at 467 and 80. Grep finds the
+first occurrence, which is usually the `const hasX = ...` line, not the branch that matters. Follow
+the symbol to its use before citing a line, or the evidence points at a variable assignment.
+
+## Report links: the artifact URL scheme changed mid-history
+
+Older reports are `claude.ai/code/artifact/<uuid>`; anything published from 14 Sep on is
+`claude.ai/artifact/<short-id>`. Both resolve and both must stay in the `--reports` map. Republishing
+the dashboard to the old-form URL still updates the same artifact (it came back as Version 14), so
+**keep passing the `code/artifact` URL from `dashboard.md` as `url:`** — do not "modernise" it to the
+short form the publish result prints back, which is a different string for the same page.

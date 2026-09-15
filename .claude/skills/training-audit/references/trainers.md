@@ -106,3 +106,24 @@ or add the actual trainer as a Zoho **co-organizer / speaker** so the API can re
 
 **One free pairing:** the transcripts establish that CRM (11am) and Admin Part 2 (3pm) on 9 Sep were
 the same person — "the one I did earlier today for the CRM". Identify one and the other follows.
+
+## New variant: "Stereo" = TeDarrell (15 Sep 2026, unconfirmed)
+
+Admin Part 1 Tues/Thurs 3 pm on 15 Sep opens *"This is Stereo or my name is Stereo"*. Nobody by that
+name is on the roster. Recorded as **TeDarrell**, on the same reasoning as "Serio" the day before:
+it sits in the phonetic family that has already produced Tedario, Tadario, Tadirio, Tedarios and
+Serio, and it is neither Aaron nor Allie.
+
+**This one carries more weight than the usual alias guess, so confirm it.** The session repeats the
+`admin.block-customer-permission.is-a-grant` error that TeDarrell made in Admin Part 2 on 14 Sep.
+If the attribution holds, that is one trainer twice — a coaching note. If it is *not* TeDarrell, it
+is two trainers on two courses in two days, which makes it a **curriculum defect** and changes who
+has to act. The ledger currently records the coaching reading.
+
+One weak counter-signal worth noting rather than hiding: at 41:17 the trainer role-plays an advisor
+call as *"hi, this is Ralston"*. Trainers often use their own first name in role-play, and Ralston
+is not on the roster either. Single occurrence, and the summary renders the opening name too, so it
+is probably nothing — but it is the kind of detail that looks obvious in hindsight.
+
+Add `stereo` to `TRAINER_ALIASES` in `scripts/ledger.py` when someone confirms — and note the script
+still has **no entry for Allie at all**, nor for `serio`.
