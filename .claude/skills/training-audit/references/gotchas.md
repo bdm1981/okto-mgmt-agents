@@ -516,3 +516,63 @@ Older reports are `claude.ai/code/artifact/<uuid>`; anything published from 14 S
 the dashboard to the old-form URL still updates the same artifact (it came back as Version 14), so
 **keep passing the `code/artifact` URL from `dashboard.md` as `url:`** — do not "modernise" it to the
 short form the publish result prints back, which is a different string for the same page.
+
+## `pin_baseline.sh` cannot actually fetch on this host — it silently grades against a stale ref (16 Sep 2026)
+
+The script runs `git -C "$REPO" -c credential.helper='!gh auth git-credential' fetch origin development`.
+`origin` in the oktorocket clone is **`git@github.com:ShopRocket-LLC/oktorocket.git`** — an SSH remote — and
+the gh credential helper only applies to HTTPS, so the fetch dies on `Permission denied (publickey)`. The
+script catches that, prints `pin_baseline: fetch failed — grading against the local origin/development`
+on **stderr**, and exits 0 with whatever the local remote-tracking ref happens to hold.
+
+On this run that stderr line was one line of noise in a successful-looking `eval`, and the local ref was
+`39e669e80` (11:46) while the real tip was `685745b44` (16:24) — **five hours and several merges behind**.
+A stale baseline does not fail loudly; it grades a trainer against code that is not what shipped.
+
+Fetch explicitly by URL instead, then pin that:
+
+```bash
+git -C ~/Documents/DEV/oktorocket -c credential.helper='!gh auth git-credential' \
+    fetch https://github.com/ShopRocket-LLC/oktorocket.git development
+git -C ~/Documents/DEV/oktorocket update-ref refs/remotes/origin/development FETCH_HEAD
+```
+
+The fix in the script is to rewrite the SSH remote to its HTTPS form before fetching. Until someone does
+that, **treat a `fetch failed` line as a stop-and-fix, not a warning** — and check the baseline's timestamp
+against the wall clock before grading anything.
+
+## The advisor call-list boundary is a permission, not a role (16 Sep 2026)
+
+`calls.role-access.by-extension` was graded **correct** on 24 Aug and is graded **incomplete** from 16 Sep.
+The stricter read is the right one and the earlier grade simply stopped one level too early:
+`callsReviewUtils.ts:147` pins only `PID === "1"`, and `:150-155` lifts the pin entirely for any advisor
+holding the **"All Recordings"** permission (which has existed since Nov 2025, so this is not drift).
+
+The same shape one layer up: **admin ≠ all sites.** `dc-server/models/user.js:297` grants `allSites` to a
+PID 0 admin *only when they have no group assignment*, and `:281-306` scopes anyone carrying a `Group:`
+permission to that group's sites plus their own. So a site manager in a group sees several stores, and an
+admin in a group sees fewer than all of them.
+
+Generalise: when a trainer states an access rule as a property of a **job title**, go and find what the code
+actually keys on. Three times now it has been a permission or a group membership, and the caveat is always
+one sentence the trainer could have said.
+
+## A 0-attendee webinar never reaches `getAllRecordings` — check Past before calling it a lost recording
+
+Verified 16 Sep. Four courses were scheduled that day; `getAllRecordings` returned two. The Past list settles
+it immediately: Admin Part 2 Mon/Wed 3 pm had **1 registered, 0 attended** and CRM Overview Wed 11 am had
+**1 registered, 0 attended**, so neither produced a recording worth having. Only Admin Part 1 (3 reg / 2 att)
+and Advisor Wed 1 pm (4 reg / 2 att) actually ran with customers.
+
+This is the cheap check that separates "not held" from "recording lost", and it takes one page load:
+`https://meeting.zoho.com/meeting/796393835/3764623000000012011/webinar/my-webinars/past`. Note the page
+hydrates late — `get_page_text` returns a chat-history placeholder for several seconds, so read
+`document.body.innerText` via `javascript_tool` instead of waiting on the text extractor.
+
+## Advisor Training Wednesday 1 pm is now 0 for 4 on transcripts
+
+9 Sep, 16 Sep and the two other Advisor series have all failed. Whatever the intermittent per-recording cause
+is, this particular series has never once produced a transcript since the Zoho cutover. That is no longer
+distinguishable from a series-level fault by observation alone — but the Preferences pane still exposes no
+toggle that would explain it (tested 14 Sep), so do **not** re-open that hypothesis without new evidence.
+Report it, keep it out of the ledger, and keep asking a human to press *Generate transcript*.

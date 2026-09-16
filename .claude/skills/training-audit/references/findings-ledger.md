@@ -192,3 +192,20 @@ discovery would keep offering the same four sessions back as unaudited.
 | 2026-09-15 | `uuid:1023136224` | unidentified | `analytics.sync-intervals.per-dms` | unverifiable | 08:07 | — |
 | 2026-09-15 | `uuid:1023136224` | unidentified | `analytics.call-conversion.benchmarks` | unverifiable | 54:55 | — |
 | 2026-09-15 | `uuid:1023136224` | unidentified | `analytics.parts-margin.on-request` | unverifiable | 1:01:33 | — |
+| 2026-09-16 | `uuid:1041417848` | Aaron | `calls.role-access.by-extension` | incomplete | 36:02 | dc-user/src/js/admin/components/calls/Calls/callsReviewUtils.ts:147, dc-user/src/js/admin/components/calls/Calls/callsReviewUtils.ts:150, dc-user/src/js/admin/components/calls/Calls/Calls.tsx:96 |
+| 2026-09-16 | `uuid:1041417848` | Aaron | `calls.role-access.admin-sees-all-sites` | incomplete | 36:26 | dc-server/models/user.js:281, dc-server/models/user.js:297, dc-server/models/user.js:302 |
+| 2026-09-16 | `uuid:1041417848` | Aaron | `scheduler.appointment-lead.phone-is-minimum` | incomplete | 31:26 | dc-booking/src/pages/StayOrGo.js:193, dc-booking/src/pages/SkipToForm.js:20, dc-server/routes/customer.ts:718 |
+| 2026-09-16 | `uuid:1041417848` | Aaron | `inbox.task-assignment.on-click` | correct | 20:32 | dc-user/src/js/user/components/inbox/hooks/useTaskSelection.ts:75 |
+| 2026-09-16 | `uuid:1041417848` | Aaron | `inbox.mark-new.removes-ownership` | correct | 33:34 | dc-user/src/js/user/components/inbox/ActionMenu/ActionMenu.tsx:156, dc-server/models/tracker.js:313 |
+| 2026-09-16 | `uuid:1041417848` | Aaron | `inbox.mark-unread.keeps-owner` | correct | 33:59 | dc-server/routes/messages.js:506, dc-user/src/js/user/components/inbox/ActionMenu/ActionMenu.tsx:151 |
+| 2026-09-16 | `uuid:1041417848` | Aaron | `inbox.translate.language-direction` | correct | 27:18 | dc-user/src/js/user/components/inbox/TaskSMS/MessageBubble.tsx:164, dc-user/src/js/user/components/inbox/TaskSMS/helpers/translate.helpers.ts:12 |
+| 2026-09-16 | `uuid:1041417848` | Aaron | `calls.sentiment-score.admin-editable` | correct | 39:50 | dc-user/src/js/admin/components/calls/CallModalTabs/CallModalTabs.tsx:144, dc-user/src/js/admin/components/calls/CallModalTabs/CallModalTabs.tsx:614 |
+| 2026-09-16 | `uuid:1041417848` | Aaron | `scheduler.blockers.per-service` | correct | 49:42 | dc-user/src/js/admin/components/sites/booking/BlockerModal.tsx:530, dc-user/src/js/admin/components/sites/booking/BlockerModal.tsx:164 |
+| 2026-09-16 | `uuid:1041417848` | Aaron | `campaigns.build-schedule.night-before` | correct | 50:28 | dc-server/modules/campaignBuilder.js:6232, dc-server/modules/campaignBuilder.js:1157 |
+| 2026-09-16 | `uuid:1041417848` | Aaron | `campaigns.on-deck.card-vs-queue` | correct | 50:39 | dc-user/src/js/common/components/campaigns/OnDeck.tsx:280, dc-user/src/js/common/components/campaigns/OnDeck.tsx:21 |
+| 2026-09-16 | `uuid:1041417848` | Aaron | `reviews.reply.admin-and-site-manager-only` | correct | 56:41 | dc-user/src/js/common/components/reviews/SiteReviewDetail.tsx:73 |
+| 2026-09-16 | `uuid:1041417848` | Aaron | `reviews.match.available-to-advisors` | correct | 56:28 | dc-user/src/js/common/components/reviews/SiteReviewDetail.tsx:210 |
+| 2026-09-16 | `uuid:1041417848` | Aaron | `admin.recording-retention.365-purge` | unverifiable | 42:10 | — |
+| 2026-09-16 | `uuid:1041417848` | Aaron | `calls.voicemail.not-on-handsets` | unverifiable | 18:05 | — |
+| 2026-09-16 | `uuid:1041417848` | Aaron | `admin.directory.syncs-to-handsets` | unverifiable | 53:48 | — |
+| 2026-09-16 | `uuid:1041417848` | Aaron | `billing.payments.no-longer-offered` | unverifiable | 26:19 | — |
