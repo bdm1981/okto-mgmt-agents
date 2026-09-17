@@ -576,3 +576,68 @@ is, this particular series has never once produced a transcript since the Zoho c
 distinguishable from a series-level fault by observation alone — but the Preferences pane still exposes no
 toggle that would explain it (tested 14 Sep), so do **not** re-open that hypothesis without new evidence.
 Report it, keep it out of the ledger, and keep asking a human to press *Generate transcript*.
+
+## Advisor Training finally transcribed — and the per-recording theory is now settled (17 Sep 2026)
+
+Advisor Training **Thursdays 2 pm** (`1035089688`, 17 Sep) produced a full transcript and is the first
+Advisor session ever graded. Four earlier Advisor recordings across all four series had failed. Note the
+Thursday 2 pm series itself failed on 10 Sep and succeeded on 17 Sep — **the same series, both outcomes**,
+which is the direct refutation of any remaining series-level hypothesis.
+
+The same day settles it from the other side: four courses ran, **one transcribed and three did not**, and
+all three failures (Admin Part 1 Tue/Thu 3 pm, Admin Part 2 Tue/Thu 9 am, Shop Analytics Thu 1 pm) were on
+series that had transcribed successfully within the previous nine days. Stop looking for a per-course,
+per-series or per-trainer cause. It is per-recording and intermittent, and the only recovery is still the
+*Generate transcript* button, which is a write.
+
+## Attribution: a transcript self-introduction finally exists for Allie
+
+`trainers.md` carried Allie's attribution as "strong but derived" — it came from a Zoho AI *summary* of the
+9 Sep session and asked for human confirmation. The 17 Sep Advisor transcript opens at 01:56 with
+**"My name is ALI"**, verbatim. That is the first non-summary, non-human source for this trainer and it
+matches. Treat the Allie attribution as confirmed from here.
+
+Note this is the *opposite* trap to the "Serio"/"Stereo" family: those were mis-transcriptions of TeDarrell
+needing a human arbiter. "ALI" is corroborated by an independent prior source, so it is not a plurality
+guess.
+
+## `build_report.py --narrative` takes JSON, not markdown
+
+The SKILL.md procedure does not say so and the flag name suggests prose. Passing a `.md` file dies with
+`json.decoder.JSONDecodeError: Expecting value: line 1 column 1`. The expected keys are `title`,
+`standfirst`, `method`, `practice_notes` (a list of `{heading, paras[]}`) and `footer`. Session metadata —
+topic, date, trainer, duration — comes from `--sessions`, a `{"sessions":[{uuid, topic, start_time,
+trainer, duration_minutes}]}` file, which for a Zoho run you have to hand-write since
+`discover_sessions.py` is Zoom-only.
+
+## `ledger.py --add` silently writes a blank date column
+
+`findings.jsonl` has no `date` field in the schema documented in SKILL.md, and the script does not derive
+one from the session. All 17 rows from the 17 Sep run landed as `|  | uuid:… |` with an empty first
+column, which the dashboard joins on. Repaired with a `sed` over the new rows. **Check the date column
+after every `--add`** until the script is fixed, or put `date` in each JSON line and confirm it is read.
+
+## The `--reports` map is now persisted — use it
+
+The standing trap here ("the map is not persisted anywhere; omit `--reports` and the dashboard silently
+loses every report link") is fixed as of 17 Sep: the map lives in **`references/report-map.json`**, keyed
+by bare uuid. Build the `--reports` argument from that file and add a line whenever you publish a report.
+Five August Deep Dive sessions (`3+wKfi9hQLSzEcnEEmhqnw==`, `4xYzQyJWQLqcyHgjzUDW6w==`,
+`5DLC6CWcRySruihidAnu/Q==`, `KNq5QbshQX2wxaWGkNWnwQ==`, `aRMS5aVyT8CR+bca1lsodQ==`) are deliberately
+unmapped — their original reports could not be identified, and a wrong link is worse than a dash.
+
+## The dashboard's coverage-gap section must be carried forward, not regenerated
+
+`build_dashboard.py` still has no coverage-gap section, so each run injects one by hand — and a
+freshly-written injection is *poorer* than what is already live, because previous runs accumulated
+per-recording history in it. **Read the published dashboard first** (`Artifact` action `read` on the fixed
+URL, which you must do anyway before republishing) and update that section's prose rather than writing a
+new one from scratch. The 17 Sep run nearly shipped a regression this way.
+
+## Read the UI branch, not just the action payload
+
+`OnDeck.tsx`'s `onUpdateMessage` posts `message`, `number`, `email` and `send_date` for every row type,
+which reads as "the body is editable for email too" and would have made a correct trainer claim wrong.
+It is not: `MessageModal.js:206` puts the editable textarea inside a `type == "sms"` branch and gives
+email rows only a read-only `Subject:` label. The payload carries the field; no control ever changes it.
+Same lesson as the line-number drift note above — follow the symbol to the surface that renders it.

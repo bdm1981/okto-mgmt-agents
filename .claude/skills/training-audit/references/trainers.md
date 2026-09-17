@@ -46,6 +46,17 @@ plurality spelling.
    report's caveats. A wrong attribution is worse than a missing one: it invents a cross-trainer
    defect or hides a real one.
 
+## CONFIRMED 17 Sep 2026: Allie states her own name in the Advisor transcript
+
+The Advisor Training Thursday 2 pm recording of 17 Sep (`1035089688`) opens at 01:56 with
+**"My name is ALI"** — verbatim transcript, not a generated summary. This is the first non-derived,
+non-human source for this trainer and it agrees with the 9 Sep summary attribution below. The caveat
+that section asked to travel with the Allie attribution can now be dropped: treat **Allie** as
+confirmed, and `Ali` as a plain transcription of it.
+
+It also re-proves the opening-script point below — she introduces herself in the first two minutes,
+and attribution was free as a result.
+
 ## Attributed via the AI summary — Advisor Training, 9 Sep 2026 = Allie
 
 The one Zoho session with a name attached, and it came from an unexpected place. The recording's

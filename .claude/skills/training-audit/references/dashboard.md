@@ -44,3 +44,4 @@ that the same feature is described three incompatible ways across runs.
 | 2026-09-15 | Admin Part 1 — TeDarrell? (**block-customer inverted again**; Require Delete Reason) | https://claude.ai/artifact/TDUauToxAN91qyM9Vy1yuk |
 | 2026-09-15 | Shop Analytics (trainer caught Outrunning Overhead colour bug live) | https://claude.ai/artifact/J7Ttwhd6bLFLskNDb7kRq5 |
 | 2026-09-16 | Admin Part 1 — Aaron (role-vs-permission theme; 10 of 13 correct) | https://claude.ai/artifact/XDsbHzEGuCYaAL8iwtu4Vu |
+| 2026-09-17 | **Advisor Training — Allie** (first Advisor audit; block-customer taught right) | https://claude.ai/artifact/D7xW1RbY5LJcjXdGbRMvwx |
