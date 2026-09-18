@@ -194,9 +194,13 @@ Two traps, both silent:
 
 - **Keys are bare uuids** (`1028334905`, `yAuBNF7bROKsAG2GhRFbkA==`), **not** the ledger's
   `` `uuid:…` `` display form. A prefixed key matches nothing and every Report cell renders `—`.
-- **The map is not persisted anywhere.** Omit `--reports` and the republished dashboard silently
-  loses all 27 report links — the page still renders, so nothing fails. Rebuild it from the table
-  in `references/dashboard.md` before every republish, joining on date + course.
+- **CORRECTION 18 Sep 2026 — the map IS persisted now.** It lives at
+  `references/report-map.json` (added 17 Sep). Pass
+  `--reports references/report-map.json` and add one line to that file whenever you publish a
+  report. The old advice below stood for two weeks after it stopped being true; do not rebuild
+  the map by hand from `dashboard.md`.
+- **Still true: omitting `--reports` fails silently.** The republished dashboard loses every
+  report link and the page still renders, so nothing errors — it just quietly gets worse.
 
 The renderer also has **no coverage-gap section**; the 11 Sep run injected one into the fragment by
 hand after generating it. Worth adding to the script — a hand-patched section disappears the next
@@ -641,3 +645,33 @@ which reads as "the body is editable for email too" and would have made a correc
 It is not: `MessageModal.js:206` puts the editable textarea inside a `type == "sms"` branch and gives
 email rows only a read-only `Subject:` label. The payload carries the field; no control ever changes it.
 Same lesson as the line-number drift note above — follow the symbol to the surface that renders it.
+
+## Friday is the one weekday where an empty result is correct (18 Sep 2026)
+
+The rule recorded above — "a run that reports a quiet day for a weekday is suspicious on its face" —
+needs one carve-out, or every Friday run will waste effort hunting for sessions that do not exist.
+**All five course series run Monday to Thursday only.** Verified again 18 Sep: `getAllRecordings`
+returned nothing newer than Thu 17 Sep 15:00, and the Webinars → Past list's most recent group was
+still headed "Yesterday".
+
+So: empty discovery on Mon-Thu is suspicious and must be checked against the Past list. Empty
+discovery on Fri-Sun is expected. Say which case it is in the run output rather than reporting a
+bare "no new sessions" — the two read identically and mean opposite things.
+
+## `isTranscriptionEnabled: false` is accurate — the flag only lies optimistically (18 Sep 2026)
+
+`isTranscriptGenerated` is documented above as untrustworthy, but only in one direction: it can read
+`true` off the back of a generated *summary* when no transcript exists (Advisor 9 Sep). The opposite
+error had never been tested, and it matters much more — if the flag could read `false` while a
+transcript existed, discovery would have been silently dropping gradeable sessions for a week.
+
+Tested directly on 18 Sep against the newest failure, Admin Part 1 Tue/Thu 3 pm (`1077862314`,
+17 Sep): the API reports `isTranscriptionEnabled: false` / `isTranscriptGenerated: false`, and the
+recording page's Transcript tab shows **"No transcript generated"** with the *Generate transcript*
+button live. The two agree. **A `false` flag can be believed; a `true` flag must still be confirmed
+by pulling actual text.**
+
+One UI detail worth keeping: on the recording page the `find` tool returned a ref for the Transcript
+tab button, but clicking that ref did nothing — the panel stayed on Summary. Clicking the tab by
+screenshot coordinate worked first time. Take the screenshot and click the coordinate; do not trust
+a silent no-op from a ref click to mean the tab was already selected.
