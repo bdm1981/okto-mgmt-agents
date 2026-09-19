@@ -658,6 +658,17 @@ So: empty discovery on Mon-Thu is suspicious and must be checked against the Pas
 discovery on Fri-Sun is expected. Say which case it is in the run output rather than reporting a
 bare "no new sessions" — the two read identically and mean opposite things.
 
+**Generalises to the whole weekend, verified Sat 19 Sep.** Same result as Friday: newest recording still
+Thu 17 Sep 15:00 and the Past list's newest entry still Thursday. Fri/Sat/Sun runs are expected to be
+empty; a Monday-to-Thursday run that comes back empty is not.
+
+**Stuck recordings do not self-heal — 10 days of evidence.** The 9 Sep Advisor recording (`1056342748`)
+was re-checked in the browser on 19 Sep and still shows "No transcript generated" with the *Generate
+transcript* button live, ten days after the session and after four separate re-checks (10, 11, 14, 19 Sep).
+Nothing in the backlog has ever recovered on its own. Stop treating any stuck recording as possibly-late:
+if the flag is `false`, or `true` with no text behind it, the only thing that will ever change it is a human
+pressing the button. Re-check costs one page load, so keep doing it — but report it as blocked, not pending.
+
 ## `isTranscriptionEnabled: false` is accurate — the flag only lies optimistically (18 Sep 2026)
 
 `isTranscriptGenerated` is documented above as untrustworthy, but only in one direction: it can read
