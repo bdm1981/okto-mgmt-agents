@@ -658,13 +658,15 @@ So: empty discovery on Mon-Thu is suspicious and must be checked against the Pas
 discovery on Fri-Sun is expected. Say which case it is in the run output rather than reporting a
 bare "no new sessions" — the two read identically and mean opposite things.
 
-**Generalises to the whole weekend, verified Sat 19 Sep.** Same result as Friday: newest recording still
-Thu 17 Sep 15:00 and the Past list's newest entry still Thursday. Fri/Sat/Sun runs are expected to be
-empty; a Monday-to-Thursday run that comes back empty is not.
+**Generalises to the whole weekend, verified Sat 19 Sep and again Sun 20 Sep.** Same result all three days:
+newest recording still Thu 17 Sep 15:00 and the Past list's newest group still headed "Last week" with
+Thursday at the top. Fri/Sat/Sun runs are expected to be empty; a Monday-to-Thursday run that comes back
+empty is not.
 
-**Stuck recordings do not self-heal — 10 days of evidence.** The 9 Sep Advisor recording (`1056342748`)
-was re-checked in the browser on 19 Sep and still shows "No transcript generated" with the *Generate
-transcript* button live, ten days after the session and after four separate re-checks (10, 11, 14, 19 Sep).
+**Stuck recordings do not self-heal — 11 days of evidence.** The 9 Sep Advisor recording (`1056342748`)
+was re-checked in the browser again on 20 Sep and still shows "No transcript generated" with the *Generate
+transcript* button live, eleven days after the session and after five separate re-checks (10, 11, 14, 19,
+20 Sep).
 Nothing in the backlog has ever recovered on its own. Stop treating any stuck recording as possibly-late:
 if the flag is `false`, or `true` with no text behind it, the only thing that will ever change it is a human
 pressing the button. Re-check costs one page load, so keep doing it — but report it as blocked, not pending.
@@ -686,3 +688,24 @@ One UI detail worth keeping: on the recording page the `find` tool returned a re
 tab button, but clicking that ref did nothing — the panel stayed on Summary. Clicking the tab by
 screenshot coordinate worked first time. Take the screenshot and click the coordinate; do not trust
 a silent no-op from a ref click to mean the tab was already selected.
+
+## Internal test webinars now appear in the Past list — widen the excludes beyond `mock` (20 Sep 2026)
+
+Thu 17 Sep 22:55 carries **"ZZZ TEST - Automation Delete Test 2 (disposable)"**, hosted by TeDarrell
+Cantrell in "My Department", 0 registered / 0 attended. It is somebody's automation fixture, not a training.
+
+It did **not** reach `getAllRecordings` — a 0-attendee webinar never does — so nothing was at risk on this
+run, and that is the only reason it was harmless. A fixture that someone joins once would sail straight into
+discovery, and an audit report on a disposable test webinar is exactly the kind of noise that makes people
+stop reading the channel.
+
+The standing note above says to add `mock` to the topic excludes in `references/sources.md` when Zoho
+discovery is rebuilt. Add these at the same time, one row each (the table parser splits on `|`, so no
+alternation): **`ZZZ`**, **`test`**, **`disposable`**, **`automation`**. Keep matching case-insensitively.
+Note that `test` is the risky one — it would also drop a genuine session topic containing "latest" or
+"greatest", so anchor it as a word if the parser ever gains the capability. `ZZZ` alone catches this
+particular family and is safe.
+
+Also worth knowing for attribution: this is the first webinar on the account whose creator is **not**
+Jada Baker. Every real training recording is hers; a non-Jada creator is a useful smell test for "not a
+customer training" that costs nothing to check.
