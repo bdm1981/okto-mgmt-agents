@@ -45,3 +45,6 @@ that the same feature is described three incompatible ways across runs.
 | 2026-09-15 | Shop Analytics (trainer caught Outrunning Overhead colour bug live) | https://claude.ai/artifact/J7Ttwhd6bLFLskNDb7kRq5 |
 | 2026-09-16 | Admin Part 1 — Aaron (role-vs-permission theme; 10 of 13 correct) | https://claude.ai/artifact/XDsbHzEGuCYaAL8iwtu4Vu |
 | 2026-09-17 | **Advisor Training — Allie** (first Advisor audit; block-customer taught right) | https://claude.ai/artifact/D7xW1RbY5LJcjXdGbRMvwx |
+| 2026-09-21 | Admin Part 1 — unidentified (role-vs-permission again; demo lost admin scope) | https://claude.ai/artifact/XXkFEtoaVcY2kQekmtNTaD |
+| 2026-09-21 | **Advisor Training — Allie** (closes the `calls.role-access` gap; new SMS-label product bug) | https://claude.ai/artifact/Cg88XUMmSpFnWsMjNWjr7w |
+| 2026-09-21 | Admin Part 2 — TeDarrell (**All Recordings taught as a recording switch**; block-customer corrected) | https://claude.ai/artifact/4hefXCQjiyjRhYHR9EALdD |

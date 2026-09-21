@@ -709,3 +709,42 @@ particular family and is safe.
 Also worth knowing for attribution: this is the first webinar on the account whose creator is **not**
 Jada Baker. Every real training recording is hers; a non-Jada creator is a useful smell test for "not a
 customer training" that costs nothing to check.
+
+## `ledger.py --add` reads a `date` field — put one in every JSON line (21 Sep 2026)
+
+The standing note above says `--add` "silently writes a blank date column" and that the 17 Sep rows had to
+be repaired with `sed`. The cause was the input, not the script: `findings.jsonl` had no `date` key. Add
+`"date":"YYYY-MM-DD"` to each line and the column populates correctly — verified this run, 30 rows appended
+with zero blanks. The schema in SKILL.md still omits it, so it has to be remembered rather than copied.
+
+## Reusing a claim_id for a *different* misconception manufactures a false contradiction (21 Sep 2026)
+
+grading.md says to reuse an existing id whenever the same misconception recurs, and that is right — but it
+has an edge this run walked straight into. Allie's "disable campaigns removes them from future **SMS**
+campaigns" was filed under the existing `inbox.disable-campaigns.stops-future-sends`, which TeDarrell had
+been graded **correct** on for a different assertion on 15 Sep. The dashboard immediately rendered a
+contradiction reading "taught wrong by Allie, taught right by TeDarrell" — an artefact, not a finding, and
+the kind that would have sent someone to coach the wrong person.
+
+The rule that resolves it is already in grading.md and is easy to read past: **name the misconception, not
+the feature.** "Stops future sends" and "SMS only" are two claims about one menu item. Split them.
+Practical check: before reusing an id, read the existing rows under it. If any is graded `correct`, you are
+probably about to collide two different assertions.
+
+## `isAdmin` in the calls modal includes Site Manager — the product-bugs note was imprecise
+
+`CallModalTabs.tsx:144` is `utils.roleCheck([0, 5], String(me.PID))`, and `accountRoles.json` maps **0 =
+Administrator, 5 = Site Manager**. So the transcript download at `:168` is open to both roles, and a trainer
+saying "site manager or admin can download the recording and the transcript" is **correct**, not wrong.
+product-bugs.md described this gate as "admin-only", which reads as PID 0 alone; corrected there.
+
+Generalises: `isAdmin` is a variable name, not a role. Read the `roleCheck` array before grading any claim
+about who can do something.
+
+## The weekday rule was tested on a Monday and held (21 Sep 2026)
+
+The standing rule — empty on Fri-Sun is expected, empty on Mon-Thu is suspicious — got its first real
+Monday. Four courses ran and `getAllRecordings` returned all four within hours; three transcribed and were
+audited, one did not. So the rule survives, and the 18:00 run time is late enough to catch a 15:00 session's
+recording **and** its transcript on the same day. The same-day re-check caveat still applies to anything
+that lands later than that.

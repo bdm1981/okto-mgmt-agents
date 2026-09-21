@@ -1,6 +1,9 @@
 {
   "_comment": "uuid -> published report URL. Keys are BARE uuids, never the ledger's `uuid:…` display form. build_dashboard.py --reports reads this; it is NOT derivable from dashboard.md alone, and omitting it silently drops every Report link from the republished dashboard. Persisted 17 Sep 2026 so it stops being rebuilt by hand each run. Add a line whenever you publish a report.",
 
+  "1022360453": "https://claude.ai/artifact/XXkFEtoaVcY2kQekmtNTaD",
+  "1034290828": "https://claude.ai/artifact/Cg88XUMmSpFnWsMjNWjr7w",
+  "1031045681": "https://claude.ai/artifact/4hefXCQjiyjRhYHR9EALdD",
   "1035089688": "https://claude.ai/artifact/D7xW1RbY5LJcjXdGbRMvwx",
   "1041417848": "https://claude.ai/artifact/XDsbHzEGuCYaAL8iwtu4Vu",
   "1023136224": "https://claude.ai/artifact/J7Ttwhd6bLFLskNDb7kRq5",
