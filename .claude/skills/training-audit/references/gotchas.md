@@ -748,3 +748,108 @@ Monday. Four courses ran and `getAllRecordings` returned all four within hours; 
 audited, one did not. So the rule survives, and the 18:00 run time is late enough to catch a 15:00 session's
 recording **and** its transcript on the same day. The same-day re-check caveat still applies to anything
 that lands later than that.
+
+## The Transcript tab ignores synthetic coordinate clicks — click the button object (22 Sep 2026)
+
+The 18 Sep note says to click the Transcript tab by screenshot coordinate because a `find` ref click
+silently no-ops. That is now only half right, and the coordinate route failed outright on one of three
+recordings this run: two clicks at the correct pixel produced no tab change, and
+`div.transTimeStampMainContainer` kept returning an empty string — which reads exactly like a recording
+with no transcript, and is the most dangerous possible false negative for this skill.
+
+The cause is a coordinate-frame mismatch. `getBoundingClientRect()` on the tab button returns CSS pixels
+(`x: 2060–2189, y: 83–129`) while the screenshot frame is 1480×812 — roughly a 0.636 scale. A click that
+maps into the button's box still does not always land, so do not debug this by re-measuring.
+
+**Do this instead**, which worked first time and needs no screenshot at all:
+
+```js
+[...document.querySelectorAll('button.transcript-panel__tab')]
+  .find(b => b.textContent.trim() === 'Transcript').click();
+```
+
+Then wait ~2 s and confirm `document.querySelector('.transcript-panel__tab--active').textContent` reads
+`Transcript` **before** reading the container. An empty container with Summary still active means the click
+was lost, not that the transcript is missing — check the active tab before concluding anything.
+
+Also note the first click after a `navigate` is reliably swallowed on this page, on every recording. The
+two sessions that did work each needed a second click. Budget for it or go straight to the JS click.
+
+## Dumping a transcript: hide the page first or you pay for it twice
+
+The `<pre>`-plus-`get_page_text` technique in the 15 Sep note works, but as written it returns **the
+`<pre>` and the live transcript panel underneath it** — the first pass this run returned 111,257
+characters to deliver a 28,000-character slice, and truncated mid-way.
+
+Hide the existing body children before inserting the `<pre>`:
+
+```js
+Array.from(document.body.children).forEach(el => { el.style.display = 'none' });
+```
+
+With that, three passes cover an 83,000-character session cleanly. Compacting `MM:SS`-then-text into
+`[mm:ss] text` in the page first does **not** shrink it — the newlines you remove and the brackets you add
+cancel out — so do it for readability, not for size.
+
+## `findings.jsonl` needs a `trainer` field — SKILL.md's schema omits it
+
+The documented schema has `session`, `stamp`, `claim_id`, `quote`, `grade`, `reality`, `evidence`,
+`say_instead`, `product_bug`, and the 21 Sep note added `date`. It does **not** mention `trainer`, and
+`ledger.py --add` reads `r["trainer"]` to build the row. Omit it and every row lands misattributed or the
+add fails outright.
+
+So the working schema is the documented one **plus `date` plus `trainer`**, with the trainer already
+canonicalised by hand — `TRAINER_ALIASES` in the script still has no entry for Allie, Serio, Stereo or
+Tirio, so it cannot do the canonicalisation for you.
+
+## `admin.directly-assigned.admins-can-see` — the code moved under this claim_id (22 Sep 2026)
+
+Rows from 27 Aug and 3 Sep grade "admins can see directly-assigned tasks" as `wrong_contained`, against a
+`buildPrivateTaskVisibilityFilter` that was self-only with no bypass at all. Since then TRS-I2079 added
+`buildPrivateTaskVisibilityFilterForViewer` (`taskVisibility.ts:210`), and the answer is now **split by
+task class**:
+
+- direct voicemails, personal-number SMS, private faxes → still self-only for every viewer, admins included;
+- direct-assigned SMS campaign tasks and private call-campaign tasks → visible to Admins anywhere and to
+  Site Managers at their sites.
+
+So a blanket claim in **either** direction is now incomplete, and the two old rows were graded against
+behaviour that no longer exists. Do not read that history as "trainers keep getting this wrong" — read the
+two helpers before grading, and check which class the trainer was actually talking about. This is the
+clearest instance yet of the standing "a claim can be right on the session date and wrong now" rule, running
+in reverse.
+
+## `ReviewCard` moved to TypeScript — the cited line is stale
+
+The 15 Sep note cites `dc-user/src/js/cust/components/reviews/ReviewCard.js:64` for the Google review floor.
+That path no longer exists: it is `ReviewCard.tsx` and the read is at **:79**, with the routing branch at
+**:80**. The logic is unchanged (`settings?.business_info?.minGoogleRating || 4`). Re-resolve a cited path
+before quoting it in a new finding; a `git grep` against the pinned commit catches this in one call.
+
+## Five series have now produced both transcript outcomes (22 Sep 2026)
+
+The per-recording conclusion recorded on 17 Sep is now beyond argument, and it is worth writing the list
+down so nobody re-opens it:
+
+| series | failed | succeeded |
+|---|---|---|
+| Advisor Thursdays 2 pm | 10 Sep | 17 Sep |
+| Advisor Tuesdays 12 pm | 15 Sep | 22 Sep (first ever) |
+| Shop Analytics Tuesdays 11 am | 22 Sep | 8 Sep, 15 Sep |
+| Admin Part 1 Tue/Thu 3 pm | 17 Sep | 15 Sep, 22 Sep |
+| Admin Part 2 Tue/Thu 9 am | 15 Sep, 17 Sep | 22 Sep |
+
+Only Advisor Wednesday 1 pm (0 for 5) and CRM Overview Monday 1 pm (failed 14 and 21 Sep) have unbroken
+recent runs, and neither is long enough to mean anything on its own. Stop looking for a pattern; report the
+gap and keep asking for the Generate-transcript click.
+
+## Grading the same claim in two sessions on one day is the cheapest signal this skill produces
+
+Two sessions three hours apart on 22 Sep took opposite positions on
+`admin.block-customer-permission.is-a-grant` — Allie wrong at 12:29, TeDarrell right at 15:28. Same day,
+same pinned commit, no possibility of the product having changed underneath them.
+
+That is worth more than the same two findings a week apart, because it removes every confound and lands as
+a curriculum question rather than a coaching one. It only appears if **all** of a day's sessions are graded
+in one run. A run that audits the day's most interesting session and defers the rest would have reported a
+single trainer error and missed the actual finding.

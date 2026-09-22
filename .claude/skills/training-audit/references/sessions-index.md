@@ -58,3 +58,6 @@ speakers and had 3 people present for the full 67 minutes.
 | 2026-09-21 | `uuid:1022360453` | Admin Part 1 | 64 | 2 | — | unidentified |
 | 2026-09-21 | `uuid:1034290828` | Advisor Training | 60 | 4 | — | Allie |
 | 2026-09-21 | `uuid:1031045681` | Admin Part 2 | 67 | 3 | — | TeDarrell |
+| 2026-09-22 | `uuid:1072975203` | Admin Part 2 | 79 | 1 | — | unidentified |
+| 2026-09-22 | `uuid:1087242604` | Advisor Training | 63 | 2 | — | Allie |
+| 2026-09-22 | `uuid:1060332195` | Admin Part 1 | 72 | 3 | — | TeDarrell |

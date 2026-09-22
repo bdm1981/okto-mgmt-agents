@@ -23,6 +23,9 @@ Zoom's transcription mangles spoken names. Every variant seen so far, all one pe
 | Tadario | TeDarrell |
 | Tedarios | TeDarrell |
 | Tadirio | TeDarrell |
+| Serio | TeDarrell |
+| Stereo | TeDarrell |
+| Tirio | TeDarrell |
 | CRM trainer | TeDarrell |
 | Ali | Allie |
 | Aldith | Allie |
@@ -138,3 +141,23 @@ is probably nothing — but it is the kind of detail that looks obvious in hinds
 
 Add `stereo` to `TRAINER_ALIASES` in `scripts/ledger.py` when someone confirms — and note the script
 still has **no entry for Allie at all**, nor for `serio`.
+
+## New variant: "Tirio" = TeDarrell (22 Sep 2026, unconfirmed)
+
+Admin Part 1 Tues/Thurs 3 pm on 22 Sep opens at **00:15** with *"My name is Tirio."* Nobody by that
+name is on the roster. Recorded as **TeDarrell** on the same reasoning as Serio and Stereo before it:
+it sits in the phonetic family that has now produced Tedario, Tadario, Tadirio, Tedarios, Serio,
+Stereo and Tirio, and it is neither Aaron nor Allie.
+
+Two things make this one easier to accept than "Stereo" was. It is a **clean, early self-introduction**
+in the housekeeping script rather than a mid-session aside, so it is not competing with role-play. And
+the session's content corroborates it: at 24:33 and 38:02 he states the block-customer permission the
+right way round, which is the correction TeDarrell made between 15 and 21 September — the same arc,
+continuing.
+
+**Still worth one human confirmation**, because the alternative reading changes the day's headline: if
+this is TeDarrell, then block-customer was taught right by TeDarrell and wrong by Allie on the same day,
+which is a curriculum inconsistency. If it is someone else, it is a third trainer entering the roster.
+
+Seven mis-transcriptions of one name is itself the finding. The opening script asks trainers to say their
+name; it does not ask them to spell it or put it in the chat. Either would end this permanently.

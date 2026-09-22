@@ -48,3 +48,6 @@ that the same feature is described three incompatible ways across runs.
 | 2026-09-21 | Admin Part 1 — unidentified (role-vs-permission again; demo lost admin scope) | https://claude.ai/artifact/XXkFEtoaVcY2kQekmtNTaD |
 | 2026-09-21 | **Advisor Training — Allie** (closes the `calls.role-access` gap; new SMS-label product bug) | https://claude.ai/artifact/Cg88XUMmSpFnWsMjNWjr7w |
 | 2026-09-21 | Admin Part 2 — TeDarrell (**All Recordings taught as a recording switch**; block-customer corrected) | https://claude.ai/artifact/4hefXCQjiyjRhYHR9EALdD |
+| 2026-09-22 | Admin Part 2 — unidentified (**auto-reply gate**; directly-assigned campaign tasks widen to admins) | https://claude.ai/artifact/CoG64ixqBeuyUZzt5cQmcY |
+| 2026-09-22 | **Advisor Training — Allie** (pinned-reports + SMS-label findings closed; **block-customer regressed**) | https://claude.ai/artifact/PfjhzMnwgLWPRaX3DCcGcw |
+| 2026-09-22 | Admin Part 1 — TeDarrell? (11 of 14 correct; **Require Delete Reason label hits a 4th run**) | https://claude.ai/artifact/EFid33mck3htFEn9mNtK15 |
