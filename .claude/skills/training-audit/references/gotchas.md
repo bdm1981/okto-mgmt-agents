@@ -853,3 +853,68 @@ That is worth more than the same two findings a week apart, because it removes e
 a curriculum question rather than a coaching one. It only appears if **all** of a day's sessions are graded
 in one run. A run that audits the day's most interesting session and defers the rest would have reported a
 single trainer error and missed the actual finding.
+
+## A feature existing is not a feature being available — read the type gate (23 Sep 2026)
+
+The Advisor trainer told a customer there is no way to target a call campaign by service description,
+and offered to file a feature request. The obvious audit move is to grep, find
+`campaignTypes.js:17` — `{ label: "Service Description", value: "13" }` — plus an **Oil Change
+Reminder** trigger at `:14`, and grade the trainer `wrong_high` on a claim that touched the
+customer's stated core job. That grade would have been wrong.
+
+`getAvailableTriggers` (`AddCampaign.js:167-174`) restricts the call type to
+`allowedCallTriggers = ["1","2","3","11","12"]`. Triggers 13 and 8 are real, shipped and
+unavailable for call campaigns. The trainer had opened the trigger dropdown on screen and read it.
+
+Two rules out of this, and they pull in opposite directions:
+
+- **Before grading a "that doesn't exist" claim wrong, find the gate for the specific type,
+  channel or trigger the trainer was talking about.** A global grep proves a feature exists
+  somewhere, never that it is reachable from where the customer was standing.
+- **But do check the other side.** He generalised from "not for calls" to "I'll put in a feature
+  request", and service-description targeting ships today for SMS and email. That is the
+  `incomplete`, and it is the finding worth the customer's time — not the wrong_high that the
+  grep alone would have produced.
+
+## `scheduler.after-hours.resources-are-uploads` is the ledger id — grading.md suggests a different one
+
+`grading.md`'s claim_id section uses `…after-hours.resources` as its worked example of a well-named
+id. The ledger has used **`scheduler.after-hours.resources-are-uploads`** since 25 Aug, across seven
+rows. Filing a new row under the example name silently starts a second history and the contradiction
+detector goes quiet on one of the better-evidenced claims in the set.
+
+Caught this run only because the `--check` dry run printed `all_repeating` and the id was not in it.
+**Grep the ledger for the nearest existing id before inventing one** — `awk -F'|' '{print $5}'
+references/findings-ledger.md | sort -u` is the whole check, and the same pass caught three more
+(`inbox.campaign-task.outcome-required`, `campaigns.advisor-permission.needs-manage-campaigns`,
+`campaigns.call-campaigns.no-customer-send`). Four of eighteen rows would have failed to join.
+
+## Read the existing rows before writing "first time this was taught right"
+
+The same run drafted a finding saying the after-hours claim had never been taught correctly before.
+The ledger says it was taught correctly on 25 Aug, 27 Aug, 3 Sep and 22 Sep, and got it wrong twice.
+A superlative in a `reality` field is a claim about the ledger, and it needs the same evidence
+standard as a claim about the code — go and read the rows.
+
+## Both trainers unidentified on the same day — the opening script is slipping (23 Sep 2026)
+
+Neither the 23 Sep CRM Overview nor the 23 Sep Advisor session contains a self-introduction anywhere
+in the transcript. That is the first day since the Zoho cutover with two graded sessions and zero
+attributions, and it undoes the run of clean openings (Aaron 9 Sep, Allie 17 Sep, "Tirio" 22 Sep).
+
+The Advisor session has a partial excuse and it is worth recording: at 01:18 the trainer says
+**"I'm taking on someone else's training for today, they're out on vacation."** A substitute is
+exactly when attribution matters most — the roster-and-course heuristics everyone reaches for are
+guaranteed wrong — and exactly when the habit is most likely to be skipped.
+
+The transcripts do carry a *different* signal worth noting, without acting on it: this trainer says
+"I'm actually in charge of setting up your guys's campaigns" and "I did start working on your
+platform yesterday", which reads as an onboarding/implementation role rather than the training
+bench. Do **not** promote that to an attribution — it is the same shape of inference that produced
+the Jason Simms error on 10 Sep. Record `unidentified` and let a human name them from the video.
+
+## `ledger.py --check` is worth running every time, for the repeat table, not the validation
+
+The documented reason to dry-run is to avoid writing bad rows. The more useful output is
+`all_repeating` and `contradictions`, which show what the new rows will join *before* they land —
+which is how the two claim_id mistakes above were both caught in one pass. It costs one command.
