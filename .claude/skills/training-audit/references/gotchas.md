@@ -918,3 +918,50 @@ the Jason Simms error on 10 Sep. Record `unidentified` and let a human name them
 The documented reason to dry-run is to avoid writing bad rows. The more useful output is
 `all_repeating` and `contradictions`, which show what the new rows will join *before* they land —
 which is how the two claim_id mistakes above were both caught in one pass. It costs one command.
+
+## `ledger.py --check` does not surface contradictions — run `--contradictions` separately (24 Sep 2026)
+
+The 23 Sep note says `--check` is worth running every time for `all_repeating`, and that is still true. But its
+`contradictions` key came back **`{}`** on this run while the full-ledger `--contradictions` call immediately
+reported `campaigns.advisor-permission.needs-manage-campaigns` as Aaron-wrong against TeDarrell-right in six
+sessions — the single most actionable finding of the day. `--check` evidently computes contradictions over the
+incoming rows alone, which can never contain the older correct version by construction.
+
+So the dry run answers "what will these rows join?" and only the post-add `--contradictions` answers "who
+disagrees with whom". **Run both.** A run that trusted `--check`'s empty contradictions block would have
+reported this as a lone trainer slip rather than a curriculum inconsistency with a correct script already on file.
+
+Note also that `incomplete` counts as wrong for this detector (`ledger.py:134`), which is right — an omitted
+gate and a false statement land on the customer the same way.
+
+## A repeat can hide inside a claim the tool calls "not repeating"
+
+`campaigns.advisor-permission.needs-manage-campaigns` has seven rows and did **not** appear in `all_repeating`,
+because the repeat counter only counts non-`correct` gradings and the six earlier rows were all correct. That is
+correct behaviour for repeat detection and a trap for a human reading the output: "not repeating" here meant
+"taught right six times and wrong once", which is a *more* interesting result, not a less interesting one.
+
+Read `--contradictions` before concluding a claim has no history.
+
+## Verify the partial-capture path before grading an "any single field is enough" claim (24 Sep 2026)
+
+Grading `scheduler.appointment-lead.phone-is-minimum` looked like a one-grep job: the bail-out forms
+(`StayOrGo.js:193-196`, `SkipToForm.js:14-22`) require first name, last name, phone and comments, so "you may not
+even see a name" is wrong. That grade is right, but it is only *safe* because of a second check.
+
+`dc-booking/src/Header.tsx:111-144` holds an exit-intent capture whose gate is an **OR** over
+phone/fname/lname/comments — a path that fires on any one field and would have made the trainer substantially
+correct. It is dead: it posts to `/bookings/capture` (`api.js:12`) and the router is mounted at `/booking`, with no
+`/capture` handler in dc-server at all, and the 404 is swallowed by the surrounding `try/catch`.
+
+Two lessons, the same pair as the 23 Sep service-description note. **Find the other path before grading a
+"minimum requirement" claim wrong** — forms are rarely the only writer. And **when the other path exists but is
+broken, that is the product bug, and it is worth more than the training finding.**
+
+## The same trainer repeating a claim eight days later is the cheapest coaching signal there is
+
+Aaron was graded `incomplete` on the appointment-lead minimum on 16 Sep and stated a stronger version of it on
+24 Sep. Same trainer, same claim, nothing changed in between. `newly_repeating` flags it with
+`curriculum_defect: false`, and that flag is doing real work: this needs one conversation with one person, not a
+script change. Do not let a single-trainer repeat get written up in the same breath as a cross-trainer one —
+they have different owners and different fixes.

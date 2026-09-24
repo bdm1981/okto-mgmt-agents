@@ -51,3 +51,6 @@ that the same feature is described three incompatible ways across runs.
 | 2026-09-22 | Admin Part 2 — unidentified (**auto-reply gate**; directly-assigned campaign tasks widen to admins) | https://claude.ai/artifact/CoG64ixqBeuyUZzt5cQmcY |
 | 2026-09-22 | **Advisor Training — Allie** (pinned-reports + SMS-label findings closed; **block-customer regressed**) | https://claude.ai/artifact/PfjhzMnwgLWPRaX3DCcGcw |
 | 2026-09-22 | Admin Part 1 — TeDarrell? (11 of 14 correct; **Require Delete Reason label hits a 4th run**) | https://claude.ai/artifact/EFid33mck3htFEn9mNtK15 |
+| 2026-09-23 | Advisor Training — unidentified (substitute trainer; service-description targeting) | https://claude.ai/artifact/LoPDr6QJNLa1AM4iC4Rt47 |
+| 2026-09-23 | CRM Overview — unidentified (outcome-prompt repeat; third write path for the campaigns flag) | https://claude.ai/artifact/BzWCER7vmkRgVSGtmovS5W |
+| 2026-09-24 | **Admin Part 1 — Aaron** (**Manage Campaigns contradiction**; new dead `/bookings/capture` bug) | https://claude.ai/artifact/BdVb8mLw4Cnq2mthsEKyzm |

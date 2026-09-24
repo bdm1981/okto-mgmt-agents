@@ -1,5 +1,5 @@
 {
-  "_comment": "uuid -> published report URL. Keys are BARE uuids, never the ledger's `uuid:\u2026` display form. build_dashboard.py --reports reads this; it is NOT derivable from dashboard.md alone, and omitting it silently drops every Report link from the republished dashboard. Persisted 17 Sep 2026 so it stops being rebuilt by hand each run. Add a line whenever you publish a report.",
+  "_comment": "uuid -> published report URL. Keys are BARE uuids, never the ledger's `uuid:…` display form. build_dashboard.py --reports reads this; it is NOT derivable from dashboard.md alone, and omitting it silently drops every Report link from the republished dashboard. Persisted 17 Sep 2026 so it stops being rebuilt by hand each run. Add a line whenever you publish a report.",
   "1072975203": "https://claude.ai/artifact/CoG64ixqBeuyUZzt5cQmcY",
   "1087242604": "https://claude.ai/artifact/PfjhzMnwgLWPRaX3DCcGcw",
   "1060332195": "https://claude.ai/artifact/EFid33mck3htFEn9mNtK15",
@@ -40,5 +40,6 @@
   "KhqtymUkTieJKHLqJ2pmYA==": "https://claude.ai/code/artifact/78db82b4-5edc-46e4-a8d4-9215c7998b61",
   "LcLouXVuS+mEBazN2D26Hw==": "https://claude.ai/code/artifact/78db82b4-5edc-46e4-a8d4-9215c7998b61",
   "1052085661": "https://claude.ai/artifact/LoPDr6QJNLa1AM4iC4Rt47",
-  "1091363034": "https://claude.ai/artifact/BzWCER7vmkRgVSGtmovS5W"
+  "1091363034": "https://claude.ai/artifact/BzWCER7vmkRgVSGtmovS5W",
+  "1067951147": "https://claude.ai/artifact/BdVb8mLw4Cnq2mthsEKyzm"
 }
