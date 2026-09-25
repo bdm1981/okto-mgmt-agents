@@ -965,3 +965,28 @@ Aaron was graded `incomplete` on the appointment-lead minimum on 16 Sep and stat
 `curriculum_defect: false`, and that flag is doing real work: this needs one conversation with one person, not a
 script change. Do not let a single-trainer repeat get written up in the same breath as a cross-trainer one —
 they have different owners and different fixes.
+
+## A daily run drains the 7-day window, so "zero new in 7 days" is normal (25 Sep 2026)
+
+The scheduled task asks for "the last 7 days", which reads like a weekly sweep and invites the worry that a
+zero result means discovery is broken. It does not, once the task runs daily. This run's window (18-25 Sep)
+held **15 recordings: 9 already in the ledger, 6 with no transcript, 0 new and gradeable** — because each
+day's own 18:00 run had already graded that day's transcribed sessions. The window is a safety net for
+recordings that transcribe late, not a backlog to work through.
+
+So the diagnostic is not "did the window produce sessions" but **"did anything transcribe that is not yet in
+the ledger"**. Combined with the Friday-to-Sunday carve-out already recorded above, a Friday run finding
+nothing new is expected twice over, and the run output should say which of the two cases it is rather than
+reporting a bare zero.
+
+## The dashboard's coverage-gap section must be re-dated, not just carried forward
+
+The standing note above says to carry that section forward rather than regenerate it. That is right and
+incomplete: the section is written in **relative time**, so carrying it forward verbatim publishes stale
+claims. Before this run the live page said "**New today**" about two 24 Sep recordings, "three courses ran
+today and only one transcribed", "fifteen days of evidence" and "Today the gap landed on one customer twice"
+— every one of which had been true the day before and was wrong by the time anyone read it.
+
+On every republish, age the `N days open` counters by the elapsed days, convert each `today` to the date or
+weekday it actually refers to, and update the "oldest has been open for N days" line. Nothing errors, and a
+page that confidently mis-dates itself is worse than one that omits the detail.
