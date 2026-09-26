@@ -990,3 +990,50 @@ today and only one transcribed", "fifteen days of evidence" and "Today the gap l
 On every republish, age the `N days open` counters by the elapsed days, convert each `today` to the date or
 weekday it actually refers to, and update the "oldest has been open for N days" line. Nothing errors, and a
 page that confidently mis-dates itself is worse than one that omits the detail.
+
+## The coverage-gap headline totals are hand-maintained and had drifted by two (26 Sep 2026)
+
+The dashboard's summary line read "15 sessions, **48** customer attendances across 1,120 minutes" while its
+own fifteen rows summed to **50**. The minutes were right, so nothing looked wrong.
+
+Traced through the Slack posts, the error entered on **23 Sep**: the backlog went from 13 sessions / 42 to
+15 / 48, but the two sessions added that day (Admin Part 1, 6 att; Admin Part 2, 1 att) contribute **7**,
+not 5. Every run since carried it forward, because each run adds a delta to the previous total rather than
+re-reading the table. The 24 Sep Slack post repeated it, so the wrong figure is now in the channel too.
+
+**Recompute the totals from the rows on every republish**, rather than adding the day's delta to yesterday's
+number. It is three lines and it is the only thing in that section a reader can check against the table
+immediately above it:
+
+```bash
+python3 - <<'PY'
+import re
+h=open('index.html').read()
+sec=h[h.index('Coverage gap'):h.index('Open product bugs')]
+rows=re.findall(r'<tr><td>(2026-\d\d-\d\d)</td>.*?<code>(\d+)</code></td><td>(?:<strong>)?(\d+)(?:</strong>)?</td><td>(?:<strong>)?(\d+)(?:</strong>)?</td>', sec)
+print(len(rows), sum(int(r[3]) for r in rows), sum(int(r[2]) for r in rows))
+PY
+```
+
+Generalises to every hand-maintained aggregate in that section: it is prose, so nothing validates it, and a
+running total that is only ever incremented never re-derives itself back to the truth.
+
+## Whether a quiet-day run posts to Slack has been inconsistent — the rule is "did anything change" (26 Sep 2026)
+
+Two Fridays, two different behaviours. **18 Sep** posted a full quiet-Friday message (0 graded, the nine
+open gap entries listed). **25 Sep** posted nothing and only re-dated the dashboard. Both were correct runs
+of the same situation, which means the rule was never actually written down, and this run had to reconstruct
+it from the channel.
+
+The rule that reconciles the scheduled-task file ("discovery returns zero → post nothing") with the standing
+note above ("zero graded sessions is a report, not silence"):
+
+- **Post** when something a reader would act on changed: a session was graded, the gap grew or shrank, or
+  sessions ran and could not be graded (the false-all-clear case the Zoom cutover caused).
+- **Do not post** when nothing changed: a Fri-Sun day with no training scheduled, no new recordings, and a
+  gap identical to the one already posted. Re-posting an unchanged backlog into a channel that assesses
+  named employees trains people to skim it.
+- **Still republish the dashboard** either way, because its relative-time prose ages regardless.
+
+Checked 26 Sep (Saturday): 15 in-window recordings, 9 already ledgered, 6 unchanged no-transcript, newest
+recording still Thu 24 Sep, Past list's newest group still "LAST WEEK". Nothing changed, so nothing posted.
