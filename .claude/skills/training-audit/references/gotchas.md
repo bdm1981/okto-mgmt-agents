@@ -1037,3 +1037,20 @@ note above ("zero graded sessions is a report, not silence"):
 
 Checked 26 Sep (Saturday): 15 in-window recordings, 9 already ledgered, 6 unchanged no-transcript, newest
 recording still Thu 24 Sep, Past list's newest group still "LAST WEEK". Nothing changed, so nothing posted.
+
+## Re-date the `N days open` counters in DESCENDING order or you double-age a row (27 Sep 2026)
+
+The 25 Sep note makes re-dating the coverage-gap section standing procedure on every republish. The
+mechanical trap it does not mention: the counters are plain text, so a naive ascending sweep
+(`9 days open` → `10 days open`, then `10 days open` → `11 days open`) re-matches its own output and
+ages the 17 Sep rows twice. Nothing errors and the table still looks plausible.
+
+Replace largest-first — 17→18, 16→17, 12→13, 11→12, 10→11, 9→10, 5→6, 4→5, 3→4, 2→3 — so every
+replacement's output is bigger than any source still to be matched. Anchor on `<strong>N days open`
+rather than the bare number, or the `<td>` attendance and minutes cells get caught too. Then print
+every `days open` match with its row's meeting key and eyeball the sequence against the dates before
+publishing; that check takes one command and catches the double-age immediately.
+
+Also confirmed this run: the 26 Sep totals repair held. The fifteen rows still sum to **50
+attendances / 1,120 minutes**, matching the headline. Keep re-deriving it from the rows rather than
+carrying the number forward — that is what let the drift run for three days last time.
