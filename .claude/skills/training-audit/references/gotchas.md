@@ -1054,3 +1054,72 @@ publishing; that check takes one command and catches the double-age immediately.
 Also confirmed this run: the 26 Sep totals repair held. The fifteen rows still sum to **50
 attendances / 1,120 minutes**, matching the headline. Keep re-deriving it from the rows rather than
 carrying the number forward — that is what let the drift run for three days last time.
+
+## dc-booking's API base is graphql-broker, NOT dc-server — grepping the wrong service invented a product bug (28 Sep 2026)
+
+The 24 Sep run reported a product bug: `dc-booking` posts bail-out leads to `${API}/bookings/capture`, the
+booking router in dc-server is mounted at `/booking` (singular), and "no `/capture` handler exists anywhere in
+dc-server". Every one of those statements is true. The conclusion was still wrong.
+
+`REACT_APP_API_URL` for the booking microsite points at **graphql-broker**. The route is right there:
+`graphql-broker/src/routes/index.ts:37` mounts `app.use("/bookings", bookingRoutes)`, the handler is
+`graphql-broker/src/routes/booking/capture.ts:62`, it has its own test suite
+(`routes/booking/__tests__/capture.test.ts`), and on a bailed capture it calls
+`generateLead` (`capture.ts:125`) which posts to dc-server's `customer/createLead`. All three bail-out paths
+work. Withdrawn in `product-bugs.md`.
+
+**The rule: before concluding a route does not exist, find out which service the caller is actually pointed at.**
+A repo-wide `git grep` for the path costs one call and would have caught it immediately — the dc-server-scoped
+grep is what produced a confident, wrong bug report that sat in the ledger and in Slack for four days.
+
+Generalises past routes: this monorepo has at least dc-server, graphql-broker and dc-calls answering HTTP for
+different front-ends. "Not in dc-server" means nothing on its own.
+
+## A false product bug is more expensive than a false training finding
+
+Worth stating plainly because the incentives run the other way. `product-bugs.md` says a bug found here is worth
+more than the training note that surfaced it, and that is true — which is exactly why a wrong one costs more.
+A wrong training finding is corrected by re-grading one claim. A wrong product bug goes into the dashboard, into
+Slack, and into somebody's sprint planning as evidence, and nothing in the pipeline re-checks it. The
+`/bookings/capture` entry was cited in the 24 Sep Slack post as a *new* bug, which is the loudest slot in the
+message.
+
+Re-verify an open product-bug entry whenever a run touches the same code path, and date the re-verification.
+
+## `git show "$SHA:path"` breaks in zsh when the path starts with certain letters
+
+`git show "${SHA}:graphql-broker/..."` failed with `unknown revision e2564f6ea...aphql-broker/...` — zsh ate the
+`:gr`. Quoting the whole argument does not help. Assign the path to its own variable and interpolate both:
+
+```bash
+P="graphql-broker/src/routes/booking/capture.ts"
+git show "${SHA}:${P}" | sed -n '55,145p'
+```
+
+Reads as a bad SHA or a missing file, which is exactly the wrong diagnosis when you are checking whether a file
+exists in another service.
+
+## Zoho recording (1) and (2) with the same meetingKey: audit the long one, drop the shell
+
+CRM Overview on 28 Sep produced two recordings under one `meetingKey` (`1092090568`): "… (1)" at 13:00 running
+**11 seconds** with `noAudioRecording: true`, and "… (2)" at 13:04 running 43 minutes with a full transcript.
+The false start is the host's first join; `min_duration_minutes: 20` drops it correctly. Grade the long one and
+key the ledger row on the shared `meetingKey` — do not treat the pair as two sessions, and do not let the
+0-minute shell's `isTranscriptGenerated: false` persuade you the session has no transcript.
+
+## `campaigns.campaign-hours.window-930-to-3` is about the *window*; day-of-week is a separate assertion
+
+Two claims live on the campaign schedule screen and collapsing them into one id would have collided a
+`correct` history with a new `incomplete`. The existing id covers the send *window* (start/end times) and has
+two `correct` rows. Aaron's 28 Sep claim was about which *days* the schedule can cover — a different
+misconception — and was filed as **`campaigns.campaign-schedule.fixed-weekdays`**, which immediately paid for
+itself: TeDarrell stated the opposite correctly three hours later and the contradiction detector surfaced the
+pair. Same lesson as the 21 Sep note, from the other direction: splitting an id is cheap, merging two
+assertions is not.
+
+## The same-day contradiction fired again, and it is still the best signal here
+
+28 Sep is the second clean instance (after 22 Sep): two trainers, one day, one pinned commit, opposite
+positions on whether the campaign send schedule is fixed. It only appears because *both* of the day's
+transcribed sessions were graded in the same run. Keep grading the whole day even when the second session
+looks routine — the CRM session was 8-of-9 correct and still supplied half the most useful finding of the run.

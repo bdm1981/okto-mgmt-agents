@@ -161,3 +161,15 @@ which is a curriculum inconsistency. If it is someone else, it is a third traine
 
 Seven mis-transcriptions of one name is itself the finding. The opening script asks trainers to say their
 name; it does not ask them to spell it or put it in the chat. Either would end this permanently.
+
+## New variant: "Cio" = TeDarrell (28 Sep 2026, unconfirmed)
+
+CRM Overview on 28 Sep opens at 00:07 with *"My name is Cio and I'll be your trainer for today's session."*
+Nobody by that name is on the roster. Recorded as **TeDarrell** on the same reasoning as Serio, Stereo and
+Tirio: it sits in the phonetic family that has already produced Tedario, Tadario, Tadirio, Tedarios, Serio,
+Stereo and Tirio, it is neither Aaron nor Allie, and the alias table's `CRM trainer → TeDarrell` row points the
+same way. A human should confirm before it hardens.
+
+Note this is now **eight** distinct mis-transcriptions of one name. The pattern is stable enough to canonicalise
+on sight, but `TRAINER_ALIASES` in `scripts/ledger.py` still carries none of them beyond the original family —
+keep canonicalising by hand in `findings.jsonl`.

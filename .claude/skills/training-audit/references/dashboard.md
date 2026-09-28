@@ -54,3 +54,5 @@ that the same feature is described three incompatible ways across runs.
 | 2026-09-23 | Advisor Training — unidentified (substitute trainer; service-description targeting) | https://claude.ai/artifact/LoPDr6QJNLa1AM4iC4Rt47 |
 | 2026-09-23 | CRM Overview — unidentified (outcome-prompt repeat; third write path for the campaigns flag) | https://claude.ai/artifact/BzWCER7vmkRgVSGtmovS5W |
 | 2026-09-24 | **Admin Part 1 — Aaron** (**Manage Campaigns contradiction**; new dead `/bookings/capture` bug) | https://claude.ai/artifact/BdVb8mLw4Cnq2mthsEKyzm |
+| 2026-09-28 | **Admin Part 1 — Aaron** (appointment-lead minimum wrong a 3rd time, all Aaron; campaign-schedule contradiction) | https://claude.ai/artifact/AqrybKe9fsk3cD8HuA34Nx |
+| 2026-09-28 | CRM Overview — TeDarrell? (8 of 9 correct; **Require Delete Reason label hits a 5th run**) | https://claude.ai/artifact/7mUaXa2gutXULBfedea6pm |
