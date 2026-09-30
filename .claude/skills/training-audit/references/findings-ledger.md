@@ -350,3 +350,32 @@ discovery would keep offering the same four sessions back as unaudited.
 | 2026-09-28 | `uuid:1092090568` | TeDarrell | `campaigns.campaign-schedule.fixed-weekdays` | correct | 25:19 | dc-user/src/js/common/components/campaigns/CampaignHours.js:16, dc-user/src/js/common/components/campaigns/CampaignHours.js:19, dc-user/src/js/admin/components/campaigns/CampaignScheduleModal.js:8 |
 | 2026-09-28 | `uuid:1092090568` | TeDarrell | `campaigns.on-deck.card-vs-queue` | correct | 33:49 | dc-user/src/js/common/components/campaigns/OnDeckTile.js:56 |
 | 2026-09-28 | `uuid:1092090568` | TeDarrell | `campaigns.do-not-track.suppresses-outcome-prompt` | correct | 15:01 | dc-user/src/js/admin/components/campaigns/AddCampaign.js:747, dc-user/src/js/user/components/inbox/ActionMenu/ActionMenu.tsx:139 |
+| 2026-09-29 | `uuid:1094171325` | TeDarrell | `campaigns.explain-delete.is-confirmation` | wrong_high | 44:19 | dc-user/src/js/common/components/campaigns/DeleteCampaignButton.js:16, dc-user/src/js/common/components/campaigns/OnDeck.tsx:347, dc-user/src/js/admin/components/campaigns/AddCampaign.js:742 |
+| 2026-09-29 | `uuid:1094171325` | TeDarrell | `scheduler.appointment-lead.phone-is-minimum` | correct | 35:41 | dc-booking/src/Header.tsx:110, graphql-broker/src/routes/booking/capture.ts:72, graphql-broker/src/routes/index.ts:37 |
+| 2026-09-29 | `uuid:1094171325` | TeDarrell | `directory.vendor-flag.excludes-from-advisoriq` | incomplete | 17:34 | dc-server/routes/vendors.js:29, dc-server/models/call.js:111 |
+| 2026-09-29 | `uuid:1094171325` | TeDarrell | `campaigns.call-campaigns.no-customer-send` | correct | 33:04 | dc-user/src/js/admin/components/campaigns/AddCampaign.js:510 |
+| 2026-09-29 | `uuid:1094171325` | TeDarrell | `admin.block-customer-permission.is-a-grant` | correct | 16:58 | dc-user/src/js/common/schema/accountPermissions.json:5 |
+| 2026-09-29 | `uuid:1094171325` | TeDarrell | `campaigns.on-deck.card-vs-queue` | correct | 40:21 | dc-user/src/js/common/components/campaigns/OnDeckTile.js:52 |
+| 2026-09-29 | `uuid:1094171325` | TeDarrell | `reviews.review-gate.four-star-floor` | correct | 60:40 | dc-user/src/js/cust/components/reviews/ReviewCard.tsx:87 |
+| 2026-09-29 | `uuid:1094171325` | TeDarrell | `campaigns.message-rotation.randomizes-order` | correct | 50:34 | dc-server/modules/campaignBuilder.js:4111 |
+| 2026-09-29 | `uuid:1094171325` | TeDarrell | `campaigns.attribution.trigger5-excluded` | incomplete | 45:50 | change-relay-worker/Configuration/CampaignMappingProfile.cs:26 |
+| 2026-09-29 | `uuid:1094171325` | TeDarrell | `campaigns.attribution.classes-and-overrides` | correct | 47:31 | dc-server/modules/intent/intents/campaigns.update.ts:334, dc-user/src/js/admin/components/campaigns/AddCampaign.js:771 |
+| 2026-09-29 | `uuid:1094171325` | TeDarrell | `campaigns.auto-approve.bypasses-queue` | correct | 43:51 | dc-user/src/js/admin/components/campaigns/AddCampaign.js:733 |
+| 2026-09-29 | `uuid:1094171325` | TeDarrell | `campaigns.do-not-track.suppresses-outcome-prompt` | correct | 44:28 | dc-user/src/js/admin/components/campaigns/AddCampaign.js:748 |
+| 2026-09-29 | `uuid:1094171325` | TeDarrell | `reports.report-categories.seven` | correct | 57:32 | dc-user/src/js/common/schema/adminReports.json:1 |
+| 2026-09-29 | `uuid:1094171325` | TeDarrell | `inbox.translate.english-to-spanish` | correct | 30:20 | dc-user/src/js/user/components/inbox/TaskSMS/MessageToolbar.tsx:121 |
+| 2026-09-29 | `uuid:1094171325` | TeDarrell | `campaigns.keyword-detection.auto-response` | correct | 49:14 | dc-server/modules/campaigns/keywordDetectionHandler.js:160 |
+| 2026-09-29 | `uuid:1040589970` | Aaron | `admin.disable-user.toggle-spares-private` | incomplete | 14:21 | dc-server/routes/users.js:465, dc-server/routes/users.js:483 |
+| 2026-09-29 | `uuid:1040589970` | Aaron | `admin.directly-assigned.admins-can-see` | incomplete | 27:08 | dc-server/modules/taskVisibility.ts:212, dc-server/modules/taskVisibility.ts:243 |
+| 2026-09-29 | `uuid:1040589970` | Aaron | `calls.role-access.admin-sees-all-sites` | incomplete | 21:44 | dc-server/models/user.js:305 |
+| 2026-09-29 | `uuid:1040589970` | Aaron | `campaigns.advisor-permission.needs-manage-campaigns` | correct | 19:20 | dc-user/src/js/user/config/routes.js:39, dc-user/src/js/common/components/auth/RoleProtectedRoute.tsx:34 |
+| 2026-09-29 | `uuid:1040589970` | Aaron | `admin.block-customer-permission.is-a-grant` | correct | 20:20 | dc-user/src/js/common/schema/accountPermissions.json:5 |
+| 2026-09-29 | `uuid:1040589970` | Aaron | `admin.holiday-types.three` | correct | 48:41 | dc-server/models/holiday.ts:29 |
+| 2026-09-29 | `uuid:1040589970` | Aaron | `admin.holidays.block-booking` | correct | 53:32 | dc-server/routes/booking.ts:62 |
+| 2026-09-29 | `uuid:1040589970` | Aaron | `admin.holiday.defaults-to-closed-route` | correct | 50:07 | dc-server/models/holiday.ts:31 |
+| 2026-09-29 | `uuid:1040589970` | Aaron | `scheduler.after-hours.resources-are-uploads` | correct | 61:02 | dc-user/src/js/admin/components/sites/booking/BookingSpecs.tsx:337 |
+| 2026-09-29 | `uuid:1040589970` | Aaron | `inbox.auto-response.ack-only-on-new-task` | correct | 55:02 | dc-server/modules/inboundSMSHandler.js:689 |
+| 2026-09-29 | `uuid:1040589970` | Aaron | `admin.extension.one-per-user` | correct | 25:18 | dc-user/src/js/admin/components/users/shared/forms/AdminFormInputs.tsx:97 |
+| 2026-09-29 | `uuid:1040589970` | Aaron | `admin.close-site-early.now-permission-gated` | correct | 40:17 | dc-user/src/js/user/components/calls/Calls.js:22, dc-server/routes/sites.js:1732 |
+| 2026-09-29 | `uuid:1040589970` | Aaron | `integrations.tekmetric.status-map-comma-labels` | correct | 67:41 | dc-server/modules/integrations/shopWareV2/formatter.ts:392 |
+| 2026-09-29 | `uuid:1040589970` | Aaron | `admin.report-permissions.group-disables-individual` | correct | 23:17 | dc-user/src/js/admin/components/users/edit/UserEditSettings.tsx:100, dc-user/src/js/admin/components/users/edit/UserEditSettings.tsx:140 |

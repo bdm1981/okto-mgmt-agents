@@ -1123,3 +1123,82 @@ assertions is not.
 positions on whether the campaign send schedule is fixed. It only appears because *both* of the day's
 transcribed sessions were graded in the same run. Keep grading the whole day even when the second session
 looks routine — the CRM session was 8-of-9 correct and still supplied half the most useful finding of the run.
+
+## A partial grep on the translate claim manufactures a false wrong_high (29 Sep 2026)
+
+There are **two** translate surfaces and they run in opposite directions. `MessageBubble.tsx:139-141`
+translates a *received* message with `source_lang:"es", target_lang:"en"` hardcoded, and only offers the
+control when `isSpanishText()` detects Spanish. `MessageToolbar.tsx:121` is a separate **"Translate to
+Spanish"** button in the compose toolbar that translates the advisor's *outbound* draft.
+
+TeDarrell's "you can use translate services to translate to Spanish" grepped against MessageBubble alone
+reads as flatly inverted and would have been graded `wrong_high`. It is correct — he was describing the
+compose button. The ledger already encodes the split: `inbox.translate.language-direction` (19 rows, the
+inbound direction) and `inbox.translate.english-to-spanish` (the outbound button, graded correct 15 Sep).
+**Check which surface the trainer is on before reaching for either id.**
+
+## `isTranscriptGenerated: true` lied again — second instance, and it is now a discovery rule (29 Sep 2026)
+
+Advisor Training Tuesdays 12 pm (`1031224791`, 29 Sep, 62 min, 2 attendees) returned
+`isTranscriptGenerated: true` **and** `isTranscriptionEnabled: true`, and the recording page still showed
+"No transcript generated" with the Generate button live. That is the same optimistic failure first seen on
+9 Sep (`1056342748`) — the flag goes true off the back of a generated *summary*.
+
+The standing note already says a `true` flag must be confirmed by pulling real text. Twenty days and one
+recurrence later, treat that as mandatory rather than advisory: **`isTranscriptionEnabled: true` does not
+rescue it either** — both flags read true here. The only proof is a non-empty
+`div.transTimeStampMainContainer`. A run that trusted the flags would have reported three graded sessions
+and silently invented findings for a session with no transcript at all.
+
+## Read the screen the trainer was actually on before grading a permissions claim (29 Sep 2026)
+
+`UserPermissionsToggles.tsx` builds an `enhancedPermissions` array with only **three** entries —
+allRecordings, campaigns, restrictAdvisorBlockCustomer — omitting `closeSiteEarly`, which *is* in
+`accountPermissions.json`. That reads exactly like a product bug: a permission that exists, is enforced at
+`sites.js:1732`, and cannot be granted from the UI.
+
+It is not. The screen in use is `UserEditSettings.tsx`, whose `permissionsList` (`:94-96`) is built from
+`accountPermissions.json` plus the group list, so all four render. Aaron's "for those four" is correct.
+Same lesson as the dc-booking/graphql-broker error on 28 Sep, one layer in: a component existing does not
+mean it is the component on screen. **Find the consumer before treating a narrower list as the product's
+behaviour** — this one was three minutes from a false product-bug entry in Slack.
+
+## TRS-I2264 made attribution server-owned, but only for campaignsV2 tenants (29 Sep 2026)
+
+`attributionClass.ts` (landed 25 Sep) plus `campaigns.update.ts:334` force `attributionEnabled = true` and
+re-derive `campaignClass` from the trigger, discarding whatever the client sent. Read alone that makes every
+"you can choose the class / toggle attribution off" claim wrong — and it would have contradicted three
+existing `correct` rows for `campaigns.attribution.classes-and-overrides`, all TeDarrell.
+
+The whole block is inside `if (await campaignsV2OnForTenant(ctx.tenantId))`, and the comment is explicit:
+"Legacy tenants (flag off) save through this intent from the legacy editor and list toggle, and **keep the
+attribution choices they send**." A legacy-editor demo is still accurate, and which tenants have the flag is
+configuration — not gradeable.
+
+What *is* unconditional and worth grading: `change-relay-worker/Configuration/CampaignMappingProfile.cs:26`
+maps `AttributionEnabled` to `Trigger != "5" && ...`, so **Appointment Reminder campaigns never earn
+attribution credit**, flag or no flag. Filed as `campaigns.attribution.trigger5-excluded` rather than folded
+into the existing id — two different assertions, and merging them would have collided a correct history.
+
+## Cited lines keep drifting — re-resolve before quoting (29 Sep 2026)
+
+Three stale citations found in one run:
+- `ReviewCard.tsx` Google floor: the 22 Sep note corrected `.js:64` to `.tsx:79`; it is now **`:87`** (read)
+  and `:88` (routing branch). Logic unchanged.
+- `product-bugs.md` cited the honest V2 wording at `campaignsV2/wizard/steps/DeliveryStep.tsx:324`. **That
+  file does not exist at `7790cef49`.** The only honest wording left is a comment at `campaignsV2/api.ts:284`.
+- `users.js` private-task sweep moved from `:482` to **`:483`**.
+
+None changed a grade, but all three would have shipped as evidence pointing at nothing. A `git grep` against
+the pinned commit costs one call.
+
+## A scheduled run can simply not happen — the 7-day window is what catches it (29-30 Sep 2026)
+
+There is no 29 Sep commit in `okto-mgmt-agents` and no 29 Sep report, while three sessions ran that day. The
+30 Sep run picked all three up because discovery looks back seven days, which is exactly the safety net the
+25 Sep note describes. Two points worth keeping:
+
+- **Do not treat "the previous run covered yesterday" as an assumption.** Check the ledger, not the calendar.
+- **This run fired at 07:03, not the usual 18:00.** A morning run sees *yesterday* complete and *today* empty
+  — the day's 9 am, 11 am, 1 pm and 3 pm sessions have not happened yet. An empty result for the current day
+  in a morning run is not the suspicious-weekday case from the 15 Sep note; say which it is.

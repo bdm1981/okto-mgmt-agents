@@ -56,3 +56,5 @@ that the same feature is described three incompatible ways across runs.
 | 2026-09-24 | **Admin Part 1 — Aaron** (**Manage Campaigns contradiction**; new dead `/bookings/capture` bug) | https://claude.ai/artifact/BdVb8mLw4Cnq2mthsEKyzm |
 | 2026-09-28 | **Admin Part 1 — Aaron** (appointment-lead minimum wrong a 3rd time, all Aaron; campaign-schedule contradiction) | https://claude.ai/artifact/AqrybKe9fsk3cD8HuA34Nx |
 | 2026-09-28 | CRM Overview — TeDarrell? (8 of 9 correct; **Require Delete Reason label hits a 5th run**) | https://claude.ai/artifact/7mUaXa2gutXULBfedea6pm |
+| 2026-09-29 | **Admin Part 1 — TeDarrell** (12 of 15 correct; **appointment-lead claim taught right for the first time**; Require Delete Reason hits a 6th run) | https://claude.ai/artifact/UwkHBjF9mzj4qyEVN7BvFM |
+| 2026-09-29 | **Admin Part 2 — Aaron** (11 of 14 correct; three omissions, each missing the inverting branch) | https://claude.ai/artifact/1eEyjUvqmadzG3W174QXk3 |
