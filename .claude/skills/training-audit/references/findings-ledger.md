@@ -379,3 +379,42 @@ discovery would keep offering the same four sessions back as unaudited.
 | 2026-09-29 | `uuid:1040589970` | Aaron | `admin.close-site-early.now-permission-gated` | correct | 40:17 | dc-user/src/js/user/components/calls/Calls.js:22, dc-server/routes/sites.js:1732 |
 | 2026-09-29 | `uuid:1040589970` | Aaron | `integrations.tekmetric.status-map-comma-labels` | correct | 67:41 | dc-server/modules/integrations/shopWareV2/formatter.ts:392 |
 | 2026-09-29 | `uuid:1040589970` | Aaron | `admin.report-permissions.group-disables-individual` | correct | 23:17 | dc-user/src/js/admin/components/users/edit/UserEditSettings.tsx:100, dc-user/src/js/admin/components/users/edit/UserEditSettings.tsx:140 |
+| 2026-09-30 | `uuid:1093265230` | Aaron | `directory.vendor-flag.excludes-from-advisoriq` | wrong_high | 43:22 | dc-server/routes/vendors.js:29, dc-server/models/call.js:111 |
+| 2026-09-30 | `uuid:1093265230` | Aaron | `scheduler.appointment-lead.phone-is-minimum` | wrong_high | 29:57 | dc-booking/src/Header.tsx:110, dc-server/routes/customer.ts:791, graphql-broker/src/services/booking/generateLead.service.ts:14 |
+| 2026-09-30 | `uuid:1093265230` | Aaron | `calls.role-access.by-extension` | incomplete | 35:07 | dc-user/src/js/admin/components/calls/Calls/callsReviewUtils.ts:177 |
+| 2026-09-30 | `uuid:1093265230` | Aaron | `calls.role-access.admin-sees-all-sites` | incomplete | 36:05 | dc-server/models/user.js:305 |
+| 2026-09-30 | `uuid:1093265230` | Aaron | `calls.visibility-toggle.admin-only` | incomplete | 45:03 | dc-user/src/js/admin/components/calls/CallAnalyzerModal/CallAnalyzerModal.tsx:631, dc-user/src/js/admin/components/calls/Calls/callsReviewUtils.ts:177 |
+| 2026-09-30 | `uuid:1093265230` | Aaron | `inbox.translate.language-direction` | correct | 26:23 | dc-user/src/js/user/components/inbox/TaskSMS/MessageBubble.tsx:141, dc-user/src/js/user/components/inbox/TaskSMS/MessageToolbar.tsx:121 |
+| 2026-09-30 | `uuid:1093265230` | Aaron | `inbox.mark-new.removes-ownership` | correct | 32:36 | dc-user/src/js/user/components/inbox/ActionMenu/ActionMenu.tsx:157 |
+| 2026-09-30 | `uuid:1093265230` | Aaron | `inbox.mark-unread.keeps-owner` | correct | 32:49 | dc-user/src/js/user/components/inbox/ActionMenu/ActionMenu.tsx:151 |
+| 2026-09-30 | `uuid:1093265230` | Aaron | `calls.transcript-download.role-gate` | correct | 39:48 | dc-user/src/js/user/components/inbox/ActionMenu/ActionMenu.tsx:501 |
+| 2026-09-30 | `uuid:1093265230` | Aaron | `inbox.click-to-call.needs-extension` | correct | 24:28 | dc-user/src/js/utils.js:245 |
+| 2026-09-30 | `uuid:1093265230` | Aaron | `campaigns.campaign-hours.window-930-to-3` | unverifiable | 56:06 | — |
+| 2026-09-30 | `uuid:1035645330` | Allie | `directory.vendor-flag.excludes-from-advisoriq` | correct | 58:43 | dc-server/routes/vendors.js:29, dc-server/models/call.js:111 |
+| 2026-09-30 | `uuid:1035645330` | Allie | `admin.block-customer-permission.is-a-grant` | wrong_high | 29:00 | dc-user/src/js/user/components/inbox/ActionMenu/ActionMenu.tsx:467, dc-user/src/js/common/components/customers/CustomerActionPanel/CustomerActionPanel.tsx:80 |
+| 2026-09-30 | `uuid:1035645330` | Allie | `inbox.disable-campaigns.call-campaigns-only` | wrong_contained | 29:43 | dc-user/src/js/user/components/inbox/ActionMenu/ActionMenu.tsx:488 |
+| 2026-09-30 | `uuid:1035645330` | Allie | `inbox.disable-campaigns.stops-future-sends` | correct | 30:02 | dc-user/src/js/user/components/inbox/ActionMenu/CampaignModal.tsx:55, dc-server/modules/campaignBuilder.js:4357 |
+| 2026-09-30 | `uuid:1035645330` | Allie | `scheduler.blocker.does-not-clear-existing-bookings` | correct | 32:26 | dc-server/routes/appointments.js:143 |
+| 2026-09-30 | `uuid:1035645330` | Allie | `campaigns.on-deck.card-vs-queue` | correct | 39:24 | dc-user/src/js/common/components/campaigns/OnDeckTile.js:56 |
+| 2026-09-30 | `uuid:1035645330` | Allie | `campaigns.advisor-edit.email-address-vs-sms-body` | correct | 41:40 | dc-user/src/js/common/components/campaigns/MessageModal.js:198 |
+| 2026-09-30 | `uuid:1035645330` | Allie | `campaigns.dispatch.every-five-minutes` | correct | 38:46 | dc-user/src/js/common/components/campaigns/CampaignHours.js:31 |
+| 2026-09-30 | `uuid:1035645330` | Allie | `calls.role-access.by-extension` | correct | 52:47 | dc-user/src/js/admin/components/calls/Calls/callsReviewUtils.ts:177 |
+| 2026-09-30 | `uuid:1035645330` | Allie | `calls.share-link.internal-only` | correct | 55:12 | dc-user/src/js/admin/components/calls/CallModalTabs/CallModalTabs.tsx:194 |
+| 2026-09-30 | `uuid:1035645330` | Allie | `reviews.reply.admin-and-site-manager-only` | correct | 1:00:22 | dc-user/src/js/common/components/reviews/SiteReviewDetail.tsx:208 |
+| 2026-09-30 | `uuid:1035645330` | Allie | `reviews.match.available-to-advisors` | correct | 1:00:46 | dc-user/src/js/common/components/reviews/SiteReviewDetail.tsx:218 |
+| 2026-09-30 | `uuid:1035645330` | Allie | `campaigns.advisor-permission.needs-manage-campaigns` | correct | 38:05 | dc-user/src/js/common/schema/accountPermissions.json:5 |
+| 2026-09-30 | `uuid:1035645330` | Allie | `inbox.blocked-requests.captured-not-calendared` | unverifiable | 19:05 | — |
+| 2026-09-28 | `uuid:1059550464` | Allie | `directory.vendor-flag.excludes-from-advisoriq` | correct | 53:05 | dc-server/routes/vendors.js:29, dc-server/models/call.js:111 |
+| 2026-09-28 | `uuid:1059550464` | Allie | `admin.block-customer-permission.is-a-grant` | correct | 28:33 | dc-user/src/js/user/components/inbox/ActionMenu/ActionMenu.tsx:467, dc-user/src/js/common/components/customers/CustomerActionPanel/CustomerActionPanel.tsx:80 |
+| 2026-09-28 | `uuid:1059550464` | Allie | `advisoriq.sentiment-timeline.only-without-scorecard` | wrong_contained | 52:40 | dc-user/src/js/admin/components/calls/CallTranscriptTab/CallTranscriptTab.tsx:117, dc-user/src/js/admin/components/calls/CallTranscriptTab/CallTranscriptTab.tsx:548 |
+| 2026-09-28 | `uuid:1059550464` | Allie | `scheduler.appointment-lead.phone-is-minimum` | incomplete | 24:47 | dc-booking/src/Header.tsx:110, dc-server/routes/customer.ts:791 |
+| 2026-09-28 | `uuid:1059550464` | Allie | `reports.advisor-default-count.fourteen` | correct | 55:06 | dc-user/src/js/common/schema/defaultReportPermissions.json:12 |
+| 2026-09-28 | `uuid:1059550464` | Allie | `reports.pinned.max-three` | correct | 55:11 | dc-user/src/js/user/components/reports/Reports.js:102 |
+| 2026-09-28 | `uuid:1059550464` | Allie | `inbox.disable-campaigns.stops-future-sends` | correct | 29:03 | dc-user/src/js/user/components/inbox/ActionMenu/CampaignModal.tsx:55, dc-server/modules/campaignBuilder.js:4357 |
+| 2026-09-28 | `uuid:1059550464` | Allie | `scheduler.blocker.does-not-clear-existing-bookings` | correct | 32:25 | dc-server/routes/appointments.js:143 |
+| 2026-09-28 | `uuid:1059550464` | Allie | `inbox.task-assignment.on-click` | correct | 25:50 | dc-user/src/js/user/components/inbox/ActionMenu/ActionMenu.tsx:157 |
+| 2026-09-28 | `uuid:1059550464` | Allie | `calls.role-access.by-extension` | correct | 48:23 | dc-user/src/js/admin/components/calls/Calls/callsReviewUtils.ts:177 |
+| 2026-09-28 | `uuid:1059550464` | Allie | `campaigns.advisor-edit.email-address-vs-sms-body` | correct | 37:07 | dc-user/src/js/common/components/campaigns/MessageModal.js:198 |
+| 2026-09-28 | `uuid:1059550464` | Allie | `campaigns.dispatch.every-five-minutes` | correct | 36:32 | dc-user/src/js/common/components/campaigns/CampaignHours.js:31 |
+| 2026-09-28 | `uuid:1059550464` | Allie | `reviews.reply.admin-and-site-manager-only` | correct | 30:12 | dc-user/src/js/common/components/reviews/SiteReviewDetail.tsx:208 |
+| 2026-09-28 | `uuid:1059550464` | Allie | `inbox.message-search.open-only` | unverifiable | 15:41 | — |

@@ -58,3 +58,6 @@ that the same feature is described three incompatible ways across runs.
 | 2026-09-28 | CRM Overview — TeDarrell? (8 of 9 correct; **Require Delete Reason label hits a 5th run**) | https://claude.ai/artifact/7mUaXa2gutXULBfedea6pm |
 | 2026-09-29 | **Admin Part 1 — TeDarrell** (12 of 15 correct; **appointment-lead claim taught right for the first time**; Require Delete Reason hits a 6th run) | https://claude.ai/artifact/UwkHBjF9mzj4qyEVN7BvFM |
 | 2026-09-29 | **Admin Part 2 — Aaron** (11 of 14 correct; three omissions, each missing the inverting branch) | https://claude.ai/artifact/1eEyjUvqmadzG3W174QXk3 |
+| 2026-09-30 | **Admin Part 1 — Aaron** (5 of 10 correct; **vendor exclusion taught as forward-looking**, appointment-lead minimum wrong a 4th time) | https://claude.ai/artifact/REM99yMZEoDR9tRXQc9mZY |
+| 2026-09-30 | **Advisor Training — Allie** (11 of 14 correct; **first ever correct vendor-flag statement**; block-customer regressed from 28 Sep) | https://claude.ai/artifact/FqSSwF9pjRjmDp4Xm2KXQ5 |
+| 2026-09-28 | **Advisor Training — Allie** (recovered from the coverage gap; holds the correct script for vendor flag **and** block-customer) | https://claude.ai/artifact/6LUnRYzhpZ1ZzHxiFEsxe3 |

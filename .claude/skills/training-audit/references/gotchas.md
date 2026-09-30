@@ -1202,3 +1202,86 @@ There is no 29 Sep commit in `okto-mgmt-agents` and no 29 Sep report, while thre
 - **This run fired at 07:03, not the usual 18:00.** A morning run sees *yesterday* complete and *today* empty
   — the day's 9 am, 11 am, 1 pm and 3 pm sessions have not happened yet. An empty result for the current day
   in a morning run is not the suspicious-weekday case from the 15 Sep note; say which it is.
+
+## The recording API's transcript flags are now uniformly `true` and are useless for discovery (30 Sep 2026)
+
+This retires every previous rule about reading `isTranscriptGenerated` / `isTranscriptionEnabled`, in both
+directions.
+
+All **twenty** rows `getAllRecordings` returned on 30 Sep carry the identical flag set:
+`isTranscriptGenerated: true`, `isTranscriptionEnabled: true`, `isSummaryGenerated: true`,
+`openAIStatus: SUCCESS`, `isGenerating: false`, `transcriptAccess: 1`, `status: UPLOADED`,
+`isChaptersGenerated: true`, and a non-null `transcriptionDownloadUrl`. Five of those twenty have **no
+transcript at all** — `1062682173`, `1012679711`, `1085383207`, `1037384439` and `1031224791` all still show
+"No transcript generated" with the Generate button live, checked in the browser this evening. Four of them
+were recorded on this dashboard as honest `isTranscriptionEnabled: false` / `openAIStatus: NOT_GENERATED`
+as recently as yesterday.
+
+So the standing 18 Sep rule — "a `false` flag can be believed; a `true` flag must still be confirmed by
+pulling actual text" — is now **half wrong and wholly unusable**. There is no longer any value in the flag in
+either direction, because no recording reports anything but success.
+
+**The only reliable test is a non-empty `div.transTimeStampMainContainer` on the recording page.** Discovery
+must open every in-window recording in the browser; the API is good for topic, date, duration, `meetingKey`
+and `erecordingId` and nothing else. Budget for that — it is one page load plus a JS click per recording, and
+the batch tool does about four per call.
+
+Do **not** read the uniformity as "everything transcribed". It is the opposite failure to the 9 Sep one: then
+a single flag lied optimistically off the back of a summary; now the whole field set appears to be defaulted.
+`meta.userPlan` on the same response reads `{"user-type": "Free"}`, which is also obviously wrong for this
+org, so treat the response's metadata block as degraded generally.
+
+## A stuck recording DID recover — re-check the whole gap every run (30 Sep 2026)
+
+The dashboard has said since 20 Sep that "stuck recordings do not self-heal" and has cited up to twenty-one
+days of evidence for it. That rule is now **broken by a counter-example**: Advisor Training Monday 11 am of
+28 Sep (`1059550464`), published as a coverage-gap row on 28 Sep with transcription reported off, came back
+with a full 47,946-character transcript on 30 Sep and was graded on this run. It is the first entry ever to
+leave that table.
+
+Whether a human pressed *Generate transcript* or it healed on its own is not observable from here, and it does
+not matter operationally. What matters is the procedure: **re-check every coverage-gap row in the browser on
+every run**, not just the newest ones. The cost is one page load each and this run got a fully gradeable
+session out of it — one that turned out to hold the correct script for two claims being taught wrong elsewhere
+in the same week.
+
+Keep reporting the gap as blocked rather than pending, because most rows still do not move. But drop the
+"never recovers" framing; it is now false, and it was the argument for not re-checking.
+
+## Re-date the coverage-gap counters by ELAPSED days, which is sometimes zero (30 Sep 2026)
+
+The 25 and 27 Sep notes make re-dating standing procedure and warn about double-ageing via ascending
+replacement. Both are right and both assume a day has passed.
+
+This run republished the dashboard about **eleven hours** after the previous version (artifact version ids are
+epoch seconds — `1790771014` was 07:03, `1790810765` was 18:06 the same day). Elapsed days: zero. Ageing the
+counters would have published a table where every `N days open` disagreed with its own date column.
+
+So: compute elapsed days from the live version's timestamp, not from "the last run was yesterday". A daily
+task that fires twice in one day, or that missed a day and catches up, breaks the assumption in both
+directions. The check is the same one already recommended — print every `days open` with its row's date and
+confirm the arithmetic against today — and it catches a zero-day republish as readily as a double-age.
+
+## `git pull` in okto-mgmt-agents fails the same way `pin_baseline.sh` does
+
+The 16 Sep note covers the oktorocket clone. The **skill's own repo** has the same SSH remote and the same
+failure: `git pull --ff-only` dies on `sign_and_send_pubkey: signing failed for ED25519 "Github" from agent`.
+The scheduled task already says to continue on the local checkout, which is the right call — but note the push
+at the end of the run works, because it is written with an explicit HTTPS URL and the gh credential helper.
+The asymmetry is confusing in the run log: the pull fails, the push succeeds, and nothing is wrong.
+
+Confirmed again for the baseline on this run: `pin_baseline.sh` reported `fetch failed` and pinned
+`fca11443a` (14:47) while the real tip was `8719ad736` (16:18) — an hour and a half and one merge behind.
+Fetch explicitly by URL and `update-ref` before grading, every time.
+
+## The inbox message-search scope was not locatable in dc-server (30 Sep 2026)
+
+`inbox.message-search.open-only` was graded `wrong_contained` on 17 Sep and was stated the other way on
+28 and 30 Sep — searching by contact covers open tasks only, searching message text covers open and
+completed. It could not be verified at `8719ad736` and was recorded `unverifiable` rather than assumed.
+
+Where it is **not**: there is no `dc-server/routes/tracker.js` or `tracker.ts`, and greps for `searchText`,
+`searchBy`, `byContact`, `messageSearch` across `dc-server/routes/` return nothing. `dc-server/modules/recordSearch.ts`
+exists and is the most likely place to look next, along with the graphql-broker resolvers — this monorepo
+answers HTTP from several services and "not in dc-server" means nothing on its own (see the 28 Sep note).
+Worth ten minutes on a future run: the claim has now been graded three times with no citation behind any of them.
