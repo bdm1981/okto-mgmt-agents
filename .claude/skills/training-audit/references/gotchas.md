@@ -1285,3 +1285,79 @@ Where it is **not**: there is no `dc-server/routes/tracker.js` or `tracker.ts`, 
 exists and is the most likely place to look next, along with the graphql-broker resolvers — this monorepo
 answers HTTP from several services and "not in dc-server" means nothing on its own (see the 28 Sep note).
 Worth ten minutes on a future run: the claim has now been graded three times with no citation behind any of them.
+
+## Every course that ran on 1 Oct failed to transcribe — the first 100% day (1 Oct 2026)
+
+Three webinars ran Thursday 1 Oct (Admin Part 2 9 am, Shop Analytics 1 pm, Advisor 2 pm), all three recorded,
+**none** transcribed. Previous worst was three of four on 17 Sep. Six customer attendances and 203 minutes went
+straight into the coverage gap without ever being gradeable, and **zero sessions were graded on this run** — the
+first run since the Zoho cutover where the window produced no gradeable session at all despite training running.
+
+This is the "sessions ran and could not be graded" case, so it was posted to Slack rather than passed over as a
+quiet day. Note which case it is explicitly in the run output: a Thursday with three sessions and no transcripts
+reads identically to a Friday with no sessions if you only report the number zero.
+
+All sixteen previously-open gap rows were re-checked in the browser on this run and all sixteen are still empty,
+so the backlog is now **19 sessions / 58 attendances / 1,385 minutes**. The 28 Sep recovery remains the only
+entry ever to leave that table.
+
+## Re-checking the whole gap needs `getWebinarRecording`, because `getAllRecordings` only reaches back ~10 days
+
+The 30 Sep note says to re-check every coverage-gap row every run. The mechanical obstacle it does not mention:
+`getAllRecordings` returned twenty rows covering 22 Sep onward, so eleven of the sixteen gap rows had **no
+`erecordingId` in that response**, and the recording-page URL cannot be built without one.
+
+`ZohoWebinar_getWebinarRecording` with `path_variables.webinarKey` set to the meeting key returns that one
+recording including its `erecordingId`, which is all that is needed. It is one call per row, each ~1.5 KB of
+response for one field, so budget roughly 11 extra calls plus 16 page loads to sweep the whole table. Worth it:
+the sweep is cheap compared to publishing a dashboard whose gap section is asserted rather than checked.
+
+## An empty transcript has no container at all — check `.transcript-tab--empty`, not a zero length
+
+The 30 Sep rule is "the only reliable test is a non-empty `div.transTimeStampMainContainer`". True, but the
+check as written invites a wrong implementation: when there is no transcript the container is **not present**,
+so `document.querySelector('div.transTimeStampMainContainer').innerText.length` throws rather than returning 0,
+and a batch step that throws looks like a tool failure rather than an answer.
+
+Query both and report both:
+
+```js
+const c = document.querySelector('div.transTimeStampMainContainer');
+const e = document.querySelector('.transcript-tab--empty');
+`len=${c ? c.innerText.length : 'NONE'} empty=${!!e}`
+```
+
+`.transcript-tab--empty` is the empty-state wrapper that holds "No transcript generated" and the Generate
+button, so `empty=true` is a positive confirmation of absence rather than an inference from a missing node.
+All nineteen recordings checked this run answered `len=NONE empty=true`, unambiguously.
+
+Also still true, and still worth the JS click over any coordinate click: the Transcript tab is reached with
+`[...document.querySelectorAll('button.transcript-panel__tab')].find(b => b.textContent.trim() === 'Transcript').click()`.
+Four seconds after `navigate` and four after the click was reliable across all nineteen loads this run.
+
+## A citation can rot in place — `cleanup.js:657` pointed at the wrong code for days (1 Oct 2026)
+
+The 29 Sep note says cited lines drift and to re-resolve before quoting. This run found the harder version of
+that problem: `product-bugs.md` cited the stale-task auto-close at `dc-server/modules/cleanup.js:657`, and that
+line is ShopWare RO-reconciliation code — at today's baseline **and** at `8719ad736`, which the table claims to
+have re-verified against. The file still exists and the line number still resolves, so nothing ever looked
+broken; the citation simply stopped pointing at the thing it names.
+
+The sweep is `closeStaleTasks` at `:836`, and both halves of the defect are intact at `:849`:
+`{ tenantId, date_updated: { $lte: staleDate, $gte: staleGte } }`, where `staleGte` (`:844-847`) is `staleDate`
+minus one day at `startOf('day')` — bounded below, hence the ~1-day window — and there is no read or
+`responded` filter anywhere in the query.
+
+Generalise: **re-resolve a citation by searching for the code, not by reading the line it points at.** Reading
+`:657` and finding plausible-looking server code there is exactly how this survived. A `git grep` for the
+distinguishing identifier (`closeStaleTasks`, `staleGte`) costs one call and cannot land on the wrong function.
+
+## On a zero-transcript day, re-verify the product bugs — it is the only real work available
+
+A run that grades nothing still has a baseline pinned and a table of open findings whose citations age every
+day. This run re-resolved all ten open bugs against `4f4044545`: all ten still open, seven citations drifted,
+one (above) outright wrong. That is a concrete, checkable deliverable from a day that would otherwise produce
+only "nothing transcribed again".
+
+It also gives the run's baseline SHA a meaning. Publishing a dashboard stamped with a commit that nothing was
+checked against is a quiet lie; stamping it with the commit the whole bug table was just re-verified at is not.
