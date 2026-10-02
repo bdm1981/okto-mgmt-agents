@@ -48,3 +48,26 @@ transcripts this sweep is the most useful work available.
 A bug found here is worth more than the training note that surfaced it. The dashboard reads
 this table, and a bug that keeps appearing across sessions is evidence for prioritising it —
 "two trainers had to talk around this" is a stronger argument than one bug report.
+
+## Re-verification sweep — 2 Oct 2026 at `565dea231`
+
+No session was gradeable again (quiet Friday — no training scheduled), so the run re-verified the table
+against a fresh baseline. **All ten open bugs are still open.** Nothing fixed, nothing withdrawn.
+
+Method changed from the 1 Oct sweep and is better: compare the **blob hash** of each cited file between
+the previous baseline and this one. 29 commits landed on `development` between `4f4044545` and
+`565dea231`, and **every one of the thirteen cited files is byte-identical across the two**, so every
+line number in this table carries over with certainty — no re-reading required, and no risk of the
+`:657`-style rot that cost the 1 Oct run, because an identical blob cannot have drifted.
+
+Files confirmed byte-identical `4f4044545` → `565dea231`: `dc-server/modules/cleanup.js`,
+`VoicemailPlayer.tsx`, `AddCampaign.js`, `DeleteCampaignButton.js`, `campaignsV2/api.ts`,
+`dc-server/routes/users.js`, `CallAnalyzerModal.tsx`, `callsReviewUtils.ts`, `CallModalTabs.tsx`,
+`dc-server/routes/vendors.js`, `dc-server/models/call.js`, `CampaignModal.tsx`,
+`graphql-broker/src/routes/index.ts`.
+
+**One citation corrected.** The call-visibility row cites `callsReviewUtils.ts:179`; the file's full path
+is `dc-user/src/js/admin/components/calls/Calls/callsReviewUtils.ts`, **not** under `common/utils/`. The
+All Recordings check is confirmed at `:179` (`permission.label === "All Recordings"`). This surfaced only
+because the path was spelled out and checked for existence — a `git diff` over a misspelled path returns
+empty and reads exactly like "unchanged". Verify each path resolves before trusting a quiet diff.

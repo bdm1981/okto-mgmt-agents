@@ -1361,3 +1361,77 @@ only "nothing transcribed again".
 
 It also gives the run's baseline SHA a meaning. Publishing a dashboard stamped with a commit that nothing was
 checked against is a quiet lie; stamping it with the commit the whole bug table was just re-verified at is not.
+
+## `inbox.message-search.open-only` is RESOLVED — and the 30 Sep "not locatable" note was wrong (2 Oct 2026)
+
+The 30 Sep note says this claim "could not be verified at `8719ad736`" and lists where it is *not*
+(`dc-server/routes/tracker.js`, greps for `searchText` / `searchBy` / `byContact` / `messageSearch`
+across `dc-server/routes/`). It was never missing. The chain, all at `565dea231`:
+
+- Inbox search modal `SearchModal.tsx:51-61` offers two modes, `contact` and `message`, and dispatches
+  `search` from `common/actions/tasks`.
+- That action posts to **`/messages/tracker/search`** (`dc-user/src/js/common/actions/tasks/index.js:402`).
+- The route (`dc-server/routes/messages.js:966`) delegates to `advancedSearch`
+  (`dc-server/modules/taskHelper.js:157`).
+- **contact branch:** `Trackers.find({ contact, status: { $ne: "complete" } })` at `taskHelper.js:172`,
+  under a comment that literally reads `// search for open tasks`. **Open only.**
+- **message branch:** an Atlas `$search` over message `body` whose `must` is only `tenantId` plus an
+  optional `siteId` (`:192-209`), then `Trackers.findOne({ _id })` at `:255` with **no status filter
+  anywhere**. **Open and completed.**
+
+So the claim "contact search is open-only, message search covers open and completed" is **correct**,
+and that is what Allie said on 28 Sep — recorded `unverifiable` for want of a citation. The 17 Sep
+row had already carried `taskHelper.js:172, :255, :265` the whole time; the 30 Sep run did not look
+at the existing ledger row before declaring the code unlocatable.
+
+Three lessons, in order of how much they cost:
+
+1. **Before searching for a claim's implementation, read the claim's own earlier ledger rows.** The
+   citation was sitting in the ledger. This is the cheapest possible lookup and it was skipped.
+2. **Grep for the route the client calls, not for the concept.** `searchText`/`searchBy` are the
+   client's vocabulary; the server's is `advancedSearch` in `modules/`, not `routes/`. Trace
+   UI → action → URL → route → module, one hop at a time.
+3. `taskHelper.js` is byte-identical across `8719ad736`, `7790cef49`, `4f4044545` and `565dea231`, so
+   it was exactly as verifiable on 30 Sep as today. "Unverifiable" recorded against a stable file is
+   almost always a search failure, not a property of the code — treat it as a lead, not a verdict.
+
+**The correction the ledger cannot make itself.** The 28 Sep row (`uuid:1059550464`, Allie) should be
+`correct` with evidence `taskHelper.js:172, :255`, which would make Allie wrong_contained 17 Sep →
+correct 28 Sep a **Fixed** pair. The ledger is append-only, `ledger.py` has no correction mode, and no
+session was graded on this run, so the row still reads `unverifiable`. Leaving a trainer's correct
+statement recorded as uncheckable is the unfair direction; flag it for a human rather than hand-editing
+a grade row autonomously.
+
+## Re-verify the bug table by blob hash, not by re-reading line numbers (2 Oct 2026)
+
+The 1 Oct sweep re-resolved all ten open bugs by reading lines, found seven citations drifted and one
+outright wrong. That is the right thing to do *when the code has moved*. The cheap precondition nobody
+was checking first:
+
+```bash
+git rev-parse "${OLD_SHA}:${PATH}"   # compare to
+git rev-parse "${NEW_SHA}:${PATH}"   # identical blob => no citation in that file can have drifted
+```
+
+29 commits landed between `4f4044545` and `565dea231` and **all thirteen cited files were byte-identical**,
+so every line number carried over with certainty, in one command instead of ten greps. Only diff the
+files whose hash actually changed.
+
+**The trap this run hit:** `git diff --name-only <old> <new> -- <paths…>` printed nothing, which reads as
+"nothing changed" — but it prints nothing for a *misspelled path* too. One of the thirteen was wrong
+(`callsReviewUtils.ts` is under `dc-user/src/js/admin/components/calls/Calls/`, not `common/utils/`), and
+the empty diff concealed it completely. **Always `git cat-file -e "${SHA}:${PATH}"` each path first** and
+make a missing path loud; an empty diff is only meaningful once every path in it is known to exist.
+
+## A quiet Friday and a failed Thursday are both "zero" — say which, every time (2 Oct 2026)
+
+Two consecutive runs graded zero sessions for opposite reasons: 1 Oct ran three courses and none
+transcribed; 2 Oct had no training scheduled at all (Past list's newest group was still Thursday, and all
+series run Mon–Thu). Per the 26 Sep "did anything change" rule, 1 Oct posted to Slack and 2 Oct did not,
+which is correct and will look inconsistent in the channel to anyone reading the two in sequence — the
+run output is the only place that distinction gets recorded, so state it explicitly rather than reporting
+a bare zero.
+
+Also worth keeping: a Friday run still has real work in it. This one re-swept all nineteen coverage-gap
+rows, re-verified ten product bugs against a fresh baseline, and closed a ten-day-old open question. A
+day with nothing to grade is not a day with nothing to do.
