@@ -1435,3 +1435,77 @@ a bare zero.
 Also worth keeping: a Friday run still has real work in it. This one re-swept all nineteen coverage-gap
 rows, re-verified ten product bugs against a fresh baseline, and closed a ten-day-old open question. A
 day with nothing to grade is not a day with nothing to do.
+
+## `build_dashboard.py` splices EVERY pipe-table in `product-bugs.md` into the bug table (3 Oct 2026)
+
+The renderer does not look for one table; it scrapes every markdown pipe-row in the file and concatenates
+them into the single "Open product bugs" table. `product-bugs.md` has grown three sections beyond the bug
+table itself — `## Full re-verification sweep — 1 Oct 2026` (lines 28-36) holds a `bug | was | is now`
+citation-drift table — and those seven rows render **inside** the bug table as malformed three-column rows,
+with the sub-table's own header (`bug | was | is now`) appearing as a data row.
+
+So on this run a freshly generated `dashboard.html` was **worse than the page already live**: identical for
+every ledger-derived section (Repeats, Fixed, Contradictions, Sessions all byte-identical, since the ledger
+had not changed), and a regression in the bug table. Publishing the generated file would have quietly
+shipped it.
+
+**The check is one command** — diff the generated page against the live one section by section before
+publishing, and treat any section that differs on a day the ledger did not change as a bug in the renderer,
+not an update:
+
+```python
+def sec(h,txt): i=txt.index('<h2>'+h); j=txt.find('<h2>',i+4); return txt[i:j if j>0 else len(txt)]
+```
+
+**On a day with no new sessions, build the republish from the live page** (which you must read anyway) and
+edit only the coverage-gap section. Regenerating buys nothing — every other section is derived from a ledger
+that did not move — and risks exactly this. The real fix is to scope the renderer to the first table or to
+the `# Open product bugs` section; until someone does, keep extra tables out of `product-bugs.md`, or expect
+them on the dashboard.
+
+## The gap sweep's `erecordingId` map, so the next run skips 11 API calls
+
+The 1 Oct note explains that `getAllRecordings` only reaches back ~10 days, so most coverage-gap rows need a
+`ZohoWebinar_getWebinarRecording` call each just to build the recording-page URL. These ids are **stable** —
+they are properties of the recording, not of the query — so they only need fetching once. Current table:
+
+| date | meetingKey | erecordingId |
+|---|---|---|
+| 2026-09-09 | 1056342748 | `78d418380d1b61f1e27a043500f34ca5fed86b8ee0c88b5569937745d1e35425` |
+| 2026-09-10 | 1062515451 | `440305a7ca97c4c8b967e21ce51754aa619466f4870c9bf89503de3b5a2b12c0` |
+| 2026-09-14 | 1026984660 | `3265686a0eaf4493274f23ff8e85539d22b26a4d21aa889da28a89a410d81797` |
+| 2026-09-15 | 1020522825 | `3265686a0eaf4493274f23ff8e85539d39c8511d7007023f3c01d9d1c42dc54b` |
+| 2026-09-15 | 1017030712 | `c64987a16797505704c2b1490cc358c414a8f0457ce777d1c84ebcc7772fb7f0` |
+| 2026-09-16 | 1014397535 | `20913636e0fe6edfda26769d97ec169d0af1f8e33674f0718ecf41505e557054` |
+| 2026-09-17 | 1098634476 | `63151bc4e0bd4c22a6d71c03f018816c83787c3f9501ce686dc6bca78338a495` |
+| 2026-09-17 | 1096605816 | `63151bc4e0bd4c22a6d71c03f018816cf78b698aeb7f5904e2be722d4c7bfa9b` |
+| 2026-09-17 | 1077862314 | `793f3a0ab35ad6f0cd007d83d6472a1b01ac5e30b2c1cd8b3da6b476e9a1f910` |
+| 2026-09-21 | 1035658075 | `f5c8926552738beba65ff56c11ab8f7148a1cdf41846f824a4d61eded639a6d3` |
+| 2026-09-22 | 1047685227 | `981f0665e16e6867b4829eda7764ae22b13ca6e741c08ea073eddd900e264049` |
+| 2026-09-23 | 1062682173 | `31da7e4b68d35304dff1996c740c1775a4da94c8bdffdea94b4d6b9fb465aa83` |
+| 2026-09-23 | 1012679711 | `981f0665e16e6867b4829eda7764ae2253509d747d944b5298d266f564b8980c` |
+| 2026-09-24 | 1085383207 | `981f0665e16e6867b4829eda7764ae22ffbab4ede94e46ea51fb59989eb28066` |
+| 2026-09-24 | 1037384439 | `f5c8926552738beba65ff56c11ab8f71fdc28a9f8ef56d702ca40cf1dced87b7` |
+| 2026-09-29 | 1031224791 | `b88ababcddba2e9fb7bb2f29e4bf9c340d847835bbda8adf28aa50f6e19727ab` |
+| 2026-10-01 | 1014604520 | `555451ad8e12ff5f1a46d03ced8490c871976e017f1c9ca622e5051901ac6c54` |
+| 2026-10-01 | 1058828040 | `8e63910aeac9d68a77e6fc6cbf3d8d424717edb6269cadca3e4aef504247dd73` |
+| 2026-10-01 | 1042885760 | `1e53b4373bc37d0d676efa94681310ebd532bd755ddc0ab3622dc2acdd35ea46` |
+
+Page URL is `https://webinar.zoho.com/meeting/videoprv?recordingId=<erecordingId>&x-meeting-org=796393835`.
+Add a row whenever a recording enters the gap; delete one when it leaves. Four recordings per
+`browser_batch` (navigate + a JS probe each) swept all nineteen in five calls this run.
+
+Note the ids are **not** unique prefixes: several share a 32-char head (`981f0665…` appears three times,
+`3265686a…` and `63151bc4…` twice each) and differ only in the tail. Match on the whole string.
+
+## A zero-commit day makes the bug-table sweep an identity argument, not a check (3 Oct 2026)
+
+The 2 Oct note says to re-verify the bug table by blob hash rather than by re-reading line numbers. There is
+a cheaper case above that one: this run's `pin_baseline` fetch returned **`565dea231`, the same commit the
+2 Oct run pinned** — `git rev-list --count 565dea231..origin/development` was `0`. When no commit has landed,
+the baseline is the same object, so no citation can have drifted and there is no diff to read at all.
+
+Say that explicitly rather than claiming a re-verification that did not happen; the two look the same on the
+page and only one of them is true. Still run `git cat-file -e "$SHA:$PATH"` over every cited path — that
+catches a misspelled path, which the 2 Oct note flags as the failure an empty diff conceals, and it is the
+only part of the sweep that has any work in it on a zero-commit day.
