@@ -71,3 +71,22 @@ is `dc-user/src/js/admin/components/calls/Calls/callsReviewUtils.ts`, **not** un
 All Recordings check is confirmed at `:179` (`permission.label === "All Recordings"`). This surfaced only
 because the path was spelled out and checked for existence — a `git diff` over a misspelled path returns
 empty and reads exactly like "unchanged". Verify each path resolves before trusting a quiet diff.
+
+## Baseline unchanged — 4 Oct 2026, still `565dea231`
+
+Third consecutive run on the same commit. An explicit HTTPS fetch of `development` returned `565dea231` and
+`git rev-list --count 565dea231..FETCH_HEAD` was `0`, so the baseline is the same object the 2 Oct sweep
+verified this table against. Nothing below can have drifted and there is no diff to read; per the 3 Oct note,
+that is an identity argument, not a re-check, and it is stated as such.
+
+The part that does have work in it was run: `git cat-file -e "$SHA:$PATH"` over **all twenty-two cited
+paths** (the thirteen from the 2 Oct sweep plus `campaignsV2/api.ts`, `CallAnalyzerModal.tsx`,
+`CallModalTabs.tsx`, `OutrunningOverhead.tsx`, `CampaignModal.tsx`, `booking/capture.ts`,
+`scorecardsReport.ts`, `campaignBuilder.js`, `campaignUtils.ts`, `CampaignOutcomeModal.js`,
+`overviewGoalColors.ts`, `taskHelper.js`, `messages.js`). **All twenty-two resolve.** No misspelled path is
+hiding behind an empty diff this time. All ten open bugs remain open; nothing fixed, withdrawn or re-sited.
+
+Note `pin_baseline.sh` again printed `fetch failed` and fell back to the local `origin/development`. It
+happened to be right, because nothing had moved — but the fallback is silent about *why* it is right. Fetch
+explicitly by URL and compare, as the 30 Sep note says; the agreement is what makes the fallback trustworthy,
+not the fallback itself.

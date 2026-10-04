@@ -1509,3 +1509,44 @@ Say that explicitly rather than claiming a re-verification that did not happen; 
 page and only one of them is true. Still run `git cat-file -e "$SHA:$PATH"` over every cited path — that
 catches a misspelled path, which the 2 Oct note flags as the failure an empty diff conceals, and it is the
 only part of the sweep that has any work in it on a zero-commit day.
+
+## The webinar list APIs stopped returning training webinars — discovery is browser-only now (4 Oct 2026)
+
+The 30 Sep note retired the recording API's transcript *flags* as a discovery signal but kept
+`getAllRecordings` for "topic, date, duration, `meetingKey` and `erecordingId`". That is now gone too.
+
+On this run `ZohoWebinar_getAllRecordings` returned **seven** rows and not one was a training webinar: newest
+26 Aug 2026, the rest Oct–Dec 2025, every one a Zoho *Meeting* recording. On 1 Oct the same call returned
+twenty webinar recordings back to 22 Sep. Cross-checks:
+
+- `ZohoMeeting_listMeetings` (`listtype=past`) — 29 rows, newest 28 Sep 2026, all Meetings, no webinars.
+- `ZohoWebinar_listWebinars` — still empty, as it has been since the cutover.
+- `ZohoWebinar_getWebinarRecording` with `webinarKey=1042885760` — **works**, returns the 1 Oct Advisor
+  recording with its `erecordingId` and a `startTime` of `2026-10-01T13:58:20 CDT`.
+- All nineteen gap recording pages loaded normally in the browser.
+
+So the recordings exist and are individually reachable; it is the *listing* that lost webinar scope. The
+practical consequence is the one that matters: **there is no API left that can enumerate a session you have
+not already seen.** `getWebinarRecording` only confirms a key you hold, and the stored `erecordingId` map
+above only covers rows already in the gap. The sole discovery path is the Past Webinars list in the browser:
+
+```
+https://meeting.zoho.com/meeting/796393835/3764623000000012011/webinar/my-webinars/past
+```
+
+Note the host is `meeting.zoho.com`, not `webinar.zoho.com` — the latter redirects there and
+`webinar.zoho.com/meeting/recordings` is a 404. The list groups by recency ("LAST WEEK", "EARLIER") and each
+row carries date, time, duration, course name and attendee count, which is everything discovery needs except
+the `erecordingId`. `get_page_text` returns nothing on this page; read `document.body.innerText` directly
+instead — it is only ~3 KB.
+
+**A lead, not a diagnosis.** The `getAllRecordings` response now reports `userPlan: {"user-type": "Free"}`
+and `recordingLimitStatus: -1`, and the Zoho home screen shows a **Renew now** prompt. A lapsed or downgraded
+plan would explain webinar scope vanishing while meeting data survives, and could eventually threaten the
+recordings themselves. Worth a human check before the next training day rather than waiting to see.
+
+**The general lesson, which has now bitten twice in five days:** this integration degrades by *quietly
+returning a plausible smaller answer*, not by erroring. On 30 Sep it was flags that were uniformly `true`;
+here it is a list that is well-formed, `status: success`, `moreRecords: false` — and simply does not contain
+the thing being looked for. A zero from this API means nothing on its own. Confirm every zero against the
+browser before writing "no new sessions", because a quiet weekend and a broken endpoint look identical.
