@@ -1490,13 +1490,17 @@ they are properties of the recording, not of the query — so they only need fet
 | 2026-10-01 | 1014604520 | `555451ad8e12ff5f1a46d03ced8490c871976e017f1c9ca622e5051901ac6c54` |
 | 2026-10-01 | 1058828040 | `8e63910aeac9d68a77e6fc6cbf3d8d424717edb6269cadca3e4aef504247dd73` |
 | 2026-10-01 | 1042885760 | `1e53b4373bc37d0d676efa94681310ebd532bd755ddc0ab3622dc2acdd35ea46` |
+| 2026-10-05 | 1074035494 | `0dacea0849d042373acba9d77f3f7b43c12e299637c6cabb4d72823bfaa6bf96` |
+| 2026-10-05 | 1081190831 | `555451ad8e12ff5f1a46d03ced8490c8aa87f1e54ebeec13cb472d2dbcc9e619` |
 
 Page URL is `https://webinar.zoho.com/meeting/videoprv?recordingId=<erecordingId>&x-meeting-org=796393835`.
 Add a row whenever a recording enters the gap; delete one when it leaves. Four recordings per
 `browser_batch` (navigate + a JS probe each) swept all nineteen in five calls this run.
 
 Note the ids are **not** unique prefixes: several share a 32-char head (`981f0665…` appears three times,
-`3265686a…` and `63151bc4…` twice each) and differ only in the tail. Match on the whole string.
+`3265686a…`, `63151bc4…` and now `555451ad…` twice each) and differ only in the tail. Match on the whole
+string — the 5 Oct CRM recording and the 1 Oct Admin Part 2 recording share the first 32 characters and are
+different sessions three weeks apart, which is exactly the collision that would silently sweep the wrong page.
 
 ## A zero-commit day makes the bug-table sweep an identity argument, not a check (3 Oct 2026)
 
@@ -1550,3 +1554,83 @@ returning a plausible smaller answer*, not by erroring. On 30 Sep it was flags t
 here it is a list that is well-formed, `status: success`, `moreRecords: false` — and simply does not contain
 the thing being looked for. A zero from this API means nothing on its own. Confirm every zero against the
 browser before writing "no new sessions", because a quiet weekend and a broken endpoint look identical.
+
+## The webinar list API outage was transient — it recovered in a day (5 Oct 2026)
+
+The 4 Oct note concluded that `getAllRecordings` had permanently lost webinar scope and that "there is no API
+left that can enumerate a session you have not already seen". **That is now too strong.** On 5 Oct the same
+call returned **twenty rows, all training webinars**, back to 23 Sep, including both of the day's sessions with
+their `erecordingId`s. Nothing was changed at this end; it simply came back after roughly a day.
+
+Keep the browser-first rule anyway, and keep it for the reason the 4 Oct note gives rather than because the API
+is broken: **this integration degrades by returning a well-formed, `status: success` response that omits what
+you are looking for.** Twice in a week now — the 30 Sep flag collapse and the 4 Oct scope loss. A zero from
+this API means nothing until the Past Webinars list agrees with it. The right order, and the one that would
+have caught 4 Oct on the day, is what this run did: find the sessions in the browser first, let the API confirm
+them and supply `erecordingId` second.
+
+The `userPlan: {"user-type": "Free"}` reading and the **Renew now** prompt were both still present on the
+healthy 5 Oct response. They did not predict the outage and did not explain the recovery, so treat them as an
+unrelated standing oddity rather than a diagnosis — but they are still worth a human check.
+
+## `pin_baseline.sh`'s silent fallback was seven commits stale, and this time it mattered (5 Oct 2026)
+
+The 16 and 30 Sep notes say to fetch explicitly by URL because the script's fetch fails. The 3 and 4 Oct runs
+found the fallback happened to be correct, because `development` had not moved for three runs. That made the
+fallback look harmless. It is not.
+
+This run: `pin_baseline.sh` printed `fetch failed` and pinned the local `origin/development` at **`a6feb10f0`**,
+while an explicit HTTPS fetch of `development` gave **`926cb3888`** — `git rev-list --count a6feb10f0..FETCH_HEAD`
+was **7**. Grading or re-verifying against the fallback would have stamped the dashboard with a commit that was
+seven commits and several hours behind the real tip.
+
+The remote is `git@github.com:ShopRocket-LLC/oktorocket.git`, so the explicit fetch is:
+
+```bash
+git -c credential.helper='!gh auth git-credential' fetch https://github.com/ShopRocket-LLC/oktorocket.git development
+```
+
+Do not derive the HTTPS URL from `git remote get-url origin` with a `sed` that uses `+?` — BSD `sed` on this host
+rejects the non-greedy operand with `RE error: repetition-operator operand invalid` and the fetch then runs
+against `https://github.com/`, which fails as "repository not found" and reads like an auth problem.
+
+## Expanding an abbreviated citation path is its own failure mode (5 Oct 2026)
+
+`product-bugs.md` writes several citations in abbreviated form — `dc-user/.../campaigns/AddCampaign.js:732` vs
+`campaignsV2/api.ts:284`. Expanding `campaignsV2/api.ts` to `dc-user/src/js/admin/components/campaignsV2/api.ts`
+for the blob sweep produced a `MISSING-AT-NEW`, which looks exactly like a file that was deleted by one of the
+19 commits. It was not: the real path is **`dc-user/src/js/common/components/campaignsV2/api.ts`**, under
+`common/`, and the blob is unchanged.
+
+The 2 Oct note says to `git cat-file -e` every path so a misspelling is loud rather than hidden. This is the
+mirror image: the check fired correctly, and the thing it caught was **my expansion**, not the repository. When
+a path comes back missing, resolve it with `git ls-tree -r --name-only $SHA | grep "/<basename>$"` before
+concluding anything about the code. Three of the twenty-five paths in this sweep were under a different parent
+than the obvious guess (`OnDeck.tsx` and `api.ts` under `common/components/`, `overviewGoalColors.ts` under
+`common/utils/`, `CampaignOutcomeModal.js` under `user/components/tasks/`).
+
+## `taskHelper.js` finally moved — the message-search citations are now `:169` / `:254` (5 Oct 2026)
+
+`inbox.message-search.open-only` was resolved on 2 Oct with citations `taskHelper.js:172` (contact branch,
+`status: { $ne: "complete" }`) and `:255` (message branch, `Trackers.findOne({_id})` with no status filter).
+The file had been byte-identical across four consecutive baselines, which is what the 2 Oct note leaned on.
+
+At `926cb3888` it has changed for the first time: commit `dba26529f` ("Move OpenRouter routing to feature
+presets #TRS-I2146") deleted two unrelated lines, one at `:14` and one at `:581`. The first is above both
+citations, so **both shift up by exactly one**: contact branch `:169` (comment `// search for open tasks` at
+`:168`), message branch `:254`. **The behaviour is unchanged** — contact search is still open-only, message
+search still carries no status filter.
+
+This is the cheap confirmation of the 1 Oct "re-resolve by searching for the code, not the line" rule: a
+`git grep -n 'search for open tasks'` costs one call and lands on the right line regardless of drift, whereas
+reading `:172` at the new baseline would have shown plausible-looking code one line off.
+
+## A Monday evening run is the one that catches the whole day (5 Oct 2026)
+
+The 15 Sep note says the evening run must re-check the same day's afternoon sessions, and the 29 Sep note warns
+that a morning run sees the current day empty. This run fired at **18:08 Central on a Monday** and found both of
+the day's sessions already complete and recorded — Advisor 11 am (ended 12:06) and CRM 1 pm (ended 14:15).
+
+Worth stating plainly because the preceding four runs all landed on days with no training: **Mon–Thu, an evening
+run is expected to find sessions, and finding none is suspicious.** Fri–Sun it is expected to find nothing. The
+weekday is the first thing to establish, and it is not safe to infer it from "the last run found nothing".

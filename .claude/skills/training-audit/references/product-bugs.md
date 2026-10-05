@@ -90,3 +90,32 @@ Note `pin_baseline.sh` again printed `fetch failed` and fell back to the local `
 happened to be right, because nothing had moved — but the fallback is silent about *why* it is right. Fetch
 explicitly by URL and compare, as the 30 Sep note says; the agreement is what makes the fallback trustworthy,
 not the fallback itself.
+
+## Re-verification sweep — 5 Oct 2026 at `926cb3888`
+
+The first run in four with a moving baseline: **19 commits** landed between `565dea231` and `926cb3888`, so this
+is a real blob-hash sweep rather than the identity argument the 3 and 4 Oct runs had to settle for.
+
+**All ten open bugs remain open.** Nothing fixed, withdrawn or re-sited. All twenty-five cited paths resolve at
+this commit (`git cat-file -e` on each), and every file cited by the table above is **byte-identical** between
+`565dea231` and `926cb3888`, so every line number in it carries over with certainty — no re-reading required.
+Spot-checked anyway by identifier rather than by line, per the 1 Oct rule: `closeStaleTasks` is still at
+`cleanup.js:836` with the bounded-below query at `:849`, and `vendors.js:30` is still the single
+`Call.updateMany` over existing calls.
+
+Exactly one cited file changed across the 19 commits, and it is **not** in the bug table:
+`dc-server/modules/taskHelper.js`, which carries the `inbox.message-search.open-only` ledger citations.
+Commit `dba26529f` deleted two unrelated lines, shifting the contact branch from `:172` to `:169` and the
+message branch from `:255` to `:254`. Behaviour unchanged.
+
+Two process notes worth keeping with the table. First, `pin_baseline.sh` fell back silently to a local
+`origin/development` that was **seven commits stale** (`a6feb10f0`); the explicit HTTPS fetch is what produced
+`926cb3888`, and unlike the last three runs the difference was real. Second, the abbreviated citation
+`campaignsV2/api.ts:284` expands to `dc-user/src/js/**common**/components/campaignsV2/api.ts`, not `admin/` —
+guessing `admin/` makes the existence check report a missing file and reads like a deletion. Three other
+abbreviated paths in this table sit under a different parent than the obvious guess; resolve with
+`git ls-tree -r --name-only $SHA | grep "/<basename>$"` before concluding anything.
+
+**Keep pipe tables out of this file.** Per the 3 Oct note, `build_dashboard.py` scrapes *every* markdown pipe-row
+in `product-bugs.md` into the single "Open product bugs" table on the dashboard, so a sub-table here renders as
+malformed rows there. This section is deliberately prose-only.
