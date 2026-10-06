@@ -1492,10 +1492,15 @@ they are properties of the recording, not of the query — so they only need fet
 | 2026-10-01 | 1042885760 | `1e53b4373bc37d0d676efa94681310ebd532bd755ddc0ab3622dc2acdd35ea46` |
 | 2026-10-05 | 1074035494 | `0dacea0849d042373acba9d77f3f7b43c12e299637c6cabb4d72823bfaa6bf96` |
 | 2026-10-05 | 1081190831 | `555451ad8e12ff5f1a46d03ced8490c8aa87f1e54ebeec13cb472d2dbcc9e619` |
+| 2026-10-06 | 1081511660 | `1e53b4373bc37d0d676efa94681310eb8bf068251d36e1dc02a456f381b5d0a6` |
+| 2026-10-06 | 1064758517 | `8e63910aeac9d68a77e6fc6cbf3d8d4261c3e82de9cfe23800f6ae0dbc08f20d` |
 
 Page URL is `https://webinar.zoho.com/meeting/videoprv?recordingId=<erecordingId>&x-meeting-org=796393835`.
 Add a row whenever a recording enters the gap; delete one when it leaves. Four recordings per
 `browser_batch` (navigate + a JS probe each) swept all nineteen in five calls this run.
+
+Both 6 Oct ids collide on their first 32 characters with a 1 Oct row — `1e53b437…` with the 1 Oct Advisor
+recording and `8e63910a…` with the 1 Oct Shop Analytics one. Match on the whole string.
 
 Note the ids are **not** unique prefixes: several share a 32-char head (`981f0665…` appears three times,
 `3265686a…`, `63151bc4…` and now `555451ad…` twice each) and differ only in the tail. Match on the whole
@@ -1634,3 +1639,95 @@ the day's sessions already complete and recorded — Advisor 11 am (ended 12:06)
 Worth stating plainly because the preceding four runs all landed on days with no training: **Mon–Thu, an evening
 run is expected to find sessions, and finding none is suspicious.** Fri–Sun it is expected to find nothing. The
 weekday is the first thing to establish, and it is not safe to infer it from "the last run found nothing".
+
+## A recording can capture one minute of a 77-minute session, and discovery reads that as a no-show (6 Oct 2026)
+
+Every coverage-gap row before today is the same failure: an intact recording with no transcript behind it. Admin
+Part 1 Tue/Thu 3 pm on 6 Oct (`1064758517`) is a **different** failure and the table now has to distinguish them.
+
+The session ran in full — `getWebinarRecording` gives `startTime` `2026-10-06T15:03:21 CDT` and `endTime`
+`16:19:14`, and the one attendee was present **77 minutes** and answered two polls. But `durationInMins` is **1**,
+`fileSize` is **2,212,655** (2.2 MB), and the transcript that *does* exist is 287 characters covering 00:26–00:40:
+"Good afternoon… My name is Theo and I will be a trainer for this evening session… we're just going to give it one
+more minute." Then the capture stops. The transcript is accurate; there is simply nothing else on the tape.
+
+Two consequences, both of which bite silently:
+
+1. **`min_duration_minutes: 20` discards it.** The threshold exists to drop false starts and no-show shells, and
+   `durationInMins: 1` looks exactly like one. A 77-minute session with a customer in it would have vanished from
+   the run with no row anywhere. **Never classify a short recording from `durationInMins` alone** — compare it to
+   the `startTime`→`endTime` span, and cross-check `fileSize`. A healthy hour is ~250 MB (the same day's Advisor
+   recording is 246 MB for 68 minutes); 2.2 MB for a 76-minute span is a truncated capture, not a short meeting.
+2. **It is not recoverable.** The Generate-transcript button fixes a missing transcript over an intact recording.
+   It cannot invent audio that was never written. Rows of this kind should say so, or someone will spend a week
+   waiting for a transcript that cannot arrive.
+
+The honest discriminator between "no-show" and "truncated capture" is the **attendee report**, not the recording:
+0 attendees and a short file is a no-show (the day's 9 am and 11 am sessions, correctly dropped); 1 attendee
+present for 77 minutes and a short file is a lost session.
+
+## `isTranscriptGenerated: true` has now lied three times, and a true `isSummaryGenerated` does not rescue it
+
+Advisor Tue 12 pm on 6 Oct (`1081511660`): a completely healthy recording — 246 MB, 67 min 48 s, `status: UPLOADED` —
+with `isTranscriptGenerated: true`, `isSummaryGenerated: true`, and a transcript tab answering `len=NONE empty=true`.
+The **summary genuinely exists** and renders; the transcript genuinely does not. So the two flags are independent and
+a believable summary is not evidence that a transcript is behind it.
+
+Useful corollary, and the only thing the summary is good for here: **it carries attribution.** This one opens
+"Introduction by Ali from Rocket Advisors Training team", which canonicalises to **Allie** via the alias table. That
+is worth recording on a gap row — it says *who* lost a session — but it is **not** grading material: the summary is
+paraphrase with no timestamps, and `grading.md` requires a `stamp` from the page transcript. Never grade a claim
+from a summary.
+
+## "Theo" is a new unconfirmed trainer variant — do not fold it into TeDarrell without asking (6 Oct 2026)
+
+The 6 Oct Admin Part 1 3 pm fragment contains the clearest self-introduction in weeks — "My name is Theo and I will
+be a trainer for this evening session" — and **Theo is not on the roster and not in the alias table.** It sits in the
+same phonetic family as Tedario / Tadario / Serio / Stereo / Tirio, so the tempting move is to canonicalise it to
+TeDarrell as those were.
+
+Resist it this time. `trainers.md`'s own rule is that the canonical spelling comes from a person or an account and
+**never** from a transcript, and the three prior variants were folded in on the reasoning that no other roster name
+is close. "Theo" is short enough to be a genuinely different name — the bench has grown before (Allie was missing
+from the roster entirely until 10 Sep). Nothing was graded from this session, so the attribution costs nothing
+today; recording it wrong would corrupt repeat detection the first time it matters. **Flagged for a human.**
+
+## zsh does not word-split unquoted variables, so a `for p in $PATHS` sweep runs once (6 Oct 2026)
+
+The blob-hash sweep from the 2 Oct note was written as `PATHS="…multi-line…"` then `for p in $PATHS`. In bash that
+iterates per path; in **zsh**, which is the shell here, unquoted parameter expansion does not word-split, so the loop
+ran **once** with the entire multi-line blob as `$p`. The output was one `MISSING-AT-NEW` followed by the path list
+printed verbatim, which reads like a tool glitch rather than a loop that never ran — and if the first path happened
+to be the only one checked, it would read like a clean sweep.
+
+Use a `while IFS= read -r p` loop over a heredoc. It is shell-agnostic and it cannot silently collapse.
+
+## Blob identity cannot catch a citation that was already wrong (6 Oct 2026)
+
+The 2 Oct rule — compare `git rev-parse "$SHA:$PATH"` across baselines, and only diff the files whose hash changed —
+is sound and cheap, and the 5 Oct sweep leaned on it entirely: "every file cited by the table is byte-identical, so
+every line number carries over **with certainty**".
+
+The certainty is misplaced. Byte-identity proves a line number has not **drifted**. It proves nothing about whether
+the line was ever right. `product-bugs.md` cited `dc-server/modules/campaignBuilder.js:4357` for the
+`cust.campaigns !== false` audience gate. That line has never been that code — checked at `8719ad736`, `4f4044545`,
+`565dea231`, `926cb3888` and today's `c2962ec29`. At today's baseline `:4357` is `params.ro.customer.fname`
+assignment; the gate is at **`:4505`**, under the comment block at `:4498`. The 5 Oct sweep could not have caught it,
+because the file *was* byte-identical and the reasoning stopped there.
+
+So the two checks answer different questions and both are needed: **hash-compare to find what moved, and `git grep`
+for the distinguishing identifier to confirm the citation still names the right code.** The grep is one call per bug
+and it is the only one that can detect rot. This is the second rotted citation found this way, after
+`cleanup.js:657` on 1 Oct — and in both cases the cited line resolved to plausible-looking code, which is exactly
+why neither was noticed for weeks.
+
+## The abbreviated-path expansion error fired again — `OnDeck.tsx` is under `campaigns/`, not `campaignsV2/` (6 Oct 2026)
+
+Second instance of the 5 Oct lesson, same shape. `product-bugs.md` mentions `OnDeck.tsx:347` beside
+`campaignsV2/api.ts:284`, so the natural expansion is `dc-user/src/js/common/components/campaignsV2/OnDeck.tsx` —
+which does not exist and reports `MISSING-AT-NEW`, reading like a deletion by one of the day's 27 commits. The real
+path is `dc-user/src/js/common/components/**campaigns**/OnDeck.tsx`, present and byte-identical at both baselines,
+with `{!campaign?.explainDelete && (` still at `:347`.
+
+The adjacency of two citations in one table cell is not evidence they share a directory. Resolve every abbreviated
+path with `git ls-tree -r --name-only $SHA | grep "/<basename>$"` **before** reading anything into a missing file.
