@@ -1494,10 +1494,13 @@ they are properties of the recording, not of the query — so they only need fet
 | 2026-10-05 | 1081190831 | `555451ad8e12ff5f1a46d03ced8490c8aa87f1e54ebeec13cb472d2dbcc9e619` |
 | 2026-10-06 | 1081511660 | `1e53b4373bc37d0d676efa94681310eb8bf068251d36e1dc02a456f381b5d0a6` |
 | 2026-10-06 | 1064758517 | `8e63910aeac9d68a77e6fc6cbf3d8d4261c3e82de9cfe23800f6ae0dbc08f20d` |
+| 2026-10-07 | 1020531693 | `e2ae0c28c9b0cf5aa6a723e943f4ea5998eb3b56252f85d98114cc42168e79b0` |
 
 Page URL is `https://webinar.zoho.com/meeting/videoprv?recordingId=<erecordingId>&x-meeting-org=796393835`.
 Add a row whenever a recording enters the gap; delete one when it leaves. Four recordings per
 `browser_batch` (navigate + a JS probe each) swept all nineteen in five calls this run.
+
+The 7 Oct Admin Part 2 id shares its first 32 characters (`e2ae0c28c9b0cf5aa6a723e943f4ea59`) with the **same day's Advisor recording**, which was graded rather than entering the gap — the two sessions ran four hours apart on the same day and differ only in the tail. Match on the whole string.
 
 Both 6 Oct ids collide on their first 32 characters with a 1 Oct row — `1e53b437…` with the 1 Oct Advisor
 recording and `8e63910a…` with the 1 Oct Shop Analytics one. Match on the whole string.
@@ -1731,3 +1734,106 @@ with `{!campaign?.explainDelete && (` still at `:347`.
 
 The adjacency of two citations in one table cell is not evidence they share a directory. Resolve every abbreviated
 path with `git ls-tree -r --name-only $SHA | grep "/<basename>$"` **before** reading anything into a missing file.
+
+## The in-app browser is signed out of Zoho — this run wasted five calls rediscovering it (7 Oct 2026)
+
+The 15 Sep note already says "the in-app browser is still not authenticated against Zoho — use **Claude in Chrome**,
+where Brad's session is live." It is buried in the middle of a section about transcript truncation, and this run
+opened the Past Webinars list in the **in-app browser** first, hit a OneAuth sign-in wall, then tried a recording
+page and got `Permission Denied`, and briefly concluded discovery was blocked for the day.
+
+It was not: Chrome worked first time and both transcripts came back clean. Signing in is not an option — it needs
+Brad's password and his second factor — so the in-app browser can never do this job.
+
+**Rule, stated where it will be found: every Zoho page in this skill goes through `mcp__claude-in-chrome__*`.**
+The in-app browser's Zoho session does not exist and will not be created. A OneAuth prompt or a "Permission
+Denied" page from `webinar.zoho.com` means the wrong browser, not a lost session and not an access problem.
+
+## `reportPermissionsService.ts` is a per-report fallback, not the advisor default set (7 Oct 2026)
+
+Allie said "as an advisor you are by default given access to **14 reports**". Grading this against
+`dc-server/modules/reportPermissionsService.ts` makes it look like a clean `wrong_high`:
+`calculateDefaultReportPermission` computes `const enabled = pidLevel === 0 || pidLevel === 5` (`:704`) with a
+comment directly above saying "PID 1 (Advisor), 2 (Technician), 3 (Wallboard), 4 (Phone): **no access** unless
+granted by an individual permission or a Report Permission Group". Read alone, that says advisors get nothing.
+
+**It was written up as wrong_high and then caught before landing, by checking the ledger for prior rows on the
+same claim_id.** `reports.advisor-default-count.fourteen` was already graded **correct** on 28 Sep, citing a file
+the service never mentions: `dc-user/src/js/common/schema/defaultReportPermissions.json`. PID `"1"`
+("User - Advisor") carries a `defaultReports` array of five groups holding **exactly 14 reportIds** —
+`callSiteStats`, `firstTimeCallConversion`, `transactionDetail`, `partsSearch`, `laborSearch`,
+`deferredServicesReport`, `roDVIsummary`, `advisorSalesByCategory`, `serviceAdvisorSalesTracker`,
+`techSalesTracker`, `focusItems`, `taskHistory`, `advisorTaskActivity`, `shortUrl`. The service function is the
+fallback for a report **not** covered by that file. There are two copies of the JSON (`dc-user/src/js/common/schema/`
+and `dc-server/schema/`); either resolves the count.
+
+Two transferable rules. **A grep that produces a confident wrong_high on a claim the ledger has already graded
+should stop the grade, not confirm it** — read the prior row's citation first, because it was found by someone who
+had the same question and more time. And **a PID-gating function is not the same thing as a seeded default**; look
+for a schema or seed file before concluding a role gets nothing.
+
+## Three resolutions in one day, and the thing they have in common (7 Oct 2026)
+
+`campaigns.campaign-schedule.is-general` (TeDarrell, wrong since 25 Aug), `inbox.message-search.open-only` and
+`advisoriq.sentiment-timeline.only-without-scorecard` (both Allie) all flipped to `correct` on this run — the most
+in any single run. Worth noting *why*, because it is evidence the loop works rather than luck:
+
+- All three had been written up with an explicit **say_instead** in an earlier report.
+- Two of the three were taught not merely correctly but *defensively* — Allie volunteered the sentiment-timeline
+  bug to the customer, and TeDarrell said "this is not how to measure business hours at all" unprompted.
+
+The `--resolved` detector only fires on a wrong→right pair **for the same trainer**, so these are all genuine
+individual corrections, not another person happening to say it right. Run `ledger.py --resolved` every time and
+read the rows whose `first_right` is today; they are the cheapest positive signal this skill produces and they
+belong in the Slack post, not just on the page.
+
+## A no-show and a truncated capture both look short — the discriminator is attendance, not duration
+
+The 6 Oct note established this with an 18-minute-looking file that was really 77 minutes. The 7 Oct run had the
+mirror case and it is worth recording so the test is not applied one-sidedly: Admin Part 1 Mon/Wed 9 am
+(`1070071202`) came back `durationInMins: 18`, 25 MB — and this one **is** a genuine no-show.
+
+The check that separates them, in order:
+1. **`startTime` → `endTime` span.** 08:58:05 → 09:16:12 is 18 minutes, which *matches* `durationInMins`. The 6 Oct
+   failure had a 76-minute span against a 1-minute duration. A span that matches the duration is a real short session.
+2. **Attendee report.** `meta.count: 0`. Nobody joined.
+
+Only when the span and the duration *disagree* is it a truncated capture. Both checks are one API call each and they
+settle it; `durationInMins` alone settles nothing in either direction. A genuine no-show stays out of the coverage-gap
+table — it is not an unaudited session, there was nothing to audit.
+
+## `build_dashboard.py` still splices the sub-tables, so filter them in the republish (7 Oct 2026)
+
+The 3 Oct note says to keep pipe tables out of `product-bugs.md` and that a freshly generated dashboard can be worse
+than the live page. Both still true: this run's generated page had **20 rows** in the bug table against the live
+page's **12**, the extra eight being the 1 Oct `bug | was | is now` sub-table rendered as malformed three-cell rows.
+
+But the 3 Oct advice — "on a day with no new sessions, build the republish from the live page" — does not cover a day
+*with* new sessions, when every ledger-derived section genuinely has to be regenerated. The working recipe for that
+case, used here:
+
+```python
+# 1. generate normally, then drop any <tr> in the bug section that is not 4 cells
+i = gen.index('<h2>Open product bugs'); j = gen.find('<h2>', i+4)
+bugs = re.sub(r'<tr>(.*?)</tr>',
+              lambda m: m.group(0) if len(re.findall(r'<t[dh][^>]*>', m.group(1))) == 4 else '',
+              gen[i:j], flags=re.S)
+# 2. splice the coverage-gap section from the LIVE page back in ahead of it
+```
+
+The renderer emits no coverage-gap section at all, so it must be carried forward from the live page every single
+run — generate, filter, splice, then publish. Checking section-by-section against the live page before publishing is
+what catches both halves.
+
+## Publishing the dashboard now requires a Read of the saved live copy, and one refusal is expected
+
+`Artifact action:"read"` on the dashboard prints a long head and saves the full page to a file — but printing it does
+**not** count as viewing it. The first `publish` with `url:` is refused with "you hadn't viewed the live version".
+The saved file must be opened with the **Read tool**, every line of it (201 lines for this page, in two calls because
+of its length), and only then does the publish go through.
+
+Second trap, immediately after: re-sending the same bytes earns a *different* refusal — "identical content already
+refused ... resent unchanged". That one is not asking for a merge. It says explicitly that if the content already
+accounts for the live version, publishing it **again unchanged** will succeed. So the sequence on a normal run is
+three calls: refused publish → Read the saved file in full → publish → refused as unchanged → publish again. Budget
+for it rather than treating the second refusal as a real conflict.

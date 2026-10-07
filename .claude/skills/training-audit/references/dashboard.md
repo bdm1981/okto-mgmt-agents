@@ -61,3 +61,5 @@ that the same feature is described three incompatible ways across runs.
 | 2026-09-30 | **Admin Part 1 — Aaron** (5 of 10 correct; **vendor exclusion taught as forward-looking**, appointment-lead minimum wrong a 4th time) | https://claude.ai/artifact/REM99yMZEoDR9tRXQc9mZY |
 | 2026-09-30 | **Advisor Training — Allie** (11 of 14 correct; **first ever correct vendor-flag statement**; block-customer regressed from 28 Sep) | https://claude.ai/artifact/FqSSwF9pjRjmDp4Xm2KXQ5 |
 | 2026-09-28 | **Advisor Training — Allie** (recovered from the coverage gap; holds the correct script for vendor flag **and** block-customer) | https://claude.ai/artifact/6LUnRYzhpZ1ZzHxiFEsxe3 |
+| 2026-10-07 | **CRM Overview — TeDarrell** (9 of 10 correct; **Require Delete Reason hits a 7th run**; campaign-schedule claim closed after six weeks) | https://claude.ai/artifact/9Rg1WcN9QdVvvRr8hq9K1o |
+| 2026-10-07 | **Advisor Training — Allie** (14 of 16 correct, best Advisor session on record; **message-search and sentiment-timeline both closed**, block-customer correct again) | https://claude.ai/artifact/3TaTKy4vqmh12A2gbD6H23 |
