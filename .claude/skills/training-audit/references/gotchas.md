@@ -1837,3 +1837,95 @@ refused ... resent unchanged". That one is not asking for a merge. It says expli
 accounts for the live version, publishing it **again unchanged** will succeed. So the sequence on a normal run is
 three calls: refused publish → Read the saved file in full → publish → refused as unchanged → publish again. Budget
 for it rather than treating the second refusal as a real conflict.
+
+## `findings.jsonl`'s `session` must be the BARE meeting key — `ledger.py` adds the `uuid:` prefix (8 Oct 2026)
+
+Every prior run wrote `"session": "1092823344"`. This run wrote `"session": "uuid:1092823344"`, reasoning from
+the ledger rows, which render as `` `uuid:1092823344` ``. That prefix is added by `ledger.py` when it writes the
+row, so the 27 rows landed as `` `uuid:uuid:1092823344` ``.
+
+Nothing errored. `--check` passed, `--add` appended, the repeat tables rendered. What broke was quiet:
+
+- `build_dashboard.py`'s `session_index()` strips `^\`uuid:` from the index key, so the join against the ledger's
+  doubly-prefixed uuid missed, and both new Sessions rows rendered `— — — —` for course / minutes / attendance.
+- `--reports` lookup missed the same way, so both rows showed `—` instead of a report link, on the run that had
+  just published those two reports.
+
+Fix applied: `sed -i '' 's/`uuid:uuid:/`uuid:/g'` on the ledger (a formatting repair of rows written minutes
+earlier, not a grade correction), and `report-map.json` keys moved from `uuid:<key>` to `<key>` to match the
+52 that were already there.
+
+**Rule: the `session` field is the bare meeting key everywhere — `findings.jsonl`, `report-map.json`,
+`--session` on `build_report.py`.** The only place `uuid:` appears is in a rendered ledger or index row, where
+a script put it. Grepping one existing row of each file before writing a new one costs one call and would have
+caught this.
+
+## The `erecordingId` prefix collision finally bit, and a wrong page answers "empty" just like a right one (8 Oct 2026)
+
+The 3 Oct note warns that these ids share 32-character heads and says to match on the whole string. This run
+swept the gap table and, for the 6 Oct Admin Part 1 row, used `1e53b4373bc37d0d676efa94681310eb2f4397ae…` —
+which is the **7 Oct Admin Part 1 9 am no-show**, not the intended recording. The head `1e53b4373bc37d0d676efa94681310eb`
+is now shared by **four** recordings spanning 1–7 Oct.
+
+The page loaded, the Transcript tab clicked, and it answered `len=NONE empty=true` — a perfectly ordinary
+result that would have been written into the dashboard as a confirmed re-check of a row that was never opened.
+
+It was caught only by luck of subject matter: that one row is the 287-character fragment, so an empty answer was
+surprising enough to re-check. **Every other row in the table would have absorbed the error silently**, because
+`empty=true` is the expected answer for all of them. Re-run with the correct id confirmed `len=287 empty=false`.
+
+**Build the sweep list by copying ids out of the stored map in one go, never by recalling a head.** And treat
+`empty=true` as evidence only when the page title matches the row — `document.title` costs nothing and names the
+course, which is the cheapest available proof the right page was loaded.
+
+## `session_index.py` cannot run on a Zoho run — append the rows by hand, and mind the column drift
+
+It requires `--sessions` and `--transcripts <dir>` and derives `spoke` by counting distinct non-trainer speakers
+in compacted VTTs. A Zoho run has no VTTs on disk (the transcript is read out of the browser) and Zoho transcripts
+carry no speaker labels, so there is nothing for it to count. Pointing it at an empty directory would write
+`spoke: 0`, which is a false statement rather than a missing one.
+
+Prior runs evidently appended by hand, and the file's header has drifted from its rows: the header declares
+`| date | uuid | course | minutes | spoke | trainer |` (six columns) while every row since the Zoho cutover
+carries **seven** — attendance in column 5 and `—` for spoke in column 6. Match the rows, not the header.
+
+## A regression correctly removes a row from *Fixed* — do not treat the shrinkage as a renderer bug
+
+`advisoriq.sentiment-timeline.only-without-scorecard` was in the Fixed table (Allie, wrong through 28 Sep, right
+from 7 Oct). Today's grade of `incomplete` means she is no longer right-from-that-date-onward, so `--resolved`
+stopped emitting the pair and the generated Fixed table came back one row shorter than the live page.
+
+The 3 Oct rule says a section that differs on a day the ledger did not change is a renderer bug. The corollary
+worth stating: on a day the ledger *did* change, a section getting **smaller** can be exactly right. Diff it row
+by row and confirm the removal is the claim you just regraded — this run's four changed sections each reduced to
+exactly the rows today's 27 findings should have moved, which is the check that makes publishing safe.
+
+## `useJobDataSupport.ts` is the single predicate for authorized/job data — and it is Tekmetric **and CE**
+
+Worth recording as product knowledge, because the training has it wrong and the area will come up again.
+`softwareTypeSupportsJobData(softwareType)` is `=== "tekmetric" || === "CE"` (`:23`), and the comment above it
+is unusually explicit: "Tekmetric (extractor) and CE (change relay) shops both populate ShopJobs." Every
+authorized-vs-posted surface keys off that one function — `DailySales.tsx:44`, `BreakdownByWeek.tsx:573`,
+`IndividualPerformanceReport.tsx:695` — plus `DataView.tsx:224`, which inlines the same comparison rather than
+calling the helper.
+
+So "Tekmetric is the only system that can show authorized" is wrong, and the file anticipates being asked:
+its lifecycle comment says to extend the predicate when an integration gains job sync. Check the predicate, not
+a trainer's DMS list, and not `DataView.tsx` alone.
+
+## Grading the same claim a day apart produced opposite verdicts on byte-identical code (8 Oct 2026)
+
+`advisoriq.sentiment-timeline.only-without-scorecard` was graded `correct` on 7 Oct and `incomplete` today.
+`CallTranscriptTab.tsx` has not changed since 14 Aug and `CallModalTabs.tsx` since 25 Aug, so the two runs read
+the same bytes and disagreed.
+
+Today's reading: there is no gate on the absence of a scorecard. `showTranscriptSentiment` is a user toggle
+defaulting to `true` (`CallModalTabs.tsx:89`), the render condition is `!call?.vendor && showSentimentData &&
+journeyForRender.length > 0` (`CallTranscriptTab.tsx:546-549`), and the journey is resolved **scorecard-first**
+(`CallModalTabs.tsx:91-104`). A scorecard call is the case the timeline is built for.
+
+The 7 Oct note frames that grade as crediting her for volunteering a bug, which is a different thing from the
+factual assertion being right. Both readings are defensible and the ledger now holds both. **This was flagged
+to a human rather than quietly flipped**, and that is the right move whenever a re-grade would overturn a prior
+run on evidence that has not changed: the 7 Oct rule says a confident contradiction of an existing row should
+stop the grade, and stopping it means escalating, not deferring to whichever run is more recent.
