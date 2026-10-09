@@ -1495,6 +1495,7 @@ they are properties of the recording, not of the query — so they only need fet
 | 2026-10-06 | 1081511660 | `1e53b4373bc37d0d676efa94681310eb8bf068251d36e1dc02a456f381b5d0a6` |
 | 2026-10-06 | 1064758517 | `8e63910aeac9d68a77e6fc6cbf3d8d4261c3e82de9cfe23800f6ae0dbc08f20d` |
 | 2026-10-07 | 1020531693 | `e2ae0c28c9b0cf5aa6a723e943f4ea5998eb3b56252f85d98114cc42168e79b0` |
+| 2026-10-08 | 1068971573 | `b88ababcddba2e9fb7bb2f29e4bf9c34e1d83c1db0669cdfcd057821017c0a3b` |
 
 Page URL is `https://webinar.zoho.com/meeting/videoprv?recordingId=<erecordingId>&x-meeting-org=796393835`.
 Add a row whenever a recording enters the gap; delete one when it leaves. Four recordings per
@@ -1929,3 +1930,81 @@ factual assertion being right. Both readings are defensible and the ledger now h
 to a human rather than quietly flipped**, and that is the right move whenever a re-grade would overturn a prior
 run on evidence that has not changed: the 7 Oct rule says a confident contradiction of an existing row should
 stop the grade, and stopping it means escalating, not deferring to whichever run is more recent.
+
+## The vendor-exclusion bug was never real, and it inverted 13 grades (9 Oct 2026)
+
+The most expensive finding this skill has produced was wrong for three weeks, and the rule that
+would have caught it was already written down on 28 Sep.
+
+`directory.vendor-flag.excludes-from-advisoriq` and the matching product-bug entry both rest on one
+claim: marking a contact as a vendor sweeps their **existing** calls once (`vendors.js:30`) and
+nothing in the call-creation path ever consults the Vendor collection again, so future calls are
+created `vendor: false` and keep re-entering Advisor IQ. The grep behind it was scoped to
+`dc-server/routes/call.js`.
+
+That grep was accurate and the conclusion was still false, because **dc-server does not ingest
+calls.** Its only `Call.create` is the `manualUpload` path at `:2305`. Live telephony is handled by
+**dc-calls**, which gates on vendors *twice, independently*:
+
+- `dc-calls/src/modules/director.js:103` calls `utils.vendorLookup(contactNumber, siteInfo.tenantId)`
+  unconditionally for every call and sets `detail.vendor = isVendor` at `:112`, before
+  `Call.create(detail)` at `:118`. `vendorLookup` (`utils.js:542`) queries
+  `Vendors.findOne({ tenantId, number: e164Number })` — and `dc-calls/src/models/vendor.js` binds
+  `mongoose.model("Vendor", VendorSchema, "vendors")`, the same collection dc-server writes.
+- `dc-calls/src/routes/events.js:1992` runs its **own** lookup in the transcription pipeline, logs
+  "Detected vendor call", and skips Advisor IQ, scorecards and sentiment entirely behind
+  `if (!isVendor)` at `:2003`.
+
+`scorecardsReport.ts:125` (`vendor: { $ne: true }`) then excludes them from the report. So a vendor
+number is flagged at creation *and* never scored. `vendorLookup` has been in that path since
+**July 2025** (`ae54c2c92d` / `262895f5c9`) — fourteen months before the bug was raised. There was
+never a window in which it was true.
+
+**This is the third instance of the 28 Sep service-boundary error** (`/bookings/capture`, then the
+`reportPermissionsService` near-miss on 7 Oct). The rule is already in this file — "before
+concluding a route does not exist, find out which service the caller is actually pointed at;
+'not in dc-server' means nothing on its own" — and it was not applied because the claim did not
+*look* like a routing question. Generalise it: **any finding of the form "nothing ever does X"
+is a whole-monorepo claim and needs a whole-monorepo grep**, no matter which single service the
+symptom appeared in. `git grep -l Vendor` across the repo costs one call and would have ended this
+on day one.
+
+**The grading consequence is an inversion, not a correction.** Thirteen rows across four trainers
+join this claim_id, and the polarity of every one of them is backwards:
+
+- 8 × `incomplete` for omitting a limitation that does not exist;
+- 1 × `wrong_high` — Aaron, 30 Sep, "any future calls will not be used with Advisor IQ" — which is
+  **correct**, and was written up as the first time the claim was stated as a forward-looking
+  guarantee;
+- 4 × `correct` — Allie, 28 and 30 Sep, 7 and 8 Oct — for saying future calls are *not* excluded and
+  that you would "constantly have to mark them as a vendor", which is **wrong**. The 30 Sep report
+  called that "the first ever correct vendor-flag statement".
+
+The ledger is append-only and `ledger.py` has no correction mode, so **these rows were not
+rewritten.** Per the 8 Oct rule, a re-grade that overturns prior runs is escalated to a human rather
+than flipped autonomously — and that rule matters more here than usual, because the fix is not one
+regrade but a reversal of who has been coached. Someone was told they were wrong for being right.
+
+Two smaller lessons from the same sweep, both worth keeping:
+
+- **Case matters in `git grep`.** A sweep for `allRecordings` over `callsReviewUtils.ts` returned
+  nothing while the code says `hasAllRecordings` and `"All Recordings"`. An empty grep on a file you
+  have just confirmed is byte-identical is a signal about the *pattern*, not the code — it briefly
+  read as a deleted gate.
+- **A withdrawal shrinks the bug table, which is a correct result.** Same shape as the 8 Oct note
+  about the Fixed table: on a run that changes the inputs, a section getting smaller can be exactly
+  right. Nine open bugs, down from ten.
+
+## A quiet Friday can still be the most consequential run of the week (9 Oct 2026)
+
+The 2 Oct note says a Friday with nothing to grade is not a day with nothing to do, and offers the
+bug sweep as the fallback work. This run is the strongest evidence for that: zero sessions
+discovered (correctly — no training runs Fri–Sun), zero graded, 25 coverage-gap rows re-swept with
+nothing recovered, and the sweep that filled the time **withdrew the most-repeated finding in the
+ledger**.
+
+It also changes the "did anything change" calculus from the 26 Sep note. On the face of it this was
+a no-change day: nothing graded, gap identical, nothing recovered. It still posted to Slack, because
+the bug withdrawal is precisely the kind of thing a reader acts on — and because four trainers have
+been graded backwards on it. Read that rule as "did anything change **that a reader would act on**",
+not "was a session graded".
