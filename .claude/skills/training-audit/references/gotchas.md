@@ -2008,3 +2008,86 @@ a no-change day: nothing graded, gap identical, nothing recovered. It still post
 the bug withdrawal is precisely the kind of thing a reader acts on — and because four trainers have
 been graded backwards on it. Read that rule as "did anything change **that a reader would act on**",
 not "was a session graded".
+
+## A republish to the dashboard returns a *different-looking* URL — it is the same artifact (10 Oct 2026)
+
+Publishing with `url:` set to `https://claude.ai/code/artifact/1d86f6a7-34f2-4d45-8af5-39b80e1d9eda`
+succeeded and answered:
+
+```
+Published ... at https://claude.ai/artifact/4eUdaeZbcXPS9zXZdLtmJh (Version 39, version id 1791674297-5544)
+```
+
+That reads exactly like the failure this skill warns about hardest — a second page, with the team left
+reading the stale one. **It is not.** `4eUdaeZbcXPS9zXZdLtmJh` is the short-form permalink of the same
+artifact; `action: "read"` on the canonical `1d86f6a7-…` URL returned version `1791674297-5544`, 85,168
+bytes, byte-identical to the file just published. Two things that did *not* settle it and should not be
+relied on: the publish result's own wording, and `action: "list"`, where Training QA did not appear in
+the six most recent rows despite having just been updated.
+
+**The check that does settle it** is one call: read the canonical URL with `path: "index.html"` and grep
+the saved copy for a string unique to today's edit. Do that once per run after republishing rather than
+reasoning about which URL form means what.
+
+## Three publish calls were budgeted and one was needed
+
+The 8 Oct note says to expect `refused (not viewed)` → Read → publish → `refused (unchanged)` → publish,
+and to budget three calls. This run needed **one**. The difference is that the full 210-line Read had
+already happened earlier in the run, before any publish was attempted, as part of reading the live gap
+table to answer a discovery question. Reading the live page early — which a no-new-sessions run has to do
+anyway to build the republish from it — collapses the whole dance. Budget for three, but read first and
+you will usually spend one.
+
+## Re-aging the gap table: "N days open" has two phrasings, and a period-anchored regex silently skips four rows
+
+Every gap row opens with an age, and the obvious sweep is `re.sub(r"\d+ days? open\.", …)`. **Four of
+the twenty-five rows do not end that phrase with a period** — the rows carrying a superlative continue
+with an em dash instead:
+
+```
+16 days open — the single largest loss in this table.
+15 days open — the longest session ever recorded on this account.
+3 days open &mdash; and this one is a different failure.
+1 day open — and it is the largest single loss this table has ever taken.
+```
+
+Anchoring on `open\.` leaves exactly those four stale, and they are the four most-read rows in the
+table. Drop the period from the pattern (`\d+ days? open`) and write the replacement without one.
+
+Two further traps in the same job, both caught only by verifying afterwards:
+
+- **Compute each age from the row's own date, never by incrementing.** A `+1` sweep is right until the
+  run misses a day, and the drift is invisible.
+- **Verify row-by-row, not with a second regex over the whole section.** The obvious check,
+  `<tr><td>(date)</td>.*?(\d+ days? open)` with `DOTALL`, runs past rows it cannot match and reported
+  21 rows for a 25-row table with four wrong ages — it agreed with the bug it was meant to find. Split
+  on `</tr>` first, then assert per row, and assert the count is 25.
+
+## Pluralisation is part of the data: `1 day open` → `2 days open`
+
+The 8 Oct row crosses from singular to plural on its second day in the table. Any re-ager has to emit
+the unit, not just the number.
+
+## A quiet Saturday reads identically to a broken endpoint — and this time it really was quiet (10 Oct 2026)
+
+Second consecutive expected-zero day, and the confirmation is the same as 9 Oct: the Past Webinars list
+in the browser still shows **Thursday 8 October** as its newest group. Fourteen sessions ran Mon–Thu and
+nothing since.
+
+Worth recording because the reconciliation is what makes the zero trustworthy, not the absence of rows:
+all fourteen were accounted for individually — **four graded** (7 and 8 Oct), **six** already in the gap
+table, **four genuine no-shows** (7 Oct 9 am Admin P1, 6 Oct 9 am Admin P2 and 11 am Shop Analytics,
+8 Oct 9 am Admin P2, each 0 attended). A session that is neither graded, nor in the gap, nor a no-show is
+a discovery failure, and the only way to see one is to add the three categories up against the list. This
+run briefly had a fourteenth unaccounted session before the 8 Oct 9 am row resolved as a no-show — which
+came from mis-reading the attendance pair across a `slice()` boundary while chunking `innerText`, not from
+the data. **Chunk with overlap and re-read any row whose numbers land on a boundary.**
+
+## The post/no-post call on a second consecutive quiet day
+
+9 Oct posted to Slack despite grading nothing, because the bug withdrawal was something a reader would
+act on. 10 Oct did **not** post: nothing graded, nothing recovered, the gap unchanged for a third day,
+and a bug sweep that confirmed the table rather than changing it. The 9 Oct rule — "did anything change
+*that a reader would act on*" — cuts both ways, and a clean sweep is not news. The dashboard still
+republishes, because the baseline stamp and the row ages are assertions on the page that would otherwise
+go stale.
