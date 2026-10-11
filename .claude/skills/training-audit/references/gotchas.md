@@ -2091,3 +2091,35 @@ and a bug sweep that confirmed the table rather than changing it. The 9 Oct rule
 *that a reader would act on*" — cuts both ways, and a clean sweep is not news. The dashboard still
 republishes, because the baseline stamp and the row ages are assertions on the page that would otherwise
 go stale.
+
+## Enumerate the Past Webinars list from the DOM, not by slicing `innerText` (11 Oct 2026)
+
+The 4 Oct note says `get_page_text` returns nothing on this page and to read `document.body.innerText`
+directly. True, and it is still the right call for a quick "what is the newest group" check. But the
+10 Oct note then had to add "chunk with overlap and re-read any row whose numbers land on a boundary",
+because that run briefly mis-read an attendance pair across a `slice()` seam.
+
+Overlapping chunks treat the symptom. The cause is that `innerText` flattens every row into one
+undelimited string, so the only thing separating "3 registered, 0 attended" from the next row's date is
+whitespace, and any slice boundary can land inside a pair. This run hit it again from the other side:
+reading the 2,909-character text in three overlapping slices produced a **15-row** count for a list that
+actually holds **20**, and attributed `4 / 2 (50%)` to a row whose real numbers are `4 / 3`.
+
+Query the row elements instead and the ambiguity disappears:
+
+```js
+const cands=[...document.querySelectorAll('div,li,tr')].filter(e=>{const t=e.innerText||'';
+  return /\d{2}:\d{2}\s*(AM|PM)/.test(t)&&/hrs|mins/.test(t)&&/Training|Overview/.test(t)&&t.length<400;});
+const rows=[...new Set(cands.map(e=>e.innerText.replace(/\s+/g,' ').trim()))];
+const keep=rows.filter(r=>!rows.some(o=>o!==r&&o.includes(r)));   // drop ancestor wrappers
+```
+
+The containment filter is the part that matters: the same row matches at several nesting depths, and
+keeping only the innermost string gives exactly one entry per webinar. 20 rows, each with its own date,
+time, duration, course, department and registered/attended pair, in one call.
+
+Two caveats found the same run. The group headers (`LAST WEEK14`, `EARLIER3`) **do not agree** with the
+rows underneath them — the 20 rows span 30 Sep to 8 Oct while the headers sum to 17 — so count the rows
+and never the header. And the per-row regex must be asserted, not trusted: print the parsed form and
+eyeball it, because a row that fails to match silently drops out of a list whose whole purpose is to
+prove nothing is missing.
