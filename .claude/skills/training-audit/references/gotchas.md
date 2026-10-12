@@ -1496,6 +1496,7 @@ they are properties of the recording, not of the query — so they only need fet
 | 2026-10-06 | 1064758517 | `8e63910aeac9d68a77e6fc6cbf3d8d4261c3e82de9cfe23800f6ae0dbc08f20d` |
 | 2026-10-07 | 1020531693 | `e2ae0c28c9b0cf5aa6a723e943f4ea5998eb3b56252f85d98114cc42168e79b0` |
 | 2026-10-08 | 1068971573 | `b88ababcddba2e9fb7bb2f29e4bf9c34e1d83c1db0669cdfcd057821017c0a3b` |
+| 2026-10-12 | 1063155070 | `b9acee1c85cd78bbec5acb7e246a911b3d7ea4436dd9a5f99e01d5a85bec2931` |
 
 Page URL is `https://webinar.zoho.com/meeting/videoprv?recordingId=<erecordingId>&x-meeting-org=796393835`.
 Add a row whenever a recording enters the gap; delete one when it leaves. Four recordings per
@@ -2123,3 +2124,66 @@ rows underneath them — the 20 rows span 30 Sep to 8 Oct while the headers sum 
 and never the header. And the per-row regex must be asserted, not trusted: print the parsed form and
 eyeball it, because a row that fails to match silently drops out of a list whose whole purpose is to
 prove nothing is missing.
+
+## `createLead` has no phone gate — the appointment-lead claim is wrong in the *other* direction (12 Oct 2026)
+
+`scheduler.appointment-lead.phone-is-minimum` has been graded seven times and the reasoning behind it has
+moved twice. The 24 Sep note graded "you may not even see a name" wrong because the bail-out *forms*
+(`StayOrGo.js`, `SkipToForm.js`) require first name, last name, phone and comments. The 28 Sep note then
+withdrew the `/bookings/capture` product bug, which quietly made the exit-intent path live again — and
+nobody followed that through to its consequence for this claim.
+
+Followed through at `e94e845076`, the whole chain has **no phone requirement anywhere**:
+
+- `dc-booking/src/Header.tsx:111-116` — `hasAnyInfo` is an **OR** over phone / fname / lname /
+  `bailOutStage.bailOutComments`. One field is enough to fire.
+- → `graphql-broker` `/bookings/capture` → `generateLead.service.ts:22`, whose only required field is
+  `domain`.
+- → `dc-server/routes/customer.ts:792` `/createLead`: creates the Contact (`:816`) and a
+  `channel: "lead"` Tracker (`:826`) **unconditionally**. `req.body.number` may be undefined.
+
+So a bail-out carrying only a first name *does* produce a lead task. "No phone, no lead" is not an
+omission, it is backwards, and the cost lands on the shop: they are told a class of lead cannot exist, so
+they never look for it.
+
+**The transferable rule:** when a product-bug entry is withdrawn, re-grade the training claims that were
+decided on the strength of it. The withdrawal of `/bookings/capture` changed the answer to this claim and
+sat unconnected to it for two weeks. Same shape as the vendor-flag inversion, one step earlier in the chain.
+
+## A same-day gap row needs a "0 days open" phrasing the re-ager can increment (12 Oct 2026)
+
+The 10 Oct note gives the re-dating recipe — descending replacement, anchor on `<strong>N days open`
+without the period, emit the unit so `1 day` becomes `2 days`. It does not say what to write on the day a
+row is *created*, and prose like "New today" breaks the sweep: the regex finds no number and the row
+silently never ages.
+
+Write a fresh row as **`<strong>0 days open — new today.</strong>`**. It reads correctly on the day, the
+descending sweep turns it into `1 day open` tomorrow and `2 days open` after that with no special case, and
+the per-row verification (split on `</tr>`, compare each age to `today - row date`) covers it like any other.
+
+Verified this run: 25 existing rows all aged by exactly +1 with zero mismatches, and the new row asserted at 0.
+
+## Three sessions in one run is where the whole-day rule pays off (12 Oct 2026)
+
+The 22 and 28 Sep notes argue for grading every transcribed session on a day rather than the most
+interesting one. Monday 12 Oct is the strongest case yet: **four courses ran, three transcribed**, and the
+three graded sessions split cleanly by kind — Aaron's Admin Part 1 carried all three non-correct findings
+(and the day's only `wrong_high` that was a trainer error), TeDarrell's CRM carried the product's own
+inverted label, and TeDarrell's Admin Part 2 was the cleanest session in the ledger at 6 of 7.
+
+A run that graded only the session with the most findings would have reported "Aaron had a bad day" and
+missed that the same morning's curriculum defect has a correct script on file from the *other* trainer who
+taught twice that afternoon.
+
+Also confirmed: the Monday-evening rule from 5 Oct held exactly. An 18:00 Monday run found all four of the
+day's sessions already recorded, and three of them already transcribed, including the 15:00 one.
+
+## Grading two sessions by one trainer two hours apart explains an opening slip
+
+TeDarrell delivered CRM at 13:00 and Admin Part 2 at 15:00. The Admin Part 2 recording opens by announcing
+*CRM* training and corrects itself four sentences in — "I just finished CRM training and so that was still
+on my mind." Without the CRM session in the same run that reads as a trainer who does not know which course
+he is teaching. With it, it is a scheduling artefact and a clean recovery.
+
+Worth checking the day's other sessions before writing up anything that looks like trainer confusion; the
+schedule is a cheaper explanation than the person, and it is visible in the same `getAllRecordings` response.
