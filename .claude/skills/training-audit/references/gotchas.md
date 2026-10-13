@@ -2187,3 +2187,71 @@ he is teaching. With it, it is a scheduling artefact and a clean recovery.
 
 Worth checking the day's other sessions before writing up anything that looks like trainer confusion; the
 schedule is a cheaper explanation than the person, and it is visible in the same `getAllRecordings` response.
+
+## Reading a Zoho transcript out of Chrome: `get_page_text` then JS tail-slices (13 Oct 2026)
+
+The 10 Sep note says to use `get_page_text` with `max_chars` well above 60000. **The Chrome
+(`mcp__claude-in-chrome__*`) `get_page_text` has no `max_chars` parameter at all** — that is the
+*in-app* browser's signature, and the in-app browser is permanently signed out of Zoho. Chrome's
+version truncates at 50,000 characters with a note giving the full size.
+
+`javascript_tool` is not the fallback it looks like: its result is capped near **1,000 characters**
+regardless of what the expression returns, so `__out.slice(0, 6000)` comes back truncated at ~1,000
+just like `slice(0, 18000)` does. A 55 KB transcript would need ~55 calls that way.
+
+What was tried and **refused**: having the page `fetch()`-POST the transcript to a short-lived
+`127.0.0.1` HTTP sink so it landed on disk in one call. The auto-mode classifier blocks it as
+`[Browser JS Exfil]`, which is the correct call — a page POSTing its contents to a local server is
+indistinguishable from exfiltration at the point of decision. Do not reach for it; the sink was torn
+down and the port released.
+
+**The working recipe, 7 calls for a 67-minute session:**
+
+1. On the recording page, click the Transcript tab, then build the cues once and park them on
+   `window.__out` (the `[mm:ss] text` collapse from the 10 Sep note).
+2. `get_page_text` — returns the first 50,000 characters and reports the true total.
+3. Find the overlap offset with one JS call: `window.__out.indexOf('[<last timestamp you saw>]')`.
+4. Pull the remainder in `slice(a, a+1000)` steps. ~6 calls for the last 5–6 KB.
+
+Anchoring step 3 on a timestamp string rather than a character count is what makes the seam safe —
+the same reason the 11 Oct note gives for querying row elements instead of slicing `innerText`.
+
+Also still true and worth re-stating because it cost calls again: the **public**
+`transcriptionPublicDownloadUrl` on `files-accl.zohopublic.com` 403s from `curl`. Public in the URL
+does not mean public, and the transcript only exists inside an authenticated browser session.
+
+## `pin_baseline.sh` fell back stale a third time, and the HTTPS retry needs the right org (13 Oct 2026)
+
+The 5 and 6 Oct notes both record the silent fallback being behind the true tip. It happened again:
+the local `origin/development` was `e825e33a43` (12:44 CDT) against a real tip of `6ad7e2a008`
+(14:28 CDT) — **six commits**, four of them campaign fixes, i.e. exactly the surface this audit grades.
+
+The retry is where time went. `git fetch origin` fails because `origin` is **SSH**
+(`git@github.com:ShopRocket-LLC/oktorocket.git`) and SSH does not work on this host, and `gh auth`
+reports `Git operations protocol: ssh`. The fetch that works names the org explicitly:
+
+```
+git -c credential.helper='!gh auth git-credential' fetch https://github.com/ShopRocket-LLC/oktorocket.git development
+git update-ref refs/remotes/origin/development <FETCH_HEAD sha>
+```
+
+**The org is `ShopRocket-LLC`, not `bdm1981`** — guessing the user's own namespace returns
+`Repository not found`, which reads like an auth failure and is not one. Two other small traps from
+the same sequence: `timeout` does not exist on this Mac (use the Bash tool's own `timeout` argument),
+and in zsh `git show "$S:graphql-broker/..."` must be brace-quoted as `"${S}:graphql-broker/..."` or
+the expansion eats characters and reports a bogus "ambiguous argument".
+
+## `build_dashboard.py` needs `--reports`, or the session you just published renders `—` (13 Oct 2026)
+
+The 8 Oct note is about `report-map.json` **keys** (bare meeting key, no `uuid:` prefix). That was
+done right this run and the new row still rendered `<td>—</td>` where its report link belongs,
+because `--reports` is an **optional flag that defaults to nothing**:
+
+```
+python3 scripts/build_dashboard.py --baseline "$OKTO_SHA_SHORT" --reports references/report-map.json
+```
+
+Without it every Report cell on the page falls back to `—`, including the 50-odd historical rows —
+so the live page silently loses every link it has. The section-by-section diff catches it
+(`Sessions` row count matches, cell contents do not), but only if the new row is actually inspected
+rather than counted. Grep the generated page for the artifact id you just published before splicing.
