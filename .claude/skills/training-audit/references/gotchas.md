@@ -2255,3 +2255,68 @@ Without it every Report cell on the page falls back to `—`, including the 50-o
 so the live page silently loses every link it has. The section-by-section diff catches it
 (`Sessions` row count matches, cell contents do not), but only if the new row is actually inspected
 rather than counted. Grep the generated page for the artifact id you just published before splicing.
+
+## Re-age the gap table from each row's own date — the descending sweep still double-ages (14 Oct 2026)
+
+The 27 September note says to replace `N days open` largest-first so no replacement re-matches its own output, and the
+10 October note adds the two phrasings and the pluralisation. Both were followed exactly this run and **four of
+twenty-six rows still came out one day too old** (the 16 Sep row read 29 when it should read 28; all three 17 Sep rows
+read 28 for 27). Descending order is necessary and it is not sufficient — the ages in the live table are not distinct,
+the set is built from the text *after* rows are added and removed, and a single `str.replace` is global, so one pass
+can touch rows that a later pass then touches again.
+
+Stop re-aging by arithmetic altogether. **Split the tbody on `</tr>` and, for each row, read its own date cell and
+write `(today - row_date).days`:**
+
+```python
+for chunk in body.split('</tr>'):
+    if '<code>' not in chunk: continue
+    d = datetime.date.fromisoformat(re.search(r'<td>(2026-\d\d-\d\d)</td>', chunk).group(1))
+    n = (today - d).days
+    chunk = re.sub(r'\d+ days? open', f'{n} {"day" if n==1 else "days"} open', chunk, count=1)
+```
+
+This is idempotent, needs no ordering, survives a run that fires twice in a day or misses a day, and makes the
+verification pass trivially true rather than a separate check that can disagree with the edit. The 10 October warning
+about verifying row-by-row rather than with a second regex over the whole section still stands — that is what caught
+this. Note also that counting gap rows by `'<code>' in chunk` over the whole **section** over-counts once narrative
+paragraphs start citing meeting keys; count inside the `<tbody>` slice only.
+
+## Two gap rows recovered in one run — the sweep is now the most productive step in the audit (14 Oct 2026)
+
+The 30 September note introduced re-checking every coverage-gap row every run, on the strength of a single recovery
+(28 Sep Advisor). For twenty-five days after that nothing else ever left the table, which made the sweep look like
+insurance. On 14 October **two of twenty-six rows came back**: Shop Analytics of 13 Oct (`1043483196`, 74,755 chars)
+and Admin Part 1 of 8 Oct (`1068971573`, 71,574 chars) — the latter the largest single loss the table ever held, at
+seven joined. Together they contributed **29 of the run's 59 graded claims**, more than the day's own two sessions.
+
+So budget for it properly rather than treating it as a tail check: twenty-six page loads is six `browser_batch` calls
+at four or five recordings each, and on this evidence it is worth more per call than discovery. Two consequences:
+
+- **Do not describe a recovered row as "missed by the previous run".** The first draft of this run's Shop Analytics
+  report said exactly that, and it was wrong — the row was discovered correctly on 13 Oct, published as a gap row that
+  evening, and simply had no transcript behind it yet. Check the live gap table before characterising why a session is
+  being graded late; the dashboard already knows.
+- **A recovered session is graded at the current baseline, not the one from its own date.** Say so in the report
+  footer. The 8 October session was graded at a commit six days newer than the day it was taught.
+
+## `ledger.py --check` reports no repeats for a second batch added in the same run
+
+Grading four sessions this run meant two `--add` calls. The second dry run printed `appended 18` and **no
+`newly_repeating` block at all**, which reads as "these eighteen rows join nothing". They did — the first batch had
+already landed, so every claim the second batch repeats was already repeating and nothing was *newly* so.
+
+Nothing is wrong with the tool; the trap is reading the second dry run as the run's repeat summary. **Run
+`--contradictions` over the whole ledger after the last `--add`** (already the standing rule from 24 September) and
+treat the union of all the batches' `--check` output as the repeat picture, not the last one's.
+
+## `MessageBubble.tsx` and `MessageToolbar.tsx` are under `TaskSMS/` — third abbreviated-path miss
+
+The 5 and 6 October notes record this failure mode twice (`api.ts` under `common/`, `OnDeck.tsx` under `campaigns/`).
+It fired again on the two translate surfaces: this file cites them as
+`dc-user/src/js/user/components/inbox/MessageBubble.tsx`, and the real paths are
+`inbox/**TaskSMS**/MessageBubble.tsx:141-142` and `inbox/**TaskSMS**/MessageToolbar.tsx:121`/`:127`.
+
+Caught by `git cat-file -e` over every cited path before writing the findings, which is cheap and is now the only
+thing standing between an abbreviated path and a citation that points at nothing. Keep running it over the reused
+citations as well as the new ones — these two came from prior ledger rows, not from a fresh grep.

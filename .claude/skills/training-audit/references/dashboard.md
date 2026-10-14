@@ -69,3 +69,7 @@ that the same feature is described three incompatible ways across runs.
 | 2026-10-12 | **CRM Overview — TeDarrell** (9 of 11 correct; **Require Delete Reason label hits an 8th run**; new keyword once-per-conversation omission) | https://claude.ai/artifact/PX74fJfs5A3yqFakaX6cdi |
 | 2026-10-12 | **Admin Part 2 — TeDarrell** (6 of 7 correct — cleanest session on record; block-customer permission taught the right way round) | https://claude.ai/artifact/7Y96EpqqXFRb49NTxrjhbA |
 | 2026-10-13 | **Advisor Training — Allie** (19 of 25 correct; **appointment-lead minimum wrong a 6th time**, now with the phone gate shown not to exist anywhere in the chain; missed-call definition taught via voicemail rather than talk time) | https://claude.ai/artifact/DKybJV8ugDdBwmUgKdb3rS |
+| 2026-10-13 | Shop Analytics | https://claude.ai/artifact/Nt5XtBdrWu4L96Vx8TusiT |
+| 2026-10-14 | Admin Part 1 | https://claude.ai/artifact/6fHnmPQoYWJGhVgqjH9m3h |
+| 2026-10-14 | CRM Overview | https://claude.ai/artifact/Toxtc7sGymSaKHHPcEBdDM |
+| 2026-10-08 | Admin Part 1 (recovered from the coverage gap on 14 Oct) | https://claude.ai/artifact/9pn6gFpvCpYUkMeu5NUKFS |
