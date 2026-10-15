@@ -73,3 +73,4 @@ that the same feature is described three incompatible ways across runs.
 | 2026-10-14 | Admin Part 1 | https://claude.ai/artifact/6fHnmPQoYWJGhVgqjH9m3h |
 | 2026-10-14 | CRM Overview | https://claude.ai/artifact/Toxtc7sGymSaKHHPcEBdDM |
 | 2026-10-08 | Admin Part 1 (recovered from the coverage gap on 14 Oct) | https://claude.ai/artifact/9pn6gFpvCpYUkMeu5NUKFS |
+| 2026-10-15 | **Admin Part 2 — TeDarrell?** (18 of 26 correct, none wrong; **block-customer taught right a 4th time**; five off-branch omissions, two of them regressions out of Fixed) | https://claude.ai/artifact/MGRz9q3FULuFGAJhVruXoA |

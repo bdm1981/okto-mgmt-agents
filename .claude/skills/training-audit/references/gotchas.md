@@ -1495,8 +1495,9 @@ they are properties of the recording, not of the query — so they only need fet
 | 2026-10-06 | 1081511660 | `1e53b4373bc37d0d676efa94681310eb8bf068251d36e1dc02a456f381b5d0a6` |
 | 2026-10-06 | 1064758517 | `8e63910aeac9d68a77e6fc6cbf3d8d4261c3e82de9cfe23800f6ae0dbc08f20d` |
 | 2026-10-07 | 1020531693 | `e2ae0c28c9b0cf5aa6a723e943f4ea5998eb3b56252f85d98114cc42168e79b0` |
-| 2026-10-08 | 1068971573 | `b88ababcddba2e9fb7bb2f29e4bf9c34e1d83c1db0669cdfcd057821017c0a3b` |
 | 2026-10-12 | 1063155070 | `b9acee1c85cd78bbec5acb7e246a911b3d7ea4436dd9a5f99e01d5a85bec2931` |
+| 2026-10-14 | 1034354820 | `77f701363e2d28127222470972e1572c950f9ee668913812db0a8631d213d8b0` |
+| 2026-10-15 | 1060714650 | `22094594caca3ffd9f7924db90e23005aa102bde24527551271efeaeb12b4f4b` |
 
 Page URL is `https://webinar.zoho.com/meeting/videoprv?recordingId=<erecordingId>&x-meeting-org=796393835`.
 Add a row whenever a recording enters the gap; delete one when it leaves. Four recordings per
@@ -2320,3 +2321,68 @@ It fired again on the two translate surfaces: this file cites them as
 Caught by `git cat-file -e` over every cited path before writing the findings, which is cheap and is now the only
 thing standing between an abbreviated path and a citation that points at nothing. Keep running it over the reused
 citations as well as the new ones — these two came from prior ledger rows, not from a fresh grep.
+
+## A roster first name in a transcript can be the *attendee* (15 Oct 2026)
+
+The 15 October Shop Analytics recording opens with the host saying **"Aaron."** at 01:54, three seconds before
+the first substantive line. Every instinct built up by this skill says that is a trainer self-introduction —
+"My name is Aaron" is literally the one attribution that has ever worked from a transcript (Admin Part 1, 9 Sep).
+
+It is the opposite. The single attendee is **Aaron Bond of Johnny's Automotive**
+(`aaron@johnnysautomotivellc.com`), and the host is greeting him by name. `getAttendeeReport` settles it in one
+call and nothing else does.
+
+This is the 10 September error arriving from the other direction. That one attributed a customer's first-person
+line to the trainer; this one would attribute a customer's *name* to the trainer. **Pull the attendee report
+before reading any name in a transcript as the trainer's**, and treat a bare vocative ("Aaron.", "Hey, Scott")
+as evidence of who is in the room rather than who is presenting. Three of the four names on the trainer roster
+are common first names, so this will recur.
+
+## A fourth outcome: held, transcribed, and nothing to grade (15 Oct 2026)
+
+Every run so far has sorted a day's sessions into three buckets — **graded**, **coverage gap** (ran, no
+transcript) and **no-show** (nobody joined) — and the 10 October note makes adding them up against the Past list
+the test that nothing was missed. Shop Analytics of 15 October is none of the three.
+
+It ran 16 minutes (`startTime` 12:59:38 → `endTime` 13:15:40, so the span matches `durationInMins`, which by the
+7 October test makes it a real short session rather than a truncated capture). One attendee joined and stayed
+eight minutes. A **full transcript exists** — 4,872 characters. And it contains no curriculum at all: the
+attendee opens by saying he already received and watched the recording, they talk about the knowledge base being
+rebuilt, the trainer offers to send the documentation, and they agree to end. Not one checkable claim.
+
+`min_duration_minutes: 20` discards it, which is the right outcome for the wrong reason — the threshold exists to
+drop false starts, and this was neither a false start nor a no-show. **Read the transcript before classifying a
+short session**; it costs one page load and it is the only thing that distinguishes "the trainer wrapped early"
+from "the customer left and the trainer kept teaching". Record it explicitly in the run output so the day's
+arithmetic still closes against the Past list, and do **not** put it in the coverage-gap table: nothing was lost.
+
+## Count the grades from `findings.jsonl`, never by hand (15 Oct 2026)
+
+This run's report standfirst and its `dashboard.md` row both said **"16 correct, four incomplete"**. The real
+split was **18 correct, five incomplete, three unverifiable** — written from memory while drafting the narrative,
+before the ledger had been asked.
+
+It was caught by the section-by-section diff against the live dashboard, which is not where it should have been
+caught: the generated tally moved `correct` 347 → 365 and `incomplete` 102 → 107, i.e. +18 and +5, and those
+deltas are what made the hand-written numbers visibly wrong. **Run the count before writing the narrative** —
+
+```bash
+python3 -c "import json,collections;print(collections.Counter(json.loads(l)['grade'] for l in open('findings.jsonl')))"
+```
+
+— and quote that. A wrong tally on the report page is worse than it looks, because the Slack post and the
+`dashboard.md` row are both copied from the standfirst, so one slip propagates to three places a reader sees
+before the page itself.
+
+## A regression out of *Fixed* is the most useful thing a repeat tells you (15 Oct 2026)
+
+The 8 October note says a *Fixed* table that gets **smaller** can be exactly right, and to confirm the removal is
+the claim just regraded. Both removals this run were that — `scheduler.after-hours.resources-are-uploads` and
+`scheduler.short-notice.independent-of-same-day`, each recorded as corrected by TeDarrell in September and each
+recurring today, 20 and 17 days later.
+
+Worth stating as its own point rather than as a renderer check: **a claim leaving *Fixed* is a stronger coaching
+signal than a claim entering *Repeats***, because the trainer has demonstrably known the right answer and lost it.
+Both of these are off-branch omissions — what happens when the toggle is off, where the field actually lives —
+which is the class of error that does not stay fixed on its own, because nothing in delivering the session
+reminds anyone of the branch they are not demonstrating. Name them in Slack as regressions, not as repeats.
