@@ -2386,3 +2386,63 @@ signal than a claim entering *Repeats***, because the trainer has demonstrably k
 Both of these are off-branch omissions — what happens when the toggle is off, where the field actually lives —
 which is the class of error that does not stay fixed on its own, because nothing in delivering the session
 reminds anyone of the branch they are not demonstrating. Name them in Slack as regressions, not as repeats.
+
+## When a cited file has CHANGED, read the diff for meaning — not just for the new line number (16 Oct 2026)
+
+The 6 Oct rule is "blob identity is not proof": a byte-identical file still gets its identifier re-grepped,
+because a citation can have been wrong when it was written. That rule covers the *unchanged* half of the sweep.
+This run found the gap on the other side.
+
+Of 26 cited paths, 24 were byte-identical and two had changed. The obvious job on a changed file is to re-resolve
+its line number, and that is all that was planned for `campaignsV2/api.ts` (+152/−46). Reading the diff instead
+turned up the most substantive thing this table has learned in two weeks — the `explainDelete` comment was
+rewritten from `// explainDelete = require a reason when deleting the campaign.` to
+`// explainDelete = a queued message is removed without asking for a reason.`
+
+That is the product writing down the *correct*, inverted semantics in code while leaving the lying UI label in
+place, which turns the Require Delete Reason bug from an inference about behaviour into two contradictory
+statements in the repository at one commit. A line-number-only re-site would have renumbered `:284` → `:290`
+and silently discarded it.
+
+**So the sweep has two halves with two different checks.** Unchanged file → re-grep the identifier (the citation
+may always have been wrong). Changed file → `git diff` the file and read it (the citation may now mean something
+different). Neither substitutes for the other, and the changed half is the cheaper of the two because there are
+usually only one or two of them.
+
+## A bug row cites the screen it was found on, not every screen it affects (16 Oct 2026)
+
+`Require Delete Reason` has been in this table since 25 August citing exactly one file, `AddCampaign.js`, because
+that is the screen the first trainer was on. A one-line grep for the label this run returned **five** screens, all
+binding the same `name="explainDelete"` to the same inverted string: `AddCampaign.js`, `EditCampaign.js`,
+`OnDemandInputs.js`, `CallOnDemandInputs.js` and `DateCampaignInputs.js`.
+
+`EditCampaign.js` is the one that matters. A shop acts on a trainer's explanation by going and *editing* the
+campaign, so the edit screen is where the wrong reading gets applied — and it was not on the ticket.
+
+**Rule: when a bug is a UI string, grep the string across the whole package before the row is written, and list
+every surface.** It costs one call. A fix scoped to the cited file is otherwise a fix that leaves most of the bug
+in place, and nobody finds out until a trainer hits one of the other screens. The same question is worth asking of
+every existing string-based row in `product-bugs.md` — this one had been single-cited for 52 days.
+
+## The weekday rule, stated so it stops being re-derived (16 Oct 2026)
+
+Three separate notes here circle the same fact (18 Sep "Friday is the one weekday where an empty result is
+correct", 15 Sep "a run that reports a quiet day for a weekday is suspicious", 10 Oct "a quiet Saturday reads
+identically to a broken endpoint"). Stated once, plainly:
+
+**All five course series run Monday–Thursday only. A Friday, Saturday or Sunday run should discover zero new
+sessions, and that zero is correct. Monday–Thursday, a zero is a failure until proven otherwise.**
+
+The confirmation on a weekend/Friday run is three cheap checks that should agree, and this run ran all three:
+
+1. `getAllRecordings` — newest recording is the most recent Thursday (here 15 Oct).
+2. Past Webinars list — its newest group header reads `YESTERDAY` or later against a Mon–Thu date, never today.
+3. Upcoming Webinars list — its first entry is the coming **Monday** (here 19 Oct).
+
+If (1) and (2) agree but (3) shows instances scheduled for today, the sessions were cancelled rather than never
+scheduled, and that is worth a line in the run output. All three agreeing is a quiet day and needs no further work.
+
+Note also that `date` on this host is the authority on the weekday, not inference from the schedule: this run
+opened by assuming 16 Oct was a Thursday (because Thursday is a training day and the ledger's last entry was
+Wednesday), and spent two calls treating a correct zero as a discovery failure. The Past list's `YESTERDAY`
+header against Thu 15 Oct is what settled it. **Check the weekday before deciding an empty result is suspicious.**
