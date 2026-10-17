@@ -2446,3 +2446,49 @@ Note also that `date` on this host is the authority on the weekday, not inferenc
 opened by assuming 16 Oct was a Thursday (because Thursday is a training day and the ledger's last entry was
 Wednesday), and spent two calls treating a correct zero as a discovery failure. The Past list's `YESTERDAY`
 header against Thu 15 Oct is what settled it. **Check the weekday before deciding an empty result is suspicious.**
+
+## The weekend reconciliation is cheap and it is the only thing that makes a zero trustworthy (17 Oct 2026)
+
+The 16 October note states the weekday rule and its three confirmations. This run ran all three and then did the
+part the rule does not mention, which is the part that actually proves nothing was missed: **add the week's
+sessions up against the Past list by outcome.** Fourteen sessions ran Monday 12 to Thursday 15 October, and they
+sort into **eight graded**, **three coverage-gap rows**, **two no-shows** and **one held-with-nothing-to-grade**
+(the fourth outcome recorded on 15 October). 8 + 3 + 2 + 1 = 14, so there is no discovery failure hiding behind
+the zero.
+
+Two of the fourteen never reach `getAllRecordings` at all — 13 Oct Admin Part 1 3 pm and 14 Oct Admin Part 2 3 pm,
+both `1 registered / 0 attended`. That is the documented behaviour of a 0-attendee webinar, but on a weekend run it
+is also the only category that can be confused with a lost recording, so read the pair off the Past row rather than
+inferring it from the recording list's silence. The attendance pair is the discriminator, not the absence.
+
+## `pin_baseline.sh` has now fallen back stale on four runs in two weeks — stop treating it as the baseline (17 Oct 2026)
+
+5, 6, 13 and now 17 October. This run it was two commits behind (`c4464f5ac5` against a true tip of `ea1c07a280`),
+which is the smallest gap yet and still covered the only cited file that moved. The script's exit status does not
+distinguish "fetched" from "fell back", so a run that trusts it cannot tell which happened.
+
+**Treat the script's output as a candidate and always confirm it**, in two calls that cost nothing:
+
+```bash
+git -c credential.helper='!gh auth git-credential' fetch https://github.com/ShopRocket-LLC/oktorocket.git development
+git update-ref refs/remotes/origin/development <FETCH_HEAD sha>
+```
+
+The org is `ShopRocket-LLC`. Four runs out of fourteen is not an intermittent fault; the fallback is the normal path
+on this host and the explicit fetch is what produces a real baseline.
+
+## A changed cited file can be a fix to something the table does not track — say so rather than implying a close (17 Oct 2026)
+
+The 16 October rule sends a changed file's **diff** to be read rather than just its line number re-resolved, and it
+earned its place by turning up the rewritten `explainDelete` comment. This run is the other outcome of the same rule
+and worth recording so the rule is not read as "a changed file always means something".
+
+`dc-calls/src/routes/events.js` grew 75 lines under the withdrawn vendor-exclusion row's citations. The diff is a fix
+to `processTranscription`: `labels` was being written with `$set` from a snapshot taken before analysis began, wiping
+labels added in the interim, and it now `$addToSet`s instead and mirrors analysis outcomes onto a call's BDC copies.
+Real, and **nothing to do with any row in the bug table**. The vendor gate the file hosts is unchanged in substance
+and simply moved 54 lines down.
+
+The failure mode to avoid is writing this up as though the baseline movement bore on the bug. It did not. A re-site
+of `:1998`/`:2006` to `:2052`/`:2060` plus one sentence saying what the diff actually was, and the 9 October
+withdrawal stands untouched, is the whole of it.
