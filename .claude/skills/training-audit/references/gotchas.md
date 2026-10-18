@@ -2461,7 +2461,7 @@ both `1 registered / 0 attended`. That is the documented behaviour of a 0-attend
 is also the only category that can be confused with a lost recording, so read the pair off the Past row rather than
 inferring it from the recording list's silence. The attendance pair is the discriminator, not the absence.
 
-## `pin_baseline.sh` has now fallen back stale on four runs in two weeks — stop treating it as the baseline (17 Oct 2026)
+## `pin_baseline.sh` has now fallen back stale on five runs in two weeks — stop treating it as the baseline (17 Oct 2026, updated 18 Oct)
 
 5, 6, 13 and now 17 October. This run it was two commits behind (`c4464f5ac5` against a true tip of `ea1c07a280`),
 which is the smallest gap yet and still covered the only cited file that moved. The script's exit status does not
@@ -2476,6 +2476,10 @@ git update-ref refs/remotes/origin/development <FETCH_HEAD sha>
 
 The org is `ShopRocket-LLC`. Four runs out of fourteen is not an intermittent fault; the fallback is the normal path
 on this host and the explicit fetch is what produces a real baseline.
+
+**18 Oct: a fifth time, three commits behind** (`7bfeea4326` against a true tip of `3e9a53ec13`). Stop
+budgeting a decision for this. Run the explicit fetch first, every run, and treat whatever the script prints
+as commentary.
 
 ## A changed cited file can be a fix to something the table does not track — say so rather than implying a close (17 Oct 2026)
 
@@ -2492,3 +2496,69 @@ and simply moved 54 lines down.
 The failure mode to avoid is writing this up as though the baseline movement bore on the bug. It did not. A re-site
 of `:1998`/`:2006` to `:2052`/`:2060` plus one sentence saying what the diff actually was, and the 9 October
 withdrawal stands untouched, is the whole of it.
+
+## Chrome refuses the DOM row-query recipe on the Past list — fall back to overlapping `innerText` slices (18 Oct 2026)
+
+The 11 Oct note replaces `innerText` slicing with a `querySelectorAll('div,li,tr')` filter plus a containment
+filter, because slicing flattens rows into one undelimited string and a seam can land inside an
+attendance pair. That recipe is still the right shape, and this run it was **refused outright in Chrome**:
+
+```
+[BLOCKED: Cookie/query string data]
+```
+
+The expression only read `innerText` off matched elements and built an array of strings — no cookies, no
+query string — so this is the auto-mode classifier being conservative about a page-wide DOM harvest, not a
+real finding about the page. It is not retryable by rephrasing; a second attempt with a looser filter was
+refused the same way.
+
+**What worked:** `document.body.innerText` read in four overlapping 750-character slices, which is the
+4 Oct route the 11 Oct note was trying to retire. The Past list is small (~2,900 characters), so four
+slices with a 50-character overlap cover it, and the overlap is what makes the seam safe — the 11 Oct
+failure came from *non*-overlapping slices, not from slicing as such.
+
+Two things that make the fallback trustworthy here, and both are cheap:
+- **Overlap every slice** and reconstruct across the boundary rather than trusting one read.
+- **Reconcile the parsed rows against a second source.** This run every row from the Past list was matched
+  against `getAllRecordings` and the ledger by meeting key before the weekday zero was called correct, so a
+  row lost to a seam would have shown up as a session with no recording and no ledger entry.
+
+Also re-confirmed: Chrome's `get_page_text` returns *No text content found* on this page (the 4 Oct note),
+so `innerText` is the only text route, and `javascript_tool` results are capped near 1,000 characters.
+
+## Resolve an abbreviated citation path once and write it into the row (18 Oct 2026)
+
+Three separate notes record this failure (5 Oct `api.ts` under `common/`, 6 Oct `OnDeck.tsx` under
+`campaigns/`, 14 Oct `MessageBubble.tsx` under `TaskSMS/`). It fired **three times in a single pass** this
+run, because `product-bugs.md` stores several citations in abbreviated form and a sweep has to reconstruct
+the parent each time:
+
+- `campaignUtils.ts` is **`dc-server/modules/campaigns/`** — server-side, though it sits in a row whose
+  neighbouring citations are all `dc-user`
+- `CampaignOutcomeModal.js` is **`dc-user/src/js/user/components/tasks/`**, not `admin/components/campaigns/`
+- `OnDeck.tsx` is **`dc-user/src/js/common/components/campaigns/`**, not `campaignsV2/`
+
+Each wrong guess makes `git cat-file -e "$SHA:$PATH"` report the file missing, which reads exactly like a
+deletion and briefly looks like a fixed bug.
+
+The accumulated advice has been "resolve with `git ls-tree -r --name-only $SHA | grep "/<basename>$"`
+before concluding anything", which is right and keeps being re-paid every run. **The cheaper fix is to stop
+storing abbreviations**: when a path is resolved, write the full path into the row. A sweep then greps a
+path rather than reconstructing one, and the trap disappears instead of being re-documented. Worth doing to
+the remaining abbreviated rows the next time a run has spare capacity.
+
+## A zero that is *expected* still has to be reconciled, not just confirmed (18 Oct 2026)
+
+The 16 Oct note gives the weekday rule and its three confirmations; the 17 Oct note adds the reconciliation
+and calls it the thing that actually proves nothing was missed. Stated together, because on a weekend run
+the three confirmations are tempting to treat as the whole job:
+
+The confirmations prove **nothing new ran**. The reconciliation proves **nothing already run was missed**.
+They are different claims and a discovery failure hides behind the first one. This run ran both: all three
+confirmations agreed (newest recording Thu 15 Oct, Past list newest row Thu 15 Oct, Upcoming opening Mon
+19 Oct under a `TOMORROW` header), *and* the fourteen sessions of 12–15 Oct were matched one by one against
+the ledger and the gap table — eight graded, three gap, two no-shows, one held-with-nothing-to-grade.
+
+Note the Upcoming check earns its place on a Sunday specifically: it is what separates "today was never
+scheduled" from "today was scheduled and cancelled", and only the second of those is worth a line in the
+run output.
