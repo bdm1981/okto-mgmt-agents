@@ -74,3 +74,6 @@ that the same feature is described three incompatible ways across runs.
 | 2026-10-14 | CRM Overview | https://claude.ai/artifact/Toxtc7sGymSaKHHPcEBdDM |
 | 2026-10-08 | Admin Part 1 (recovered from the coverage gap on 14 Oct) | https://claude.ai/artifact/9pn6gFpvCpYUkMeu5NUKFS |
 | 2026-10-15 | **Admin Part 2 — TeDarrell?** (18 of 26 correct, none wrong; **block-customer taught right a 4th time**; five off-branch omissions, two of them regressions out of Fixed) | https://claude.ai/artifact/MGRz9q3FULuFGAJhVruXoA |
+| 2026-10-19 | **Admin Part 1 — Aaron** (5 of 8 correct; **vendor flag taught right**, and contradicted by Advisor two hours later; transcript-download role line drawn one rung too high) | https://claude.ai/artifact/HcjKjQwiuWNvhDP82zrFUk |
+| 2026-10-19 | **Advisor Training — Allie** (11 of 12 correct; **advisor report default of 14 verified exactly**; vendor flag **regressed to wrong_high** on the same day Aaron taught it right) | https://claude.ai/artifact/DRTUCrHL28uwQPLd6qtSrZ |
+| 2026-10-19 | **CRM Overview — TeDarrell** (6 of 8 correct, 1 attendee, fully consultative; **Require Delete Reason label hits a 10th run**) | https://claude.ai/artifact/Ppi3pNSNYiXSs4fmjwm1iF |

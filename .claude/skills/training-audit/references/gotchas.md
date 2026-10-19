@@ -2562,3 +2562,66 @@ the ledger and the gap table — eight graded, three gap, two no-shows, one held
 Note the Upcoming check earns its place on a Sunday specifically: it is what separates "today was never
 scheduled" from "today was scheduled and cancelled", and only the second of those is worth a line in the
 run output.
+
+## A 0-attendee webinar CAN reach `getAllRecordings` — as a short shell (19 Oct 2026)
+
+The 16 September note says "a 0-attendee webinar never reaches `getAllRecordings`, so read the pair off the
+Past row rather than inferring it from the recording list's silence", and the 17 October reconciliation
+repeats it. **Half of that is now wrong.** This run's 3 pm slot returned a row in `getAllRecordings`:
+`Admin Part 1 Training Tues or Thurs 3 pm cst`, meeting key `1063327770`, `durationInMins: 3`,
+`isTranscriptGenerated: false`. `getAttendeeReport` answered `count: 0`, `attendees: []`.
+
+So a no-show sometimes produces a recording row and sometimes does not, and the list's silence proves nothing
+either way. What the note got right is the part to keep: **the discriminator is the attendance pair, not the
+presence or absence of a recording, and not the duration.** A 3-minute row with 0 attended is a no-show; a
+3-minute row with 1 attended for 77 minutes is the 6 October truncated capture, and those are opposite
+outcomes that look identical in the recording list. One `getAttendeeReport` call settles it and nothing else
+does — run it on every short row before deciding whether it belongs in the gap table.
+
+Incidental: the topic was `Tues or Thurs 3 pm` on a **Monday**, so the series names drift off their own
+schedule too. Do not use the topic string to decide which slot a recording belongs to.
+
+## `ledger.py --contradictions` hides a divergence when both trainers are on both sides (19 Oct 2026)
+
+The clearest signal this run produced is a same-day contradiction: Aaron at 9 am stated the vendor flag's
+forward behaviour correctly and Allie at 11 am stated it backwards, on the same `claim_id`, two hours apart.
+**`--contradictions` did not list it.** Six claim_ids came back and `directory.vendor-flag.excludes-from-advisoriq`
+was not among them, despite the ledger now holding both `correct` and `wrong_high` rows for it.
+
+The reason is visible in the output shape: each entry carries `wrong_trainers` and `right_trainers`, and this
+claim's two sets are identical — Aaron and Allie each appear on both sides across the run of the ledger, because
+both have been graded both ways on it over three weeks. A filter that wants a *disagreement between people*
+cannot see a disagreement a person has with themselves.
+
+Same shape as the 24 September note ("a repeat can hide inside a claim the tool calls not repeating"), and the
+same remedy: **read the run's own `--add` output and the day's grades side by side before trusting the
+contradictions table to surface the day's headline.** A claim graded `correct` in one session and `wrong_*` in
+another *on the same date* is worth a direct check every run; it is two lines of grep over the rows just added
+and it is the single cheapest signal this skill produces.
+
+## `build_report.py --sessions` wants `{"sessions": [...]}` and `duration_minutes` (19 Oct 2026)
+
+Two small shape traps, both of which fail quietly rather than loudly:
+
+- The file is read as `data.get("sessions", [])`, so a **bare JSON array** matches nothing and every session's
+  metadata renders as `—` with no error. Wrap it: `{"sessions": [ … ]}`.
+- The duration key is **`duration_minutes`**, not `duration` — `getAllRecordings` calls it `durationInMins`,
+  so neither name carries over from the API response. A wrong key prints `? min` in the meta block.
+
+Also worth stating because it is not in SKILL.md: `--narrative` takes a **JSON object** with `title`,
+`standfirst` and `method` keys (the 17 September note says JSON, not which keys), and `title` is what the
+artifact's `<h1>` reads — the Artifact `title` argument only names the gallery card.
+
+## `pin_baseline.sh` fell back stale for a sixth run — the explicit fetch is now the only baseline step
+
+5, 6, 13, 17 and 18 October, and now 19 October: the local ref was `58dfaa6c74` against a true tip of
+`0704808d6c`, **six commits behind**, the same gap as 18 October. Six runs out of fifteen. The 17 October note
+already says to stop budgeting a decision for this and run the explicit fetch first every run; this run did
+exactly that and it cost two calls:
+
+```bash
+git -c credential.helper='!gh auth git-credential' fetch https://github.com/ShopRocket-LLC/oktorocket.git development
+git update-ref refs/remotes/origin/development <FETCH_HEAD sha>
+```
+
+Treat `scripts/pin_baseline.sh` as commentary. It has not produced a correct baseline unaided in two weeks.
