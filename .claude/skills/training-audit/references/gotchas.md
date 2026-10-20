@@ -2625,3 +2625,81 @@ git update-ref refs/remotes/origin/development <FETCH_HEAD sha>
 ```
 
 Treat `scripts/pin_baseline.sh` as commentary. It has not produced a correct baseline unaided in two weeks.
+
+## A meeting key seen as a 0-attendee shell can come back as a full session (20 Oct 2026)
+
+The 19 October note records `1063327770` arriving in `getAllRecordings` as `durationInMins: 3` with
+`getAttendeeReport` answering `count: 0` — a no-show, correctly left out of the ledger. **The same
+meeting key returned today at 72 minutes with five attendees from five shops**, the best-attended
+session the coverage-gap table has ever taken in.
+
+So a key is not retired by having once looked like a shell. Two consequences:
+
+- **The "never ledger a session you could not grade" rule just paid for itself in the most direct way
+  available.** Had yesterday's run recorded that no-show in `findings-ledger.md`, `discover_sessions.py`
+  would have dropped the key today and a 72-minute session with five customers in it would have been
+  invisible forever, with nothing anywhere to show it had been missed.
+- **Do not treat a previously-seen key as already handled.** Dedupe against the ledger, which is what
+  the scripts do, and not against memory of an earlier run's discovery output.
+
+Whether Zoho reused the key for the next instance of the series or updated the row in place does not
+matter operationally and was not worth a call to settle. What matters is that the attendance pair is
+read fresh on every run, which the 19 October note already says for a different reason.
+
+## `reports.pinned.max-three` looks inverted, the same way the vendor flag was (20 Oct 2026)
+
+Allie was asked about pinning reports and said there is **no cap**. That is correct at `c6c7466e39`:
+
+- `dc-user/src/js/user/components/reports/Reports.js:102` and `dc-user/src/js/admin/components/reports/Reports.tsx:282`
+  both append to `pinnedReports` unconditionally — no length test, no disabled state at N.
+- `dc-server/models/user.js:120` declares `pinnedReports: [{}]`, an unbounded array with no `maxlength`,
+  and there is no server-side validation anywhere.
+- Neither Reports component contains a `slice` or length guard on the pinned list.
+
+And it has never been otherwise: `git log -S 'pinnedReports.length'` and `git log -S 'pinnedReports.slice'`
+over `dc-user` and `dc-server` return **no commit** that ever added or removed such a guard, so this is not
+a product change that would make older rows right-at-the-time.
+
+The claim_id carries **five prior rows**, including a `correct` for Allie on 13 October and a *Fixed* entry
+(`wrong_contained` → right on 22 Sep), all of which only make sense if a three-pin cap was believed to exist.
+
+**Per the 8/9 October rule this was not flipped autonomously.** The ledger is append-only, a re-grade that
+overturns prior runs is a human decision, and — exactly as with the vendor flag — the correction is not one
+regrade but a reversal of who has been coached. Flagged on the dashboard, in the session report and in Slack;
+no row rewritten. The generalisable part: **a trainer contradicting the ledger is a reason to re-derive the
+claim from source, not a reason to grade them wrong.** That is the second time in twelve days that doing so
+found the ledger at fault rather than the trainer.
+
+## `isTranscriptGenerated: true` has now lied four times
+
+20 October, Admin Part 1 Tue/Thu 3 pm (`1063327770`): `getAllRecordings` reported `isTranscriptGenerated: true`
+and the recording page answered `len=NONE empty=true` with "No transcript generated" and a live Generate button.
+That is the fourth instance after 9 Sep, 5 Oct and 6 Oct, and it is why discovery opens every recording in the
+browser rather than reading the flag. Nothing new to decide here — recorded only so the count stays honest.
+
+## Three `erecordingId`s shared a 32-character head in one day (20 Oct 2026)
+
+`77f701363e2d28127222470972e1572c` is the head of **three** different recordings: today's Advisor
+(`…6769f76386dfbe1675ec2b69d6a26425`), today's Shop Analytics (`…85b72741cf5a7e668180f8245705df1a`) and the
+14 October Advisor gap row (`…950f9ee668913812db0a8631d213d8b0`). The existing note says to match on the whole
+string; this is the first time the collision has spanned both a session being graded and a gap row being swept
+in the same run, which is the arrangement most likely to produce a confident wrong answer — the gap sweep
+expects `empty=true`, and loading a graded session's page by a truncated id would have returned a transcript
+and read as a recovery.
+
+## The bug table's abbreviated paths are now written out in full (20 Oct 2026)
+
+The 18 October note asked for this the next time a run had spare capacity. Done: the four rows storing
+`dc-user/.../…` forms now carry full paths — `AddCampaign.js` → `dc-user/src/js/admin/components/campaigns/`,
+`CallAnalyzerModal.tsx` → `dc-user/src/js/admin/components/calls/CallAnalyzerModal/`,
+`CampaignModal.tsx` → `dc-user/src/js/user/components/inbox/ActionMenu/`,
+`OutrunningOverhead.tsx` → `dc-user/src/js/admin/components/reports/sales-analytics/widgets/OutrunningOverhead/`.
+All five cited lines were verified at `c6c7466e39` before the paths were rewritten. A sweep can now grep these
+rows directly; the remaining `dc-user/.../campaignsV2/` string in the file is prose in the resolved-paths note,
+not a citation.
+
+## `ledger.py --add` prints its report to stdout and the duplicate guard is the safety net
+
+Re-running `--add` on the same file to see the top of a long report does **not** double-add: the second run
+refuses with "these sessions are already in the ledger". Harmless, and a useful confirmation that the guard
+works — but pipe the first run through `tee` if the report matters, rather than re-running it.
