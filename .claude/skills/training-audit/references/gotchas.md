@@ -2703,3 +2703,74 @@ not a citation.
 Re-running `--add` on the same file to see the top of a long report does **not** double-add: the second run
 refuses with "these sessions are already in the ledger". Harmless, and a useful confirmation that the guard
 works — but pipe the first run through `tee` if the report matters, rather than re-running it.
+
+## `UserPermissionsToggles.tsx` is dead code, and the ledger has been citing it for a month (21 Oct 2026)
+
+Grading the All Recordings claim this run meant resolving what the permissions screen actually is. It is
+**`dc-user/src/js/admin/components/users/edit/UserEditSettings.tsx`**, which maps `permissionsList`
+(= `accountPermissions.json` + the user's groups) and renders a label and a switch per row, with
+`allRecordings`, `campaigns` and `closeSiteEarly` forced on and disabled for administrators (`:200-211`).
+
+**`dc-user/src/js/admin/components/users/permissions/UserPermissionsToggles.tsx` is imported by nothing** —
+`git grep -l UserPermissionsToggles` returns only the file itself. It is the only place in the repo carrying
+per-permission *description* strings ("Access to view and download all user call recordings regardless of
+assigned sites or groups", `:78`), and those strings are **not on any screen a customer or trainer sees**.
+Recent ledger rows cite `:78` and `:88` as evidence of what the permissions screen says, including the
+20 October block-customer row. The grades are right; the citations point at code nobody runs.
+
+Two consequences for grading:
+
+- **Cite the live screen** (`UserEditSettings.tsx`) plus the enforcement site, never the dead component.
+- **`allRecordings` is enforced on the permission's `label`, not its `value`.** A `git grep allRecordings`
+  finds only the schema, the admin-default lists and the dead component — which reads exactly like a
+  permission that nothing checks. The real checks are string comparisons against `"All Recordings"`:
+  `dc-user/src/js/admin/components/calls/Calls/Calls.tsx:100` (advisors without it are pinned to their own
+  extension), `callsReviewUtils.ts:179`, `CallFilters.tsx:249`, `dc-server/routes/users.js:213` and
+  `okto-extension/src/shared/components/callHistory/callAccess.ts:19`. Grep both spellings before concluding
+  a permission is unenforced — "nothing reads this flag" is the same whole-monorepo claim the 9 October
+  vendor withdrawal was about, in miniature.
+
+## A recording that starts mid-greeting loses the trainer's name (21 Oct 2026)
+
+The 21 October CRM Overview transcript opens at **00:07** with "Has been Okay." — the tail of a sentence.
+The housekeeping script that follows is word-for-word the one TeDarrell delivers in Admin Part 2 two hours
+later ("thank you for your patience and holding", the one/two/three chat check, the manager-feedback survey),
+and every prior CRM Overview run this month was his. **It is still recorded as `unidentified`**, because
+`trainers.md` is explicit that a name comes from a person or an account and never from inference, and style
+is weaker evidence than a transcription variant. A human can settle it from the MP4 in a minute.
+
+Worth noting what the cost is, so the rule is applied with eyes open: three of today's claim_ids are repeats
+that would be same-trainer coaching if the attribution held, and read as cross-trainer curriculum defects
+while it does not. The honest `unidentified` is still right — a wrong attribution invents or hides a defect,
+and this one would do both — but flag it in the report rather than letting the repeat table speak for itself.
+
+## Sweeping the gap table: one JS call per recording, four per batch (21 Oct 2026)
+
+The stored recipe is "navigate + a JS probe each, four recordings per `browser_batch`", with separate
+`computer:wait` steps between them. The waits can live **inside** the probe, which halves the actions and
+makes a 28-row sweep seven calls:
+
+```js
+await new Promise(r=>setTimeout(r,3500));
+const b=[...document.querySelectorAll('button.transcript-panel__tab')].find(x=>x.textContent.trim()==='Transcript');
+if(b)b.click();
+await new Promise(r=>setTimeout(r,3500));
+const c=document.querySelector('div.transTimeStampMainContainer');
+const e=document.querySelector('.transcript-tab--empty');
+`${document.title.slice(0,38)} | len=${c?c.innerText.length:'NONE'} empty=${!!e}`
+```
+
+`javascript_tool` honours top-level `await`, and returning the title in the same string is what satisfies the
+8 October rule that `empty=true` only counts when the page matches the row. All 28 rows answered correctly
+first time this run, with no swallowed first click.
+
+## Two Chrome browsers connected, and a scheduled run cannot ask which (21 Oct 2026)
+
+`tabs_context_mcp` refused to act and demanded an `AskUserQuestion` listing every connected browser. In a
+6 pm scheduled run there is nobody to answer, and `AskUserQuestion` is not in the task's tool set. The run
+selected **Browser 1** (`select_browser`, both devices local and connected seconds apart), which turned out
+to hold the authenticated Zoho session, and said so in the run output.
+
+If a future run picks wrong, the symptom is a Zoho **sign-in page** rather than a recording page — which is
+not the same as "no transcript", so check `document.title` before writing anything into the gap table.
+Switching is one `select_browser` call with the other `deviceId` from `list_connected_browsers`.

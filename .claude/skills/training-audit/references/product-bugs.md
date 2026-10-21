@@ -240,7 +240,7 @@ afresh anyway. All of them resolve exactly where the table says:
 | All-Recordings extension lift | `resolveCallsUserExtensionOverride`, `hasAllRecordings` | `callsReviewUtils.ts:168`, lift `:178-183` |
 | transcript download | `text/plain`, `call-transcript-`, `isAdmin` | `CallModalTabs.tsx:192` / `:197` / `:169` (def `:144`) |
 | Outrunning Overhead colour | `cumulativeDiff` | `OutrunningOverhead.tsx:236` |
-| Disable Campaigns | `campaigns: false`, `campaigns !== false`, `optout` | `CampaignModal.tsx:55`/`:83`, `CampaignOutcomeModal.js:18`/`:25`, `campaignBuilder.js:4638` (comment `:4631`), `campaignUtils.ts:301` |
+| Disable Campaigns | `campaigns: false`, `campaigns !== false`, `optout` | `CampaignModal.tsx:55`/`:83`, `CampaignOutcomeModal.js:18`/`:25`, `campaignBuilder.js:4723` (comment `:4716`), `campaignUtils.ts:302` |
 
 **The voicemail row is worth noting as a method.** Its defect is the *absence* of a gate, so there is
 no identifier to resolve — the check is that `VoicemailPlayer.tsx` contains no `roleCheck`, `isAdmin`
@@ -277,14 +277,14 @@ and `dc-user/src/js/common/components/campaignsV2/api.ts` (+152/−46).
 | Call-campaign popover | `AddCampaign.js:504` &rarr; `:512` | before 15 Oct |
 | close-open-tasks vs private | inline `:465` / `:483` &rarr; `:484` / sweep opens `:501`, `private: true` `:505` | before 15 Oct |
 | vendor exclusion (withdrawn) | `call.js:2305` &rarr; `:2426`; `utils.js:542` &rarr; `:526`; `events.js:1992` / `:2003` &rarr; `:1998` / `:2006` | before 15 Oct |
-| Disable Campaigns | `campaignBuilder.js:4638` &rarr; `:4673`; comment `:4631` &rarr; `:4666` | this window |
+| Disable Campaigns | `campaignBuilder.js:4673` &rarr; `:4723`; comment `:4666` &rarr; `:4716`; `campaignUtils.ts:301` &rarr; `:302` | this window |
 
 Confirmed unmoved and re-grepped by identifier: `VoicemailPlayer.tsx:162` (and still **no** `roleCheck`,
 `isAdmin` or `PID` anywhere in the file — the absence *is* the bug, and it only means anything because the
 file was confirmed byte-identical first), `CallAnalyzerModal.tsx:631` / `:733`,
 `callsReviewUtils.ts:168` with the lift at `:178-183`, `CallModalTabs.tsx:192` / `:197` / `:169` (def `:144`),
 `OutrunningOverhead.tsx:236`, `CampaignModal.tsx:55` / `:83`, `CampaignOutcomeModal.js:18` / `:25`,
-`DeleteCampaignButton.js:16`, `OnDeck.tsx:347`, `campaignUtils.ts:301`, `vendors.js:30`,
+`DeleteCampaignButton.js:16`, `OnDeck.tsx:347`, `vendors.js:30`,
 `director.js:103` / `:112` / `:118`, `capture.ts:125`, `routes/index.ts:39`.
 
 ### The Require Delete Reason bug got sharper, and five times wider
@@ -356,3 +356,18 @@ Each wrong guess makes `git cat-file -e` report a missing file, which reads exac
 failure mode the 5 Oct note names. This is now the fourth, fifth and sixth instance of it. The fix is not
 another reminder to be careful: **write the full path into the row the first time it is resolved**, so the
 next sweep greps a path instead of reconstructing one.
+
+### 21 October 2026 — one cited file moved, and the diff is unrelated to any row here
+
+**17 commits** landed between `c6c7466e39` and `4cdf1bf5f5`. Blob-hashing every cited path found **thirty
+byte-identical and one changed**: `dc-server/modules/campaignBuilder.js` (+3/&minus;1), cited by the
+Disable-Campaigns row. Per the 16 October rule the diff was read rather than just renumbered, and it is
+`testSMS` now passing its body through `appendOptOutFooter` so a test send reads exactly as a real one
+does — nothing to do with the global `campaigns: false` flag this row is about. The gate itself is
+unchanged in substance and is re-sited to `campaignBuilder.js:4723` (comment block `:4716`), with
+`campaignUtils.ts` moving one line to `:302`.
+
+**The Require Delete Reason row took its eleventh session this run** (CRM Overview, 21 October), which is
+the most-repeated finding in the ledger and the clearest case in this table of a trainer being graded wrong
+for reading the product's own label aloud. **Nine open bugs stand, both withdrawals stand, nothing was fixed
+or recovered.**
