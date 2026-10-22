@@ -1498,6 +1498,10 @@ they are properties of the recording, not of the query — so they only need fet
 | 2026-10-12 | 1063155070 | `b9acee1c85cd78bbec5acb7e246a911b3d7ea4436dd9a5f99e01d5a85bec2931` |
 | 2026-10-14 | 1034354820 | `77f701363e2d28127222470972e1572c950f9ee668913812db0a8631d213d8b0` |
 | 2026-10-15 | 1060714650 | `22094594caca3ffd9f7924db90e23005aa102bde24527551271efeaeb12b4f4b` |
+| 2026-10-20 | 1063327770 | `ffb748232a43ed38e7e20f11aa3cd2a16941a36eff6a53d46b2fdd4359cb6b55` |
+| 2026-10-21 | 1078512746 | `43dccd8e29f67c3f39733fd2f93f0a2c8cd9e31cd46baca77ff2fd8f0e9f7dac` |
+| 2026-10-22 | 1046976106 | `fd465b2080173d1dd408f360761b31ea29711009b7f4ee5a0452f3819fc0771c` |
+| 2026-10-22 | 1060567444 | `27f50025bdcfcf700c8961a93cb05e41747bf2f1590fed6e0ce1d9a81e6853fb` |
 
 Page URL is `https://webinar.zoho.com/meeting/videoprv?recordingId=<erecordingId>&x-meeting-org=796393835`.
 Add a row whenever a recording enters the gap; delete one when it leaves. Four recordings per
@@ -2774,3 +2778,107 @@ to hold the authenticated Zoho session, and said so in the run output.
 If a future run picks wrong, the symptom is a Zoho **sign-in page** rather than a recording page — which is
 not the same as "no transcript", so check `document.title` before writing anything into the gap table.
 Switching is one `select_browser` call with the other `deviceId` from `list_connected_browsers`.
+
+
+## The first product bug this audit has ever seen closed, and what made the close clean (22 Oct 2026)
+
+`"Require Delete Reason" label is inverted` entered `product-bugs.md` on 25 August and was graded wrong in
+**eleven sessions across three trainers** without anyone ever stating it correctly — because the trainers were
+reading the popover aloud and the popover was lying. It is **fixed at `15b4ddb206`** under TRS-I2670 /
+TRS-I2672: all five legacy screens now read "Delete queued messages without asking for a reason" with a
+popover that states both branches, and a new Playwright spec asserts the old string is gone.
+
+Two things made the close verifiable in three calls rather than a guess:
+
+- **Close by the absence of the old string, not the presence of the new one.** `git grep "Require Delete
+  Reason" $SHA -- dc-user dc-server` returns only the regression spec's `OLD_LABEL` constant. Reading the new
+  label on the one screen the row cites would have proved nothing about the other four.
+- **The 16 October widening is what made the fix checkable at all.** That note grepped the string across the
+  package and found five screens where the row had carried one for 52 days. Without it this run would have
+  checked `AddCampaign.js`, found it fixed, and closed a row that might still have been live on four screens.
+  The shipped fix touches all five — so the rule paid twice, once for the bug report and once for the close.
+
+Generalises: **a row that cites one surface cannot be closed from that surface.** Grep the identifier or the
+string across the package on the way out, the same as on the way in.
+
+## A curriculum defect can be closed by the product moving under it (22 Oct 2026)
+
+`scheduler.appointment-lead.phone-is-minimum` is the third-largest defect in the ledger — nine rows, Aaron and
+Allie, graded wrong because `createLead` accepted a lead with no phone number at all. The 12 October note put
+it plainly: "`createLead` has no phone gate — the appointment-lead claim is wrong in the *other* direction".
+
+TRS-I2729 (`173abef7b5`, merged 12:11 today) adds one: `dc-server/routes/customer.ts:809` now runs
+`if (!validateNumberForImport(req.body.number).valid)` and returns 204 before any contact or tracker is
+written, for every caller including OktoAssist. **What the trainers were saying is true from this commit
+forward.**
+
+Handle it the way the 8/9 October rule handles an inversion, but note that this is *not* one: the nine rows
+were right on their dates and the code genuinely had no gate. Nothing is rewritten, nothing is re-graded, and
+the ledger is not at fault. What changes is forward-looking — the next session that states the gate should be
+graded `correct`, and the next session that states there is **no** minimum is now the error. Flag it on the
+dashboard and in Slack so the coaching stops before it coaches the wrong way round.
+
+The cheap habit this argues for: when the baseline moves, read the commit subjects for anything naming a
+feature the ledger's open defects are about, not only the files the bug table cites. Thirteen commits landed
+today and two of them bore on this skill's two biggest findings — both visible from `git log --oneline` alone.
+
+## `isTranscriptGenerated: true` has now lied five times
+
+22 October, Advisor Thursdays 2 pm (`1060567444`): `getWebinarRecording` returned `isTranscriptGenerated: true`,
+`isSummaryGenerated: true` **and** a live `transcriptionDownloadUrl`, and the recording page answered
+`len=NONE empty=true` with "No transcript generated" and the Generate button live. The same day's Shop
+Analytics (`1046976106`) was honest — both flags `false` — so one run produced both outcomes again.
+
+The new detail: a populated `transcriptionDownloadUrl` does **not** rescue the flag either. Previous instances
+were explained as the flag going true off the back of a generated summary; this one ships a transcript URL
+beside it. Nothing about the API response distinguishes it from a real transcript. The browser check stays the
+only test.
+
+## Zoho was signed out in the browser the scheduled run picked, and there are five of them now (22 Oct 2026)
+
+The 21 October note records two connected Chrome browsers and a run that picked Browser 1 and got lucky. Today
+there are **five**, the tool auto-selected **Browser 5**, and the Past Webinars URL redirected to
+`accounts.zoho.com/signin` — `document.title` read `Zoho Accounts`, exactly the symptom that note predicted.
+`select_browser` onto **Browser 1** fixed it in one call and the session there is still live.
+
+So the check is cheap and should be unconditional: **load the Past list first and assert `document.title`
+starts with `Zoho Meeting` before believing anything.** A signed-out browser answers every gap probe
+`empty=true`, which is indistinguishable from a clean sweep and would silently report twenty-nine recordings
+as still broken. Note also that `tabs_context_mcp` returned "No tab available" immediately after the switch;
+a standalone `navigate` creates the tab and recovers.
+
+## Splice the coverage-gap section before the bug table, not before Sessions (22 Oct 2026)
+
+The standing recipe is "generate, filter, splice, then publish", and the splice point it names is
+`<h2>Sessions</h2>`. That is one section too late. `build_dashboard.py` emits **Open product bugs**
+immediately before Sessions, so splicing the carried-forward gap section at `<h2>Sessions</h2>` puts it
+*after* the bug table — the reverse of every published version, and the reader's eye lands on citations
+before it lands on what is unaudited.
+
+It also fails quietly in a second way, which is how it was caught here: the verification pass then slices
+`s[index('<h2>Coverage gap')):index('<h2>Open product bugs</h2>')]`, which is a **negative range and returns
+an empty string**, so every count computed off it reads zero. A zero-length gap section looks like a broken
+regex, not a misplaced section.
+
+Splice at **`<h2>Open product bugs</h2>`**, and verify the ordering explicitly:
+
+```python
+assert s.index('<h2>Coverage gap') < s.index('<h2>Open product bugs</h2>') < s.index('<h2>Sessions</h2>')
+```
+
+Then re-derive the totals paragraph from the spliced rows rather than trusting the arithmetic that produced
+it — 31 rows summing to 2,214 minutes and 86 attendances is one pass over the table and it is the only thing
+that catches a row lost in the splice.
+
+## The republish went through in one call for a second time
+
+The 8 October note budgets three publish calls (refused-not-viewed → Read → publish → refused-unchanged →
+publish). This run needed **one**, for the same reason the 10 October run did: the full Read of the saved live
+copy had already happened earlier, as part of carrying the coverage-gap section forward. Reading the live page
+is not an extra step before publishing — it is the step that makes the gap section correct, and the publish
+permission comes free with it. Do it first and the three-call budget never applies.
+
+Confirmed the same way as before: `action: "read"` with `path: "index.html"` on the canonical
+`code/artifact/1d86f6a7-…` URL, then grep the saved copy for strings unique to this run (`Thursday 22 October`,
+`1046976106`, `fixed <code>15b4ddb206`). All present, so the short-form URL the publish printed back
+(`4eUdaeZbcXPS9zXZdLtmJh`, Version 51) is the same artifact.
