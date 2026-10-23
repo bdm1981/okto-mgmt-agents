@@ -2882,3 +2882,80 @@ Confirmed the same way as before: `action: "read"` with `path: "index.html"` on 
 `code/artifact/1d86f6a7-…` URL, then grep the saved copy for strings unique to this run (`Thursday 22 October`,
 `1046976106`, `fixed <code>15b4ddb206`). All present, so the short-form URL the publish printed back
 (`4eUdaeZbcXPS9zXZdLtmJh`, Version 51) is the same artifact.
+
+## The abbreviated-path trap has a second form: right filename, wrong directory (23 Oct 2026)
+
+The 18 and 20 October notes are about rows storing `dc-user/.../Foo.tsx` and ask for full paths. Both bug rows
+fixed this run stored a *complete-looking* path that was simply wrong about the directory:
+
+- `dc-user/src/js/admin/components/calls/callsReviewUtils.ts` — the file is under `calls/Calls/`.
+- `dc-user/src/js/user/components/inbox/ActionMenu/CampaignOutcomeModal.js` — the file is under
+  `user/components/tasks/`. The sibling `CampaignModal.tsx` *is* in `inbox/ActionMenu/`, which is almost
+  certainly where the wrong directory came from.
+
+This form is worse than an ellipsis, because an ellipsis is visibly incomplete while this reads as a citation
+someone checked. `git grep -n <identifier> $SHA -- <stored path>` returns **nothing**, which looks exactly like
+a deleted file and invites the conclusion that the bug was fixed. **Grep by identifier across the repo and take
+the path from the result**; never assemble a path from where a sibling row's file lives.
+
+## A huge refactor landing on a disputed claim is the cheapest evidence you will get (23 Oct 2026)
+
+`reports.pinned.max-three` has been flagged-for-a-human since 20 October: five ledger rows assume a three-pin
+cap, a trainer said there is none, and the code agrees with the trainer. The 20 October argument rested on
+`git log -S` finding no commit that ever added such a guard — true, but a negative over history.
+
+This run got something better for free. TRS-I2655 (`5634c128ee`, Reports Overhaul foundation) landed in the
+window at **733 files, +47,099/−41,875**, and it changed `Reports.tsx` itself. The cap still does not exist.
+A rewrite of that size is the single likeliest moment for a product to introduce a limit it had always
+intended, and it did not.
+
+Generalises to a cheap habit on any run: **after pinning the baseline, scan `git log --oneline` for a commit
+touching an area a disputed or flagged ledger claim is about, and re-check that claim specifically.** A
+non-change across a rewrite is much stronger than a non-change across a quiet week, and it costs one grep.
+This is the same move that found TRS-I2729 and TRS-I2670 on 22 October from commit subjects alone.
+
+## `git pull --ff-only` in okto-mgmt-agents fails — the task file's own push line is the fix (23 Oct 2026)
+
+The scheduled task opens with `git pull --ff-only`, and `origin` for this repo is
+`git@github.com:bdm1981/okto-mgmt-agents.git`. SSH to GitHub does not work on this host — which the task file
+says explicitly, three paragraphs later, in the *push* instruction. So the pull fails on every run with
+`Permission denied (publickey)` and the run continues on the local checkout, exactly as the task file allows.
+
+Harmless in practice (nothing else writes to this repo), but it burns a call and reads like a real failure.
+The same `-c credential.helper='!gh auth git-credential'` form that the push uses works for the pull.
+
+## The oktorocket remote is `ShopRocket-LLC`, and the clone is the authority (23 Oct 2026)
+
+`pin_baseline.sh` has fallen back stale six times, so this run skipped it and fetched explicitly — and the
+first attempt guessed `https://github.com/bdm1981/oktorocket.git` (the okto-mgmt-agents owner) and got
+`Repository not found`, which reads like a permissions problem rather than a wrong org. The remote is
+**`ShopRocket-LLC/oktorocket`**. One `git remote -v` in `~/Documents/DEV/oktorocket` settles it; do that
+before composing the fetch URL rather than carrying an org name across from another repo.
+
+## A recording's greeting named a trainer, and it is NOT being canonicalised (23 Oct 2026)
+
+The 6 October Admin Part 1 fragment (`1064758517`) — the 287-character row in the gap table, which is all the
+audio that was captured — contains a self-introduction: *"My name is Theo and I will be a trainer for this
+evening session."* `trainers.md` has no `Theo`, though its variant table already carries Tedario, Tadario,
+Sairio, Serio and Stereo for TeDarrell, and Theo is a plausible member of that set.
+
+**It is recorded here and nowhere else.** `trainers.md` is explicit that a name comes from a person or an
+account, never from inference, and the variant table is built from confirmed cases rather than from
+likely-looking ones — adding `Theo → TeDarrell` on the strength of a resemblance is exactly the move that
+would later be cited as evidence. Nothing turns on it either way: that session has 40 seconds of audio and is
+ungradeable, so the attribution buys nothing. A human can confirm or reject it from the MP4 in a minute, and
+if confirmed it is one more row in the variant table.
+
+## Three Chrome browsers now, and yesterday's good one had signed out (23 Oct 2026)
+
+The 21 October note records two connected browsers; 22 October records five and the auto-selected one being
+signed out. Today there were **three**, the tool auto-selected Browser 2, and the run opened by switching to
+**Browser 1** on the strength of yesterday's note — which was wrong: Browser 1 redirected to
+`accounts.zoho.com/signin` and `document.title` read `Zoho Accounts`. Browser 2, the one the tool had picked
+on its own, held the live session.
+
+So the stored advice "pick Browser 1" is worthless and should not be written down again. **Which browser holds
+the session is not stable across runs; the only reliable procedure is the title check.** Load the Past list,
+assert `document.title` starts with `Zoho Meeting`, and if it does not, `select_browser` onto the next
+`deviceId` from `list_connected_browsers` and repeat. Two calls in the worst case, and it is the difference
+between a sweep and twenty-nine false `empty=true` answers.
