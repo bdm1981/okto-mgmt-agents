@@ -2959,3 +2959,32 @@ the session is not stable across runs; the only reliable procedure is the title 
 assert `document.title` starts with `Zoho Meeting`, and if it does not, `select_browser` onto the next
 `deviceId` from `list_connected_browsers` and repeat. Two calls in the worst case, and it is the difference
 between a sweep and twenty-nine false `empty=true` answers.
+
+## `pin_baseline.sh` fell back stale a seventh time, and the count is the point (24 Oct 2026)
+
+5, 6, 13, 17, 18, 19 October and now 24 October. The local `origin/development` read `15c3f54552` against a true
+tip of `a5a9e6f2ca` — **29 commits behind**, the widest gap yet. Seven runs out of roughly twenty. The 19 October
+note already demotes the script to commentary; this entry exists only so the count stays honest and nobody
+re-litigates whether the explicit fetch is worth two calls. It is. Run it first, every run:
+
+```bash
+git -c credential.helper='!gh auth git-credential' fetch https://github.com/ShopRocket-LLC/oktorocket.git development
+git update-ref refs/remotes/origin/development <FETCH_HEAD sha>
+```
+
+## A cited file can move for a reason entirely outside the product (24 Oct 2026)
+
+The 17 October note says a changed cited file can be a fix to something the table does not track, and to say so
+rather than imply a close. This run is the furthest version of that: the one file that moved in a 29-commit window,
+`dc-server/routes/users.js`, moved under TRS-I2805 — a **secrets** change that deletes a hardcoded Firebase
+service-account credential from source and loads it from Parameter Store. It is not a product change at all, and
+nothing about the disable-user private-task row is different.
+
+Two things generalise. First, the blob-hash sweep is what makes this cheap — seventeen cited paths compared in one
+command, sixteen byte-identical, one diff worth reading. Second, **a deletion above the cited code shifts every
+citation up**, which is the direction the re-siting habit rarely has to handle: this file lost ten net lines, all
+of them near the top, so `:490`/`:500`/`:507`/`:511` became `:470`/`:480`/`:487`/`:491`. A sweep that only ever
+expects line numbers to grow will read an upward shift as the wrong code and can manufacture a close.
+
+Worth adding: do not quote the removed credential anywhere in an artifact, a Slack post or a commit message. The
+finding is "a secret moved out of source under TRS-I2805", and that is the whole of what belongs in a report.
