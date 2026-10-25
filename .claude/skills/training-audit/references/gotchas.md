@@ -2988,3 +2988,50 @@ expects line numbers to grow will read an upward shift as the wrong code and can
 
 Worth adding: do not quote the removed credential anywhere in an artifact, a Slack post or a commit message. The
 finding is "a secret moved out of source under TRS-I2805", and that is the whole of what belongs in a report.
+
+## `pin_baseline.sh` was right for once, and the count is still the point (25 Oct 2026)
+
+Seven of roughly twenty runs have had the script fall back to a stale local `origin/development` (5, 6, 13, 17,
+18, 19 and 24 October). This run the explicit HTTPS fetch returned **the same commit the script printed**,
+`45a580a91b`, with `git rev-list --count origin/development..FETCH_HEAD` = `0`.
+
+That is not evidence the script is fixed, and it must not be read as one — the 5 October note records exactly this
+pattern, three consecutive runs where the fallback *happened* to be current, which is what made it look harmless
+right before it was seven commits stale. The explicit fetch costs two calls and it is the only thing that tells
+the two cases apart, because the script's exit status does not. Keep running it first, every run. What is worth
+recording is only the arithmetic: **eight runs on record, one agreement.**
+
+## The abbreviated-path trap fired a fifth time — `vendors.js` is `dc-server/routes/`, and its neighbours point the wrong way (25 Oct 2026)
+
+Fifth instance, after `api.ts` (5 Oct), `OnDeck.tsx` (6 Oct), `MessageBubble.tsx` (14 Oct) and the three in one
+pass on 18 October. The withdrawn vendor-exclusion row cites `vendors.js:30` for the one-time `Call.updateMany`
+sweep, and **every other citation in that row's cell is a `dc-calls/src/` path** — `director.js`, `utils.js`,
+`events.js`, `models/vendor.js`. Expanding `vendors.js` to match them gives `dc-calls/src/modules/vendors.js`,
+which reports `MISSING-AT-NEW` and reads exactly like a file deleted in the window.
+
+The real path is **`dc-server/routes/vendors.js`**, byte-identical at this baseline, with `Call.updateMany` at
+`:30` as the row says. Which is the right answer on the merits too: the sweep is the *dc-server* write path that
+the withdrawal's whole argument turns on — dc-server writes the `vendors` collection and runs the retroactive
+sweep, dc-calls reads it on every call. The adjacent citations are from the other side of that boundary, so in
+this row proximity is actively misleading rather than merely uninformative.
+
+`git ls-tree -r --name-only $SHA | grep "/<basename>$"` settled it in one call, as it has every time. The
+standing fix remains the 18 October one — **write the resolved path into the row** — and this row is a
+candidate the next time a run may touch `product-bugs.md`; a scheduled run may not, so it is recorded here.
+
+## A cited file can move in a function that has nothing to do with the cited one (25 Oct 2026)
+
+The 17 and 24 October notes cover a cited file moving for a reason outside the table. This is the narrower,
+commoner case and the one most likely to produce a wrong re-site: `dc-server/modules/cleanup.js` was the only
+cited path to change in this run's seven-commit window, and `cleanup.js` is the stale-task row's file.
+
+The diff is TRS-I2769, entirely inside `purgeOldRecordings`: Recording Retention is free text, and a value too
+large to subtract from a date (`"999999999"`, meaning "keep forever") produced an Invalid Date window that purged
+recordings it should have kept, so the function now validates and returns early. +17/−1, and the hunk opens at
+**`:893`** — *below* `closeStaleTasks` at `:838` and its query at `:851`.
+
+So the row's citations do not move at all. The useful discipline is the order: **locate the hunk relative to the
+cited line before renumbering anything.** A change below the citation shifts nothing, a change above shifts
+everything, and the two are indistinguishable from a `--stat` line. `git grep -n 'closeStaleTasks\|staleGte'`
+confirmed both citations in one call regardless, which is the 1 October "search for the code, not the line" rule
+doing the work the diff reading only frames.
