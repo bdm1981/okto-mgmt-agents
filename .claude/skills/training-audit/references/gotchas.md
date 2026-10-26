@@ -1502,6 +1502,7 @@ they are properties of the recording, not of the query — so they only need fet
 | 2026-10-21 | 1078512746 | `43dccd8e29f67c3f39733fd2f93f0a2c8cd9e31cd46baca77ff2fd8f0e9f7dac` |
 | 2026-10-22 | 1046976106 | `fd465b2080173d1dd408f360761b31ea29711009b7f4ee5a0452f3819fc0771c` |
 | 2026-10-22 | 1060567444 | `27f50025bdcfcf700c8961a93cb05e41747bf2f1590fed6e0ce1d9a81e6853fb` |
+| 2026-10-26 | 1036571794 | `ae2bd27d83895e21a245439aaf7dd95969c976462093773f7a14805502b985b2` |
 
 Page URL is `https://webinar.zoho.com/meeting/videoprv?recordingId=<erecordingId>&x-meeting-org=796393835`.
 Add a row whenever a recording enters the gap; delete one when it leaves. Four recordings per
@@ -3035,3 +3036,60 @@ cited line before renumbering anything.** A change below the citation shifts not
 everything, and the two are indistinguishable from a `--stat` line. `git grep -n 'closeStaleTasks\|staleGte'`
 confirmed both citations in one call regardless, which is the 1 October "search for the code, not the line" rule
 doing the work the diff reading only frames.
+
+## A flag that was honest `false` can turn `true` later, with no transcript ever appearing (26 Oct 2026)
+
+The standing rule since 30 September is "neither `true` nor `false` can be believed; only a non-empty
+transcript container on the page proves a session is auditable". That rule was derived from `true` flags
+lying. This run supplies the other half, and it is the half the gap table's own prose kept contradicting.
+
+Three gap rows reported `isTranscriptGenerated: true`, `isTranscriptionEnabled: true`,
+`isSummaryGenerated: true`, `openAIStatus: SUCCESS` **and** a populated `transcriptionDownloadUrl` today —
+20 Oct Admin Part 1 (`1063327770`), 21 Oct Advisor (`1078512746`) and 22 Oct Advisor (`1060567444`). All
+three answered `len=NONE empty=true` in the browser. Two of them (`1078512746`, `1060567444`) were written
+into the table **days ago** with the phrase "Honest flags for once: `isTranscriptGenerated: false`,
+`isTranscriptionEnabled: false` and `isSummaryGenerated: false`".
+
+So "honest `false`" is not a property of a recording, it is a property of a *reading*. The flags appear to
+settle to `true` across the board after some days regardless of what is behind them — the same collapse the
+30 September note recorded, arriving late for these rows rather than immediately.
+
+Two consequences:
+
+- **Stop writing "honest flags for once" into a gap row as though it were durable.** It describes what the
+  API said on the day and it will usually be falsified within a week. Record the values, not a verdict on
+  the API's candour.
+- **A gap row's flags are worth re-reading on every sweep anyway**, because a flip from `false` to `true`
+  is the shape a *real* recovery would also take. The browser probe is what tells the two apart, and it is
+  the only thing that does.
+
+## A Monday can legitimately hold one session, and the weekday rule does not cover that (26 Oct 2026)
+
+The 16 October rule says a Monday–Thursday zero is a failure until proven otherwise. It says nothing about a
+Monday that produces **one** session when the previous three Mondays produced three or four, which reads as
+a partial discovery failure in exactly the same way.
+
+It is not one, and the same two lists settle it in two calls:
+
+- The Past Webinars list's group header is literally `TODAY1` — a count, not just a date. One row under it
+  means one instance ran, held or not.
+- The Upcoming list opens on `TOMORROW` with nothing left for today.
+
+Advisor Training Mondays 11 am and CRM Overview Monday 1 pm both ran on 19 October and did not run today;
+both are still live series (recurrences 11 of 49 and 12 of 45, next instances 2 November), so those weekly
+slots simply skipped a week. **A series having run last Monday is not evidence it was scheduled this
+Monday** — read the instance count off the group header rather than inferring the day's shape from the
+series list.
+
+## The same row's citations shifted up ten lines, then down four, on consecutive runs (26 Oct 2026)
+
+The 24 October note records `dc-server/routes/users.js` losing ten lines above the disable-user sweep and
+warns that an *upward* shift is the direction a re-siting habit tuned to growing files misreads. This run the
+same file gained four lines above the same sweep (TRS-I2481, freeing a deleted user's Rocket.Chat email), so
+the citations moved back **down**: `private: false` at `:474` and `:484`, the unconditional sweep opening at
+`:491` and carrying `private: true` at `:495`.
+
+Worth recording only because of the pairing: one row's citations moved in opposite directions on two
+consecutive runs, for two unrelated reasons, neither of them a product change. `git grep -n 'private: false\|private: true'`
+answers it in one call either way and does not care which direction the file grew. Reach for the grep before
+the arithmetic — the arithmetic is right half the time and reads identically when it is wrong.
