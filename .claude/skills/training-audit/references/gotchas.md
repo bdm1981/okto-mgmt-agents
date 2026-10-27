@@ -3093,3 +3093,87 @@ Worth recording only because of the pairing: one row's citations moved in opposi
 consecutive runs, for two unrelated reasons, neither of them a product change. `git grep -n 'private: false\|private: true'`
 answers it in one call either way and does not care which direction the file grew. Reach for the grep before
 the arithmetic — the arithmetic is right half the time and reads identically when it is wrong.
+
+## `git grep` a permission by its LABEL, not its value — `allRecordings` looks dead and is not (27 Oct 2026)
+
+Grading `calls.all-recordings.visibility-grant` nearly produced a false product bug. `git grep allRecordings`
+over `dc-user` and `dc-server` returns **only** the schema entry, the two admin user-edit screens and the dead
+`UserPermissionsToggles.tsx` — no consumer anywhere, which reads exactly like a permission that exists in the UI
+and does nothing. The obvious conclusion (and the one this run started to write) is wrong.
+
+The enforcement matches on the **label**: `callsReviewUtils.ts:179` is
+`permission.label === "All Recordings"`, inside `resolveCallsUserExtensionOverride` (`:168`), which pins a PID 1
+advisor to their own extension and drops the override for anyone holding it. The ledger already knew this; the
+grep did not.
+
+So for anything in `accountPermissions.json`, **grep both forms** — `"<value>"` and `"<Label With Spaces>"` —
+before concluding a permission is unenforced. The same risk applies to `campaigns`, `closeSiteEarly` and
+`restrictAdvisorBlockCustomer`, which are consumed by value via `utils.permissionCheck` and so look fine; the
+label form is the one that hides. A "this permission does nothing" finding is a whole-monorepo claim and needs
+the whole-monorepo grep in both spellings, which is the same lesson as the 9 October vendor withdrawal arriving
+through a different door.
+
+## `createLead`'s phone gate is real but it is NOT the lead path the trainers describe (27 Oct 2026)
+
+The 22 October note recorded TRS-I2729 adding a callback-number gate at `dc-server/routes/customer.ts` and
+concluded that `scheduler.appointment-lead.phone-is-minimum` "is true from this commit forward". That is the
+right reading of the wrong function, and it inverted today's grade until it was checked.
+
+Two different paths create an appointment-lead tracker:
+
+- `POST /customer/createLead` (`customer.ts:805`, gate at `:814`) — requires a valid number, returns 204 without
+  one. This is the OktoAssist / direct path.
+- `leadCreator` (`bookingHelper.js:604`), a sweep over `dcBooking` appointments still `bookingStatus: "pending"`
+  15–30 minutes old, which marks them abandoned and raises the tracker on
+  **`if (!isEmpty(lead.number) || !isEmpty(lead.email))`** (`:635`) — number **OR** email — building the contact
+  from whichever it has (`:641`, `:650`).
+
+The scheduler abandon that every trainer demonstrates goes through `leadCreator`, so **a phone number is
+sufficient and is not the minimum**, and the claim is still wrong — in the same "wrong in the other direction"
+shape the 12 October note described, for a second time and for a new reason. Before grading this claim again,
+establish *which* path the session is describing; the two gates disagree and the route name is the trap.
+
+Two smaller things from the same trace, both worth keeping: `/bookings/capture` still has **no handler in
+dc-server** (it is graphql-broker's, per the 28 September withdrawal — do not re-raise it), and the bail-out
+payload defaults every name and email field to `""` (`dc-booking/src/utils/bailout.ts:73-77`), so "they don't
+have to put in anything else" is correct about the client side whichever gate the server applies.
+
+## A gap-row sweep needs 32 full `erecordingId`s, and `getAllRecordings` only carries the recent ones (27 Oct 2026)
+
+The sweep is the documented most-productive step, and the cost of running it *properly* is worth stating once:
+`getAllRecordings` returned 20 rows covering 14–27 October, which supplies ids for only **7** of the 32 gap rows.
+The other 25 each need their own `ZohoWebinar_getWebinarRecording` call keyed on `meetingKey` — ~2.5 KB of
+response for one field — which is 25 MCP calls before the 8 `browser_batch` probes even start.
+
+Budget it as ~33 calls, not 8, and fetch the ids in parallel batches of five. Do **not** shortcut it by sweeping
+only the rows the recording list happens to cover: those are the newest rows, which is where recoveries actually
+come from, so the shortcut would look defensible and quietly stop checking the 25 oldest.
+
+Re-confirmed again this run: every one of the 32 ids had to be matched on the **whole** string. Three pairs share
+a 32-character head at this baseline (`3265686a…`, `63151bc4…`, `981f0665…` across three rows), and the
+11 October note's failure mode — loading the wrong page, getting `len=NONE empty=true`, and recording it as a
+correct result for the intended row — is indistinguishable from success.
+
+## `ledger.py` reads `date` and `trainer` off each finding, and SKILL.md's example line omits both (27 Oct 2026)
+
+The `findings.jsonl` example in SKILL.md shows `session`, `stamp`, `claim_id`, `quote`, `grade`, `reality`,
+`evidence`, `say_instead` and `product_bug` — and `ledger.py` also reads `f.get("date", "")` and
+`canonical_trainer(f.get("trainer", "?"))` (`:212`, `:214`). Written from the example alone, every row lands with
+an empty date and a trainer of `?`, which does not error, does not fail `--check`, and silently destroys the
+repeat and contradiction detection that is the whole point of the ledger.
+
+Caught here only because `--check` was read before `--add`. **Add `date` and `trainer` to every finding as it is
+written**, not as a patch afterwards, and confirm with `grep -c '<today>' references/findings-ledger.md` that the
+appended count matches the findings count.
+
+## Two sessions, both transcribed, is now notable enough to say so (27 Oct 2026)
+
+Six consecutive runs had grown the gap table; today's did not, and both held sessions answered with a populated
+transcript container on the first probe. Nothing was done differently — it is the same per-recording lottery the
+30 September note describes — but after a stretch where "a day that ran and could not be audited" was the normal
+outcome, a fully auditable day is worth naming in the run output rather than passing over as the expected case.
+
+The `TODAY2` group header did the other half of the work. The 26 October note says to read the instance count off
+the header rather than inferring the day's shape from which series exist; today Admin Part 2 (Tue/Thu 9 am) and
+Shop Analytics (Tue 11 am) are both live Tuesday series that simply did not run, and the header settles that in
+one call without a single `getWebinarRecording`.
