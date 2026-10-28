@@ -1503,6 +1503,8 @@ they are properties of the recording, not of the query — so they only need fet
 | 2026-10-22 | 1046976106 | `fd465b2080173d1dd408f360761b31ea29711009b7f4ee5a0452f3819fc0771c` |
 | 2026-10-22 | 1060567444 | `27f50025bdcfcf700c8961a93cb05e41747bf2f1590fed6e0ce1d9a81e6853fb` |
 | 2026-10-26 | 1036571794 | `ae2bd27d83895e21a245439aaf7dd95969c976462093773f7a14805502b985b2` |
+| 2026-10-28 | 1029392385 | `4fdbd854c6ae27045ddb48af74e39969e60a876613f3a6134376d44a78894050` |
+| 2026-10-28 | 1019113846 | `4fdbd854c6ae27045ddb48af74e3996918c57f20c46b7f887cb2bfa0a1538172` |
 
 Page URL is `https://webinar.zoho.com/meeting/videoprv?recordingId=<erecordingId>&x-meeting-org=796393835`.
 Add a row whenever a recording enters the gap; delete one when it leaves. Four recordings per
@@ -3177,3 +3179,54 @@ The `TODAY2` group header did the other half of the work. The 26 October note sa
 the header rather than inferring the day's shape from which series exist; today Admin Part 2 (Tue/Thu 9 am) and
 Shop Analytics (Tue 11 am) are both live Tuesday series that simply did not run, and the header settles that in
 one call without a single `getWebinarRecording`.
+
+## The container probe is ambiguous until the Transcript tab is clicked (28 Oct 2026)
+
+The documented sweep recipe reads `div.transTimeStampMainContainer` straight after the page loads. **That
+container does not exist until the *Transcript* tab is clicked** — the recording page opens on *Summary* —
+so a bare probe returns `len=NONE empty=true` for a transcribed recording and an untranscribed one alike.
+Every `len=NONE` this sweep has ever recorded was read as "still stuck", and for a recovered recording that
+answer would have been indistinguishable from the truth.
+
+The fix is two lines and it also supplies a positive discriminator:
+
+```js
+const e=[...document.querySelectorAll('*')].filter(x=>x.children.length===0&&x.innerText&&x.innerText.trim()==='Transcript');
+e.forEach(x=>x.click()); await new Promise(r=>setTimeout(r,5000));
+const c=document.querySelector('div.transTimeStampMainContainer');
+({len:c?c.innerText.length:'NONE', msg:/No transcript generated/.test(document.body.innerText)?'NOTGEN':'other'})
+```
+
+`msg: NOTGEN` is the page saying so in its own words, which is what makes a zero trustworthy; `other` with
+`len: NONE` now means *the probe failed*, not *the transcript is missing*, and must be retried. All 32 gap
+rows were swept this way today and every one came back `NOTGEN` except the known 287-character 6 October
+fragment, so **no past recovery was missed** — but that was luck, not method. Use the click from now on.
+
+Worth noting why this surfaced today and not in thirteen earlier sweeps: today was the first run where a
+*fresh* recording probed `NONE`, which made the question "is this real?" worth two extra calls.
+
+## The second day on record where a full training day produced nothing auditable (28 Oct 2026)
+
+1 October was the first (three courses, none transcribed). Today is the second and it is worse: **three
+sessions, seven customer attendances, ~125 minutes, zero gradeable** — and the 11 am CRM Overview had
+**five of five registrants present and four questions asked**, which is the single most valuable session
+shape this audit can read.
+
+Two of the three join the gap table; the 3 pm Admin Part 2 does **not**. Its recording is 5 min 59 s and
+its one attendee was present 14:58–15:09, so the session really did end early — the attendance report is
+what separates this from the 6 October trap, where a 77-minute session was captured as a 1-minute file.
+**Check attendance before deciding a short recording is a short session**; the two look identical in
+`getAllRecordings` and mean opposite things.
+
+The escalation recorded on 1 October has not moved: *Generate transcript* is a write, so the audit cannot
+press it. Thirty-four rows now stand unauditable, and six consecutive runs have added more than they have
+recovered.
+
+## `isTranscriptGenerated: true` has now lied six times
+
+Today's 9 am Admin Part 1 (`1029392385`) reported `isTranscriptGenerated: true`, `isTranscriptionEnabled:
+true`, `isSummaryGenerated: true`, `openAIStatus: SUCCESS` **and** a populated `transcriptionDownloadUrl` —
+every flag the API has, all of them wrong. The 3 pm shell (`1018555548`) did the same. The 11 am CRM
+Overview was honest `false` throughout. **Three recordings from the same day, same account, same hour band,
+splitting both ways** is the clearest evidence yet that the flags carry no information at all. The 30
+September rule stands unchanged: the only proof is the page.
