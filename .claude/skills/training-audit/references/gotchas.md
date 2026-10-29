@@ -1505,6 +1505,7 @@ they are properties of the recording, not of the query — so they only need fet
 | 2026-10-26 | 1036571794 | `ae2bd27d83895e21a245439aaf7dd95969c976462093773f7a14805502b985b2` |
 | 2026-10-28 | 1029392385 | `4fdbd854c6ae27045ddb48af74e39969e60a876613f3a6134376d44a78894050` |
 | 2026-10-28 | 1019113846 | `4fdbd854c6ae27045ddb48af74e3996918c57f20c46b7f887cb2bfa0a1538172` |
+| 2026-10-29 | 1028132163 | `d086f88f10c01ebb280121f2932c9eb8906cf71aeb7d0729412b22ded55ad67e` |
 
 Page URL is `https://webinar.zoho.com/meeting/videoprv?recordingId=<erecordingId>&x-meeting-org=796393835`.
 Add a row whenever a recording enters the gap; delete one when it leaves. Four recordings per
@@ -3230,3 +3231,98 @@ every flag the API has, all of them wrong. The 3 pm shell (`1018555548`) did the
 Overview was honest `false` throughout. **Three recordings from the same day, same account, same hour band,
 splitting both ways** is the clearest evidence yet that the flags carry no information at all. The 30
 September rule stands unchanged: the only proof is the page.
+
+## `build_report.py --sessions` reads `start_time`, not `date` (29 Oct 2026)
+
+The 19 October note records two shape traps in this file (`{"sessions": [...]}` wrapper, `duration_minutes`
+rather than `duration`). Here is the third, found the same way — by reading the rendered page rather than
+trusting the exit status. The **Recorded** field in the meta block is `(sess.get("start_time") or "")[:10]`
+(`build_report.py:56`), so a session object carrying `"date": "2026-10-29"` renders `Recorded —` and nothing
+errors.
+
+Write **both**: `start_time` as an ISO timestamp for the renderer, `date` for anything downstream that reads
+the same file by eye. Same failure class as the other two — these keys fail silently and only an em dash on
+the published page gives it away, so **always read the rendered body text before publishing**, not just the
+byte count.
+
+## A naive blob-hash sweep reports every abbreviated path as CHANGED (29 Oct 2026)
+
+The 2 October note establishes the bug-table sweep by blob hash, and five separate notes record the
+abbreviated-path trap. They combine into a failure worth stating on its own, because it looks like a result
+rather than an error.
+
+This run's first sweep printed five CHANGED paths. Only **one** was real. The other four —
+`booking/capture.ts`, `campaignsV2/api.ts`, `routes/index.ts`, `user/components/reports/Reports.js` — are
+abbreviated forms stored in `product-bugs.md` that resolve at neither commit, and the sweep script used
+*different sentinels* for the two sides:
+
+```bash
+a=$(git rev-parse "$OLD:$p" 2>/dev/null || echo MISSING-OLD)   # wrong
+b=$(git rev-parse "$NEW:$p" 2>/dev/null || echo MISSING-NEW)
+```
+
+`MISSING-OLD != MISSING-NEW`, so a path that exists at neither commit compares as changed, every run. Use
+**one** sentinel and test for it explicitly, so "absent at both" is reported as an unresolved abbreviation
+rather than as movement:
+
+```bash
+a=$(git rev-parse "$OLD:$p" 2>/dev/null); b=$(git rev-parse "$NEW:$p" 2>/dev/null)
+if [ -z "$a$b" ]; then echo "ABBREVIATED (resolve it): $p"; elif [ "$a" != "$b" ]; then echo "CHANGED: $p"; fi
+```
+
+Four of the eight rows that `product-bugs.md` cites still store abbreviations. The 18 October standing fix —
+**write the resolved path into the row** — is the real remedy; resolved this run and recorded here so the next
+sweep does not spend the calls again: `booking/capture.ts` is `graphql-broker/src/routes/booking/capture.ts`,
+`routes/index.ts` is `graphql-broker/src/routes/index.ts`, `campaignsV2/api.ts` is
+`dc-user/src/js/common/components/campaignsV2/api.ts`, and `user/components/reports/Reports.js` is
+`dc-user/src/js/user/components/reports/Reports.js`. All four byte-identical across this window.
+
+## The Transcript-tab click gave its first *positive* answer, which is what makes the zeroes mean something (29 Oct 2026)
+
+Yesterday's correction says to click the Transcript tab before probing `div.transTimeStampMainContainer`,
+because the page opens on *Summary* and a bare probe returns `len=NONE` for a transcribed and an
+untranscribed recording alike. Yesterday every probe came back `NOTGEN`, so the fix was adopted on reasoning
+rather than on evidence.
+
+Today it was exercised both ways in the same run. The 2 pm Advisor recording answered **`len=52051,
+msg: other`** and the 1 pm Shop Analytics recording answered **`len=NONE, msg: NOTGEN`** — on the same page
+template, minutes apart, with the identical probe. That is the discriminator working in both directions, and
+it retroactively licenses the thirty-three `NOTGEN` answers in the same sweep. Nothing to change; recorded so
+the recipe is not re-litigated.
+
+## `scheduler.unconfirmed-appointment.direction`, settled, so it is not re-derived (29 Oct 2026)
+
+Graded in opposite directions two days apart, so write down what the code says once.
+`dc-server/routes/customer.ts:1559-1560` computes `smsConfirmed = Boolean(smsAppointmentId)` and
+`confirmed = ceCreated && (!smsRequired || smsConfirmed)`; `getTrackerChannel` then returns
+`"unconfirmed_appointment"` at `dc-server/modules/booking/confirmation.ts:66-67` only when
+`!confirmed && isShopWare(integrationType)`.
+
+So: **the appointment exists in OktoRocket and was not confirmed in the DMS.** That is the direction, and the
+re-sync button is the right remedy. The trap is that it reads naturally both ways round in a sentence, which
+is presumably why two trainers took opposite views of it inside 48 hours.
+
+Two things that travel with the grade. `isShopWare` is an **upstream gate** — a Tekmetric or NAPA shop never
+sees this task type, the same failure lands as a plain `"lead"`, and no session has yet said so; grade that
+omission as `scheduler.unconfirmed-appointment.shopware-only`, which is a separate claim_id. And a
+`blockedContact` short-circuits the whole thing to `"blocked_appointment"` one branch earlier (`:63`), which
+is the task type trainers describe separately and correctly.
+
+## `pin_baseline.sh` fell back stale an eighth time (29 Oct 2026)
+
+5, 6, 13, 17, 18, 19, 24 October and now 29 October; one agreement, on 25 October. The local
+`origin/development` read `c3e29144cf` against a true tip of `940bc4bbf2` — **eight commits behind**, four of
+them campaign fixes, which is the surface this audit grades most often. Nine runs on record, one agreement.
+The explicit HTTPS fetch stays the first step of every run.
+
+## A no-show can produce no recording row at all — the 19 October note's other half (29 Oct 2026)
+
+19 October records a 0-attendee webinar arriving in `getAllRecordings` as a 3-minute shell, and corrects the
+16 September claim that it never does. Today is the other case: Admin Part 1 Tue/Thu 3 pm ran as an instance,
+took **1 registered and 0 attended**, and produced **no row in `getAllRecordings` whatsoever**.
+
+Both behaviours are real, which is the point: **the recording list's silence proves nothing, and neither does
+a short row.** The attendance pair off the Past Webinars list is the only discriminator, and it is also what
+separates this from the 6 October trap, where a 77-minute session with a customer present was captured as a
+one-minute file. Read the pair first, every time, before deciding whether a slot is a no-show, a gap row, or a
+truncated capture.
