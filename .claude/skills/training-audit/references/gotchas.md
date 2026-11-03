@@ -3326,3 +3326,101 @@ a short row.** The attendance pair off the Past Webinars list is the only discri
 separates this from the 6 October trap, where a 77-minute session with a customer present was captured as a
 one-minute file. Read the pair first, every time, before deciding whether a slot is a no-show, a gap row, or a
 truncated capture.
+
+## A claim_id invented for an existing misconception splits the join key (2 Nov 2026)
+
+The 21 September note warns that reusing an id for a *different* misconception manufactures a false
+contradiction. This run hit the mirror image and it is just as damaging: six findings were written with
+freshly-invented ids that the ledger already had names for —
+`calls.transcript-download.admin-only` for `calls.transcript-download.role-gate`,
+`calls.role-access` for `calls.role-access.by-extension`,
+`reviews.reply-permission.admin-site-manager` for `reviews.reply.admin-and-site-manager-only`,
+`campaigns.disable-campaigns.all-channels` for `inbox.disable-campaigns.sms-only`,
+`inbox.canned-response.visibility` for `inbox.canned-response.personal-is-private`, and
+`scheduler.waiter-capacity.day-cap-binds` for `scheduler.waiter-capacity.per-slot-and-per-day`.
+
+Every one of those would have landed as a brand-new claim with a count of 1, and `--add` would have
+reported **no new repeats** — which is exactly what it did report on the first pass. The transcript-download
+row alone was Aaron's *third* occurrence and would have read as his first.
+
+**Grep the ledger's existing ids for the topic before inventing one**, which is one cheap call:
+
+```bash
+grep -o '`[a-z][^`]*`' references/findings-ledger.md | sort -u | grep -i '<topic>'
+```
+
+A single finding also split in the other direction and should have been two from the start: TeDarrell
+stated the keyword auto-response *mechanism* correctly (`campaigns.keyword-detection.auto-response`, 8th
+correct) while omitting the once-per-conversation limit (`campaigns.keyword-detection.once-per-conversation`,
+4th incomplete). One utterance, two established ids, two different grades.
+
+**Repairing it after `--add` is safe and cheap**: strip the run's own dated rows with
+`grep -v "| <date> |"`, fix `findings.jsonl`, and re-run `--add`. The duplicate guard keys on the session,
+so the re-add succeeds once the rows are gone. Do not edit rows from earlier runs this way.
+
+## Carrying the coverage-gap section forward: cut on `</tbody>`, never on the last `</table>` (2 Nov 2026)
+
+The standing recipe is "carry the gap section forward, re-age it, splice it before the bug table". The
+obvious implementation — keep everything up to `rfind("</table>")` and replace the tail with this run's
+note — **silently destroys the section's entire history**. One of the carried-forward paragraphs contains a
+stray `</p></table></div>` inside its own prose, so `rfind` lands mid-section and the cut dropped **36 of
+the 42 accumulated run notes**, roughly 55 KB of published content, while still producing a page that
+rendered correctly and passed every structural assertion.
+
+It was caught only because the publish gate forced a full read of the live source and the dropped
+paragraphs were visible in the diff. **Splice on `</tbody>`** — insert this run's note immediately after it,
+ahead of the previous run's — and verify the paragraph count survives:
+
+```python
+assert new.count('<p class="sec-note">') == old.count('<p class="sec-note">') + 1
+```
+
+Two other things in that section are hand-maintained and go stale silently: the totals paragraph
+(`N sessions, N customer attendances across N minutes have never been checked`) must be recomputed from the
+spliced rows, and `The oldest entry has been open for N days` re-dated with them.
+
+## The gap sweep's hit rate is not uniform, and the 8 newest rows are where recoveries live (2 Nov 2026)
+
+Fourteen consecutive clean sweeps ended today with **three recoveries out of the eight newest rows** — 20 Oct
+Admin Part 1 (57,680 characters, the 72-minute session with five shops), 22 Oct Advisor (50,596) and 28 Oct
+Admin Part 1 (75,127). All three had previously answered `NOTGEN` with honest-looking flags.
+
+Those eight were swept because their `erecordingId`s came back in this run's `getAllRecordings`; the other
+27 rows each need their own `getWebinarRecording` call and **were not checked**. The 27 October note warns
+that sweeping only the rows the recording list covers "would look defensible and quietly stop checking the
+25 oldest", and that is precisely what this run did — so it is said plainly in the run output, in the Slack
+post and on the dashboard rather than being presented as a full sweep. **A partial sweep reported as partial
+is acceptable; a partial sweep reported as a sweep is not.**
+
+Three hits in eight is a far higher rate than the fourteen clean sweeps preceding it, so the full ~33-call
+sweep has earned its cost on the next run.
+
+## A recovered gap row is not a session to grade in the same run (2 Nov 2026)
+
+Three recoveries arrived in a run that had already graded three same-day sessions. Grading them too would
+have roughly doubled the run and risked leaving the dashboard, Slack post and commit unfinished — the
+deliverables that make the run useful at all. They were marked **RECOVERED, not yet graded** in the gap
+table, left out of the ledger so discovery still sees them, and named as the next run's first work.
+
+The ordering rule worth keeping: **finish the core deliverables for the window the task actually names,
+then spend what is left on the backlog.** A recovered row is safe where it sits; a half-published run is not.
+
+## `python3 -I` breaks the scripts that import a sibling module (2 Nov 2026)
+
+The environment note about running interpreters with `-I` over untrusted downloads does not apply to this
+repo's own scripts, and applying it anyway breaks them: `build_report.py` and `build_dashboard.py` both
+`import render`, and `-I` strips the script's own directory from `sys.path`, producing
+`ModuleNotFoundError: No module named 'render'`. `ledger.py` happens to survive because it imports nothing
+local. Run the skill's scripts plainly.
+
+## Carfax is a second review source, and the Source column is the tell (2 Nov 2026)
+
+`reviews.sources.google-only` is new this run and it is the kind of claim that stays true for a year and
+then quietly is not. Carfax reviews landed under TRS-I332: `dc-server/routes/reputation.ts:87` mounts a
+`carfaxReviewsRouter` beside the Google one, sites carry `integrations.carfaxReviews.enabled`
+(`reputation.ts:60-63`), and the shared `ReplyModal` posts to `carfaxReviewReply` for `reviewType: "carfax"`
+(`dc-user/src/js/common/actions/sites/index.js:872`).
+
+Aaron read the new **Source** column aloud and inferred other sources were still to come. The column exists
+*because* they already arrived — a UI element appearing is evidence the feature behind it shipped, which is
+the opposite of the usual trap where a feature exists and is gated off.

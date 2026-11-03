@@ -176,3 +176,23 @@ same way. A human should confirm before it hardens.
 Note this is now **eight** distinct mis-transcriptions of one name. The pattern is stable enough to canonicalise
 on sight, but `TRAINER_ALIASES` in `scripts/ledger.py` still carries none of them beyond the original family —
 keep canonicalising by hand in `findings.jsonl`.
+
+## New variant: "Deiro" = TeDarrell (2 November 2026, unconfirmed)
+
+CRM Overview on 2 Nov opens at **00:15** with *"My name is Deiro and I'll be your trainer for today's CRM
+training."* Nobody by that name is on the roster. Recorded as **TeDarrell** on the same reasoning as Serio,
+Stereo, Tirio and Cio: it sits in the phonetic family that has now produced Tedario, Tadario, Tadirio,
+Tedarios, Serio, Stereo, Tirio and Cio, it is neither Aaron nor Allie, and the alias table's
+`CRM trainer → TeDarrell` row points the same way.
+
+This one carries more corroboration than most. The housekeeping script around it is word-for-word the one
+recorded as TeDarrell's — *"thank you very much for your patience and hold[ing]"*, the one/two/three chat
+check, the manager-feedback survey — and it is a clean, early self-introduction rather than a mid-session
+aside or a role-play name, so it is not competing with the 15 September "Ralston" problem.
+
+**Nine** distinct mis-transcriptions of one name is now the finding in its own right. The opening script
+asks trainers to say their name; it does not ask them to spell it or drop it in the chat. Either would end
+this permanently, and nine runs of hand-canonicalising is a high price for not asking.
+
+Add `deiro` to `TRAINER_ALIASES` in `scripts/ledger.py` when someone confirms — the script still carries
+none of Serio, Stereo, Tirio, Cio or Deiro, and no entry for Allie at all.
