@@ -3424,3 +3424,77 @@ then quietly is not. Carfax reviews landed under TRS-I332: `dc-server/routes/rep
 Aaron read the new **Source** column aloud and inferred other sources were still to come. The column exists
 *because* they already arrived — a UI element appearing is evidence the feature behind it shipped, which is
 the opposite of the usual trap where a feature exists and is gated off.
+
+## A trainer announcing a bug on air may be reporting one this table already holds (3 Nov 2026)
+
+Shop Analytics stopped mid-session while the trainer said Out-running Overhead was broken — it had not turned
+green when his gross-profit goal was met — and that he would screenshot it and send it to dev. The first grading
+of that was `wrong_contained` with the note "the widget is correct and the ticket would be false", which is half
+right and the dangerous half.
+
+The widget *is* correct: green keys on `cumulativeDiff > 0` (`OutrunningOverhead.tsx:236-237`), cumulative gross
+profit over cumulative overhead, and was never wired to the goal. But **"Outrunning Overhead turns green at
+break-even, not at goal" has been row eight of `product-bugs.md` since 8 October**, raised live by a trainer then
+too, and its own text says the defect is "one page using one colour for two meanings". So his instinct matches a
+finding this audit already made; only his expectation of what the widget *does* is wrong.
+
+The rule: **before writing "that would be a false bug", grep `product-bugs.md` for the surface.** The 28 September
+note says a false product bug is more expensive than a false training finding; telling a trainer his report is
+baseless when this page raised the same thing six weeks earlier is the same error pointed at a person.
+
+## A claim_id can contradict `product-bugs.md` for ten weeks and nothing notices (3 Nov 2026)
+
+`inbox.disable-campaigns.sms-only` is graded **correct** when a trainer says Disable Campaigns is SMS-only — Allie
+on 29 Oct and 2 Nov among them. The bug table has said the opposite since **25 August**: the modal writes a global
+`{campaigns: false}` and every audience gate is channel-blind. Both have been republished side by side on the
+dashboard, every run, and the disagreement survived.
+
+Re-derived at `e36452c3a8`: `campaignUtils.ts:108-117` (`isCustomerEligibleForCampaign`) rejects
+`campaigns === false` with **no channel branch**, and `:181` does the same for the number-blocker set. The modal's
+own help text at `CampaignModal.tsx:83` says "future **SMS** campaigns". The trainer who says all channels is right
+and the copy is wrong — fairness rule 3.
+
+Prior rows are **not** rewritten (the 8/9 October rule); flagged for a human. This is the **third** inversion of
+this shape after the vendor flag (9 Oct) and the pinned-reports cap (20 Oct), and all three were found the same
+way: a trainer contradicted the ledger and re-deriving from source found the ledger at fault.
+
+**The cheap check this run should have made earlier, and the next one should make routinely:** when a claim_id
+names a surface that also has a bug-table row, read both before grading. They are maintained by different passes
+of the same run and nothing reconciles them.
+
+## Four same-day sessions is a full run, and the gap sweep does not fit (3 Nov 2026)
+
+The 2 November note deferred the full ~33-call gap sweep to "the next run" and left three recovered rows
+(20 Oct Admin Part 1, 22 Oct Advisor, 28 Oct Admin Part 1) as its first work. This run graded **four** same-day
+sessions — 60 claims, the heaviest load on record — and did **neither**. That is the 2 November ordering rule
+applied honestly ("finish the core deliverables for the window the task actually names, then spend what is left"),
+but it is now a backlog deferred twice, and it is said plainly in the run output, the dashboard and Slack rather
+than quietly skipped.
+
+If a third run defers it, the sweep is not being deprioritised, it is being abandoned — at that point split it:
+sweep the eight newest rows every run (that is where the 2 November recoveries were) and the remaining 27 on a
+weekend run, when discovery is correctly empty and there is nothing else to do.
+
+## `build_dashboard.py` takes no `--ledger`, and counting bug rows by prefix regex miscounts (3 Nov 2026)
+
+Two small time-wasters from this run, both self-inflicted:
+
+- `scripts/build_dashboard.py` reads `references/findings-ledger.md` implicitly. Passing `--ledger <path>` —
+  which the SKILL.md procedure shows — exits 2 with `unrecognized arguments`. Only `--baseline`, `--reports`
+  and `--fragment` exist.
+- Verifying the spliced bug table with `re.findall(r'<tr><td>(.{0,90}?)</td>', ...)` reported **9** rows when
+  there were **11**: the two rows whose first cell opens with `~~` and runs long never matched. Count bug rows
+  by `tr.count('<td') == 4`, which is the same predicate the 7 October filter uses, not by a prefix pattern —
+  otherwise the check and the filter disagree and the check is the one that is wrong.
+
+## The roster earned its keep: "Dario" and "Stereo" were already in it (3 Nov 2026)
+
+Admin Part 1 opened with "My name is Dario" and, three minutes later, "My name is Stereo" — two manglings in one
+session, neither matching any trainer on the bench. Both were **already in `trainers.md`'s variant table**, mapped
+to TeDarrell, so attribution cost one grep rather than a flagged-unidentified session.
+
+It was also corroborated independently, which is the part worth copying: the trainer said "we covered this
+yesterday in our CRM training", and `getAttendeeReport` on yesterday's CRM (`1073822425`) shows the same attendee,
+Dave Bigley, in a session the ledger attributes to TeDarrell. **A first-person claim plus an attendee overlap is
+the cross-check the 10 September note asks for** — the same mechanism that caused the costliest attribution error
+in this skill's history, used in the right direction.
