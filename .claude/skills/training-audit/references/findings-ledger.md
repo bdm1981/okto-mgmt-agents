@@ -876,3 +876,37 @@ discovery would keep offering the same four sessions back as unaudited.
 | 2026-11-03 | `uuid:1063940380` | TeDarrell | `reviews.match.does-not-suppress-requests` | unverifiable | 1:02:28 | — |
 | 2026-11-03 | `uuid:1063940380` | TeDarrell | `integrations.dvi.third-party-no-indicators` | unverifiable | 13:45 | — |
 | 2026-11-03 | `uuid:1063940380` | TeDarrell | `onboarding.free-migration` | unverifiable | 43:26 | — |
+| 2026-11-04 | `uuid:1082719687` | unidentified | `calls.transcript-download.role-gate` | wrong_contained | 42:54 | dc-user/src/js/admin/components/calls/CallModalTabs/CallModalTabs.tsx:145, dc-user/src/js/admin/components/calls/CallModalTabs/CallModalTabs.tsx:170 |
+| 2026-11-04 | `uuid:1082719687` | unidentified | `calls.sentiment-score.admin-editable` | correct | 38:16 | dc-user/src/js/admin/components/calls/CallModalTabs/CallModalTabs.tsx:145, dc-user/src/js/admin/components/calls/CallModalTabs/CallModalTabs.tsx:617 |
+| 2026-11-04 | `uuid:1082719687` | unidentified | `admin.recording-retention.365-purge` | correct | 43:05 | dc-server/modules/cleanup.js:903 |
+| 2026-11-04 | `uuid:1082719687` | unidentified | `scheduler.appointment-lead.phone-is-minimum` | wrong_contained | 30:06 | dc-server/modules/bookingHelper.js:635, dc-server/modules/bookingHelper.js:641 |
+| 2026-11-04 | `uuid:1082719687` | unidentified | `calls.custom-tags.advisor-cannot-create` | correct | 41:43 | dc-user/src/js/admin/components/calls/CallTagsModal/CallTagsModal.tsx:72, dc-user/src/js/admin/components/calls/CallTagsModal/CallTagsModal.tsx:74 |
+| 2026-11-04 | `uuid:1082719687` | unidentified | `reviews.sources.google-only` | incomplete | 1:02:02 | dc-server/routes/reputation.ts:87, dc-server/routes/reputation.ts:63 |
+| 2026-11-04 | `uuid:1082719687` | unidentified | `billing.payments.no-longer-offered` | unverifiable | 59:11 | — |
+| 2026-11-04 | `uuid:1038913323` | unidentified | `scheduler.confirmation-messages.two-by-three` | correct | 31:13 | dc-user/src/js/admin/components/sites/booking/AppointmentConfirmations.tsx:118, dc-user/src/js/admin/components/sites/booking/AppointmentConfirmations.tsx:41 |
+| 2026-11-04 | `uuid:1038913323` | unidentified | `campaigns.v2.not-released-yet` | incomplete | 17:10 | dc-user/src/js/common/components/campaignsV2/featureFlag.ts:14, dc-user/src/js/common/components/campaignsV2/featureFlag.ts:37 |
+| 2026-11-04 | `uuid:1038913323` | unidentified | `scheduler.waiter-capacity.per-slot-and-per-day` | correct | 28:30 | dc-user/src/js/admin/components/sites/booking/BookingSpecs.tsx:336 |
+| 2026-11-04 | `uuid:1038913323` | unidentified | `scheduler.short-notice.direction` | wrong_contained | 28:23 | dc-user/src/js/admin/components/sites/booking/BookingSpecs.tsx:336 |
+| 2026-11-04 | `uuid:1038913323` | unidentified | `campaigns.keyword-detection.auto-response` | correct | 04:51 | dc-user/src/js/admin/components/campaigns/KeywordDetector.tsx:196 |
+| 2026-11-04 | `uuid:1038913323` | unidentified | `campaigns.keyword-detection.once-per-conversation` | incomplete | 05:56 | dc-user/src/js/admin/components/campaigns/KeywordDetector.tsx:196 |
+| 2026-11-04 | `uuid:1038913323` | unidentified | `inbox.task-history.not-call-proof` | correct | 11:16 | dc-server/modules/taskHelper.js:308 |
+| 2026-11-04 | `uuid:1055428343` | Allie | `inbox.disable-campaigns.sms-only` | correct | 32:43 | dc-server/modules/campaigns/campaignUtils.ts:112, dc-user/src/js/user/components/inbox/ActionMenu/CampaignModal.tsx:83 |
+| 2026-11-04 | `uuid:1055428343` | Allie | `reports.pinned.max-three` | correct | 58:41 | dc-user/src/js/user/components/reports/Reports.js:116, dc-server/models/user.js:126 |
+| 2026-11-04 | `uuid:1055428343` | Allie | `reports.advisor-default-count.fourteen` | correct | 58:07 | dc-server/schema/defaultReportPermissions.json:12, dc-server/schema/defaultReportPermissions.json:32 |
+| 2026-11-04 | `uuid:1055428343` | Allie | `inbox.message-search.open-only` | correct | 20:16 | dc-server/modules/taskHelper.js:221, dc-server/modules/taskHelper.js:308 |
+| 2026-11-04 | `uuid:1055428343` | Allie | `calls.sentiment-timeline.independent-of-scorecard` | correct | 55:32 | dc-user/src/js/admin/components/calls/CallModalTabs/CallModalTabs.tsx:94, dc-user/src/js/admin/components/calls/CallModalTabs/CallModalTabs.tsx:98 |
+| 2026-11-04 | `uuid:1055428343` | Allie | `directory.vendor-flag.excludes-from-advisoriq` | correct | 54:08 | dc-calls/src/modules/director.js:103, dc-calls/src/routes/events.js:2226, dc-calls/src/routes/events.js:2237 |
+| 2026-11-04 | `uuid:1055428343` | Allie | `reviews.reply.admin-and-site-manager-only` | correct | 21:45 | dc-user/src/js/common/components/reviews/SiteReviewDetail.tsx:73, dc-user/src/js/common/components/reviews/ReputationManagement.tsx:93 |
+| 2026-11-04 | `uuid:1055428343` | Allie | `reviews.sources.google-only` | correct | 59:01 | dc-server/routes/reputation.ts:87, dc-server/routes/reputation.ts:63 |
+| 2026-11-04 | `uuid:1055428343` | Allie | `calls.all-recordings.visibility-grant` | correct | 52:15 | dc-user/src/js/common/schema/accountPermissions.json:2, dc-user/src/js/admin/components/calls/Calls/CallFilters.tsx:249 |
+| 2026-11-04 | `uuid:1055428343` | Allie | `scheduler.appointment-lead.phone-is-minimum` | incomplete | 33:48 | dc-server/modules/bookingHelper.js:635, dc-server/modules/bookingHelper.js:650 |
+| 2026-11-04 | `uuid:1055428343` | Allie | `admin.block-customer-permission.is-a-grant` | correct | 32:07 | dc-user/src/js/common/schema/accountPermissions.json:5, dc-user/src/js/user/components/inbox/ActionMenu/ActionMenu.tsx:323 |
+| 2026-11-04 | `uuid:1055428343` | Allie | `campaigns.on-deck.card-vs-queue` | correct | 40:28 | dc-user/src/js/common/components/campaigns/OnDeckTile.js:56 |
+| 2026-11-04 | `uuid:1093030969` | TeDarrell | `admin.block-customer-permission.is-a-grant` | correct | 11:20 | dc-user/src/js/common/schema/accountPermissions.json:5, dc-user/src/js/user/components/inbox/ActionMenu/ActionMenu.tsx:323 |
+| 2026-11-04 | `uuid:1093030969` | TeDarrell | `reports.advisor-default-count.fourteen` | correct | 13:20 | dc-server/schema/defaultReportPermissions.json:12, dc-server/schema/defaultReportPermissions.json:32 |
+| 2026-11-04 | `uuid:1093030969` | TeDarrell | `campaigns.advisor-permission.needs-manage-campaigns` | correct | 09:57 | dc-user/src/js/common/schema/accountPermissions.json:5 |
+| 2026-11-04 | `uuid:1093030969` | TeDarrell | `voice.record-calls.requires-site-level` | correct | 16:26 | dc-calls/src/modules/director.js:103 |
+| 2026-11-04 | `uuid:1093030969` | TeDarrell | `scheduler.appointment-lead.phone-is-minimum` | correct | 39:22 | dc-server/modules/bookingHelper.js:635, dc-server/modules/bookingHelper.js:641 |
+| 2026-11-04 | `uuid:1093030969` | TeDarrell | `admin.holiday-types.three` | correct | 28:10 | dc-calls/src/models/holiday.js:1 |
+| 2026-11-04 | `uuid:1093030969` | TeDarrell | `scheduler.waiter-capacity.per-slot-and-per-day` | correct | 46:07 | dc-user/src/js/admin/components/sites/booking/BookingSpecs.tsx:336 |
+| 2026-11-04 | `uuid:1093030969` | TeDarrell | `oktoassist.liftoff-allowance.250-and-overage` | unverifiable | 34:52 | — |

@@ -3498,3 +3498,59 @@ yesterday in our CRM training", and `getAttendeeReport` on yesterday's CRM (`107
 Dave Bigley, in a session the ledger attributes to TeDarrell. **A first-person claim plus an attendee overlap is
 the cross-check the 10 September note asks for** — the same mechanism that caused the costliest attribution error
 in this skill's history, used in the right direction.
+
+## A recording can start late and swallow the opening — the second shape of partial capture (4 Nov 2026)
+
+The 6 October note records a 77-minute session captured as a 1-minute file: truncation at the **end**. Today
+produced the mirror image, twice, and it cost both sessions their attribution:
+
+- **Admin Part 1** (`1082719687`, 69 min): the transcript's first cue is `[02:54] My Mike was muted. So that
+  was on me.` The greeting and any self-introduction happened before or during the mute.
+- **CRM Overview** (`1038913323`, 59 min): the transcript runs `00:13` → `37:00` and opens *mid-sentence*,
+  already discussing a report — roughly **22 minutes of content missing from the front**, with a natural
+  close at the end. `durationInMins` reports 59; the transcript covers 37.
+
+Neither is a transcription failure, so neither belongs in the coverage-gap table, and neither is the opening
+script slipping — the 23 September note's diagnosis does not apply. **Check whether the first cue is a
+greeting before concluding a trainer skipped their introduction.** A transcript whose first line is
+mid-conversation is a capture problem, and the right record is `unidentified` plus a line saying why.
+
+The discriminator against the 6 October trap is the same one that note gives: compare the transcript's last
+timestamp with `durationInMins`. Equal means the capture is whole and the session really was short; a
+transcript materially shorter than the recording means content is missing, and *which end* is missing is
+visible in whether cue one reads like an opening.
+
+## A claim_id that names one polarity cannot hold both verdicts (4 Nov 2026)
+
+`inbox.disable-campaigns.sms-only` now carries **twelve `correct` rows that do not agree with each other**:
+ten for trainers saying Disable Campaigns is SMS-only, and two (3 and 4 November, both Allie) for saying it
+switches off every channel. The code says all-channel — `campaignUtils.ts:112` rejects `campaigns === false`
+with no channel branch — so the ten are the wrong ones. The 3 November note flagged the inversion; what this
+run adds is that **the id itself is now actively misleading**, because its name asserts the false reading and
+the grade column no longer distinguishes the two camps.
+
+The grading rule in `grading.md` says to name the misconception, not the feature. That is right, and it has a
+failure mode nobody wrote down: when the misconception turns out to be the *truth*, the id inverts with it and
+every future row is ambiguous. A human resolving this should not just re-grade the old rows — the id needs
+renaming to something polarity-free (`inbox.disable-campaigns.channel-scope`), with the old id retired rather
+than reused, or repeat detection on this surface stays unreadable.
+
+Same risk is latent on `reports.pinned.max-three` (ten `correct` rows, cap does not exist) and
+`directory.vendor-flag.excludes-from-advisoriq`. All three are inversions already flagged for a human; all
+three have ids that bake in the wrong answer.
+
+## Three trainers, one claim, three verdicts, one day (4 Nov 2026)
+
+`scheduler.appointment-lead.phone-is-minimum` was stated in **three of the four sessions on 4 November**, by
+three different people, at three different levels of accuracy — Admin Part 1 `wrong_contained` ("at minimum
+they have to enter in a phone number"), Advisor `incomplete` ("you really only need to have a number"), and
+Admin Part 2 `correct` ("which usually starts with the phone number", hedged). The ledger now holds 19 rows on
+this id split 6 correct / 5 incomplete / 5 wrong_contained / 3 wrong_high.
+
+The 12 and 27 October notes already establish why it is hard: two code paths disagree (`createLead` requires a
+number, `leadCreator` takes number **or** email) and the trainers are describing `leadCreator`. What is new is
+the diagnosis this spread supports: **a claim with no stable verdict across 19 rows is not a coaching problem,
+it is a missing sentence in the curriculum.** The cheapest fix is one agreed form of words — "a phone number
+or an email address, either one on its own" — not three more coaching notes. Say that in the Slack post rather
+than listing the three grades, because the three grades read as three people's failures and the defect is
+shared.
