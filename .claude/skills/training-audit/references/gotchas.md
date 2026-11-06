@@ -3554,3 +3554,77 @@ it is a missing sentence in the curriculum.** The cheapest fix is one agreed for
 or an email address, either one on its own" — not three more coaching notes. Say that in the Slack post rather
 than listing the three grades, because the three grades read as three people's failures and the defect is
 shared.
+
+## `build_dashboard.py --reports` wants a uuid→url map, and nothing in the repo holds one (5 Nov 2026)
+
+`--reports` is documented in the script's own help as `JSON map {"uuid": "https://…report url"}` and is read with
+`json.loads(Path(args.reports).read_text())`. Passing `references/dashboard.md` — the file that actually stores the
+per-session report URLs — exits 1 with `JSONDecodeError: Expecting value: line 1 column 1`. Passing nothing is worse
+and silent: the Sessions table renders with **83 report links replaced by `—`**, which looks like a rendering bug
+rather than a missing argument.
+
+No file in the repo maps uuid to URL. `dashboard.md` keys on date plus a prose label; `sessions-index.md` keys on
+uuid but has no URL. **The map has to be rebuilt from the live dashboard** each run, by joining the published
+Sessions table to `sessions-index.md` on `(date, course, minutes)`:
+
+- Parse the live page's Sessions rows into `{(date, course, min): [url, …]}` as a **list per key**, not a scalar.
+  Two August Deep Dive rows share a key and a dict collapses them, which silently drops a link.
+- Walk `sessions-index.md` in order and `pop(0)` from each bucket.
+- Expect ~10 unmatched August rows: those are the course-level Foundations/Deep Dive entries that have no
+  per-row link on the live page either. Matching 83 of 93 index rows is the correct answer, not a shortfall.
+
+Verify with `len(re.findall(r'>open</a>', html))` against the live page's own count before publishing. This run got
+83 both sides.
+
+## `session_index.py` cannot run on a Zoho transcript, and the index is appended by hand (5 Nov 2026)
+
+Three of its assumptions are Zoom-era and all three fail:
+
+- `course_of()` recognises only `deep`, `founation`, `foundation`, `crm`, `analytic` and `one on one`. Every
+  post-cutover topic — "Admin Part 1 Training Tues or Thurs 3 pm cst", "Advisor Training Thursdays 2 pm cst" —
+  falls through to `"Other"`.
+- `speakers()` matches `^[mm:ss] Speaker: `, and Zoho transcripts carry **no speaker labels at all**, so it
+  returns 0 for every session.
+- `trainer_of()` greps `my name is X` out of a compacted file this pipeline never writes.
+
+It also requires `--sessions` and `--transcripts`, so invoking it bare (as the task file's step does) exits 2.
+Every Zoho-era row in `sessions-index.md` was appended by hand, and the `att` column carries the
+`getAttendeeReport` count while `spoke` is a literal `—`. Keep doing that; do not "fix" the script mid-run.
+
+## A strong circumstantial case for a trainer is still `unidentified` (5 Nov 2026)
+
+Shop Analytics on 5 November never states a name. The case for Aaron was the best circumstantial one this audit
+has assembled: the session ran 13:00–14:34 and Admin Part 1, independently attributed to Aaron, began at 14:59;
+the Shop Analytics trainer said at 1:26 *"I do got another meeting here in a little bit"*; and he described
+himself as ex-tech-support now running trainings, which matches the Admin Part 1 register. It was still recorded
+**`unidentified`**, on the 21 October precedent — a name comes from a person or an account, never from inference,
+and scheduling adjacency is inference.
+
+Say what it costs, as that note does: if the attribution held, `analytics.job-data.tekmetric-only` would be
+Aaron's sixth row and a coaching note; as `unidentified` it reads as a cross-trainer repeat. A human can settle
+it from the MP4 in under a minute, and that is the cheaper fix than loosening the rule.
+
+## Admin Part 1's trainer named himself in a worked example, not an introduction (5 Nov 2026)
+
+The recording opens at 00:42 with *"Back to turning on my recording. I paused it… so my little introduction was
+not recorded"* — a third shape of partial capture, deliberate rather than truncated at either end. Attribution
+came instead from 10:10, where he demonstrates task ownership on his own account: *"every one of my advisors is
+going to see that Hey, Aaron is assigned to Rabbi."* That is a first-person claim about his own screen, which is
+the kind trainers.md accepts; a name spoken in **role-play** is not (the 15 September "Ralston" problem).
+
+The discriminator is whose name the sentence asserts. "Hi, this is Ralston" inside a mock call is a character.
+"Aaron is assigned" under a demo of *my* assignment is the speaker. Check which before accepting or rejecting a
+mid-session name.
+
+## A trainer corrected on air by the customer's own arithmetic (5 Nov 2026)
+
+Shop Analytics opened by saying the goal wizard reads the platform's holidays, wobbled to "it should look to
+holidays in your shop management system", and then — after the customer counted November's working days against
+their own calendar — verified it live and said *"You're right. It is not counting that."* He raised it as a
+defect. The code agrees with his final answer: the schedule's **name** is displayed and its **dates** are never
+fed to `calculateWorkDays`.
+
+Graded **`correct`** under fairness rule 2 (grade the answer they finished on) with the muddled delivery noted,
+and the defect written into `product-bugs.md` as its own row. The shape to recognise: when a session discovers a
+real bug live, the finding belongs in the bug table and the trainer belongs in the credit column — grading the
+opening sentence instead would punish the behaviour that produced the bug report.
