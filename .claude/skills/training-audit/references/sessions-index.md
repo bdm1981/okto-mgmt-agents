@@ -109,3 +109,6 @@ speakers and had 3 people present for the full 67 minutes.
 | 2026-11-05 | `uuid:1029195821` | Admin Part 1 | 80 | 2 | — | Aaron |
 | 2026-11-05 | `uuid:1019181088` | Advisor Training | 62 | 2 | — | Allie |
 | 2026-11-05 | `uuid:1081556862` | Shop Analytics | 94 | 1 | — | unidentified |
+| 2026-10-20 | `uuid:1063327770` | Admin Part 1 | 72 | 5 | — | TeDarrell |
+| 2026-10-22 | `uuid:1060567444` | Advisor Training | 69 | 1 | — | Allie |
+| 2026-10-28 | `uuid:1029392385` | Admin Part 1 | 70 | 1 | — | Aaron |

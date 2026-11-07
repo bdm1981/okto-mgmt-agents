@@ -3628,3 +3628,120 @@ Graded **`correct`** under fairness rule 2 (grade the answer they finished on) w
 and the defect written into `product-bugs.md` as its own row. The shape to recognise: when a session discovers a
 real bug live, the finding belongs in the bug table and the trainer belongs in the credit column — grading the
 opening sentence instead would punish the behaviour that produced the bug report.
+
+## The ledger-repair recipe destroys earlier runs when the session is a BACKLOG one (6 Nov 2026)
+
+The 2 November note gives a repair for a bad `--add`: "strip the run's own dated rows with
+`grep -v "| <date> |"`, fix `findings.jsonl`, and re-run `--add`", with the caveat "do not edit rows from
+earlier runs this way". That caveat is unenforceable as written, and this run proved it. Repairing one
+finding on the 20 October session ran `grep -v '| 2026-10-20 |'` and removed **52 rows, 37 of them written
+by earlier runs** — because 20 October was a normal training day whose *other* three sessions (Admin Part 2,
+Shop Analytics, Advisor) were audited back in October. The date is not a key for this run's work.
+
+Nothing was lost only because `findings-ledger.md` was still uncommitted and `git checkout --` restored it.
+Had the run committed first, 37 rows across three sessions would have gone silently.
+
+**The rule: never key a repair on the date. Key it on the session id**, which is unique to the session
+being repaired:
+
+```bash
+grep -v '`uuid:1063327770`' references/findings-ledger.md > /tmp/x && mv /tmp/x references/findings-ledger.md
+```
+
+This matters more as the skill does backlog work. A same-day session's date is usually unique to the run;
+a **recovered gap row's date is by definition in the past and almost always shared with sessions audited
+weeks ago**. Verify after any repair that the ledger's row count for that date fell by exactly the number
+this run added, not by more.
+
+## Grade a backlog session against what shipped by the SESSION date, not only the pinned commit (6 Nov 2026)
+
+The standing rule is "every grep runs against the pinned commit, never the working tree", and it is right.
+It is also incomplete for a session recovered weeks after it ran, because the pinned commit contains features
+the trainer could not have known about. Two fired in one run:
+
+- **Carfax reviews landed 27 October** (`66e1929aba`, TRS-I332). The 20 October Admin Part 1 session taught
+  the whole reviews segment as Google-only. Against the 6 November baseline that reads as
+  `reviews.sources.google-only`, a three-row repeat. On the day, Google *was* the only source. **Not graded**,
+  and the reason is written into the report's caveats rather than left as a silent omission.
+- **The inverted "Require Delete Reason" label was fixed 22 October** (`ac594162ea`), two days *after* the
+  same session read it aloud. The inversion is still graded — he also mis-stated the object, saying it governs
+  deleting the *campaign* — but fairness rule 4 applies in full, because the label he was reading was lying
+  on the day he read it.
+
+**The check is one command** against the commit that introduced the behaviour:
+`git log -1 --format=%ci -S '<marker>' $SHA -- <path>`. If it postdates the session, the trainer gets the
+benefit and the report says so. Grading a September recording against a November product manufactures
+findings nobody can act on and that the trainer will rightly reject.
+
+## `inbox.translate.language-direction` is two-way, and 26 ledger rows assume it is not (6 Nov 2026)
+
+Aaron on 28 October: *"you can translate to and from Spanish ... I'd be able to translate from Spanish to
+English in the same text box ... write my response in English, click translate, now translated it back into
+Spanish."* That is **correct**, and it is the first time in this ledger anyone has said it.
+
+Two separate controls exist and only one had ever been cited:
+
+- `dc-user/src/js/user/components/inbox/TaskSMS/helpers/translate.helpers.ts:11-13` — `source_lang: "en"`,
+  `target_lang: "es"`, on the advisor's **draft**. This is the one the ledger cites.
+- `dc-user/src/js/user/components/inbox/TaskSMS/MessageBubble.tsx:151-156` — `source_lang: "es"`,
+  `target_lang: "en"`, on an **inbound message**. This one was never cited, and its absence is what made
+  sixteen sessions look like they were overstating the feature.
+
+This run graded TeDarrell `incomplete` on 20 October on the wrong premise before catching it — the finding
+survives (he described only the outbound half) but its `reality` had to be rewritten mid-run. **This is the
+fourth ledger inversion of the shape the 3 November note names** (vendor flag, pinned-reports cap,
+Disable Campaigns), and all four were found the same way: a trainer contradicted the ledger and re-deriving
+from source found the ledger at fault. Prior rows are **not** rewritten; flagged for a human.
+
+## `advisoriq.sentiment-timeline.only-without-scorecard` is wrong too — that is five (6 Nov 2026)
+
+`CallModalTabs.tsx:92-99` reads `sentimentJourney` from `call.scorecardResults.sentimentJourney` **or**
+`call.advisorIQ.sentimentJourney`, and `:174` renders it whenever `!call.vendor && sentimentJourney.length > 0`.
+A scorecard does not suppress the timeline; it *supplies* it. Aaron's "this will happen in every single call in
+which there's some context" is right, and the id's ten prior rows assert the opposite. The 2 and 4 November
+notes both recorded that "the sentiment-timeline answer disagrees with the ledger and the ledger looks wrong"
+without settling it. It is settled now. Like the other four, the id's **name** bakes in the false reading, so a
+human resolving it should retire the id rather than re-grade under it.
+
+## `build_dashboard.py --reports` keys are BARE ids, not `uuid:`-prefixed (6 Nov 2026)
+
+The 5 November note explains how to rebuild the uuid→url map by joining the live Sessions table to
+`sessions-index.md`. It does not say what the keys must look like, and the obvious choice is wrong.
+`session_index()` stores `re.sub(r"^\`uuid:|\`$", "", c[1])` — the id **without** the `uuid:` prefix — while
+`sessions-index.md` and `findings-ledger.md` both write it **with**. A map keyed the way the index file spells
+it resolves 3 links out of 86 and renders 83 em-dashes, which looks exactly like the "forgot --reports"
+failure the 5 November note describes.
+
+**Key the map both ways** and stop thinking about it:
+
+```python
+out = {}
+for k, v in mapping.items():
+    bare = k[5:] if k.startswith("uuid:") else k
+    out[bare] = v; out["uuid:" + bare] = v
+```
+
+Then assert `len(re.findall(r'>open</a>', html))` equals the live page's count plus this run's new reports —
+86 here, from 83 + 3.
+
+## The first complete 32-row gap sweep, and it found nothing (6 Nov 2026)
+
+The 3 November note set the condition: a third deferral means the sweep is being abandoned, so split it and
+run the remainder "on a weekend run, when discovery is correctly empty and there is nothing else to do."
+Friday 6 November was that run. **All 32 remaining rows were probed — the first time since 4 October that a
+sweep covered every row rather than the eight `getAllRecordings` happens to carry — and none recovered.**
+
+Thirty-one answered `len=NONE` with the page's own *No transcript generated* text present (the 28 October
+discriminator, which is what makes a `NONE` mean something); the 6 October Admin Part 1 row returned its
+287-character greeting fragment, byte-identical to every previous check, because that session's audio was
+never recorded. Every page title was checked against its row.
+
+The cost is worth recording because it is the argument for *not* doing this every run: 32
+`getWebinarRecording` calls to collect `erecordingId`s (only 2 of the 32 appear in `getAllRecordings`, which
+now returns 20 rows all of which are already-graded sessions) plus 8 browser batches. Against that,
+the 2 November partial sweep of the **newest eight** found all three of the recoveries this table has ever
+seen. **The newest rows are where recoveries live; the old ones are ballast.** Sweep the newest eight every
+run, and pay for the full pass only on an empty day, which is what happened here.
+
+Also confirmed again, twice in one run: `isTranscriptGenerated: true` is meaningless. Thirty-one of the 32
+rows report `true` and have no transcript. Only the 22 October Shop Analytics row reports an honest `false`.

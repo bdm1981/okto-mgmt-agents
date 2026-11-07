@@ -966,3 +966,51 @@ discovery would keep offering the same four sessions back as unaudited.
 | 2026-11-05 | `uuid:1081556862` | unidentified | `analytics.call-conversion.industry-benchmark` | unverifiable | 1:17:16 | — |
 | 2026-11-05 | `uuid:1081556862` | unidentified | `analytics.new-customer-source.defaults-to-return` | unverifiable | 1:20:15 | — |
 | 2026-11-05 | `uuid:1081556862` | unidentified | `analytics.rocket-gauge.not-ai-generated` | correct | 1:25:37 | moto-sales-tracker-api/Services/Service/RocketGaugeStaticResponseService.cs:41, moto-sales-tracker-api/Services/Service/RocketGaugeStaticResponseService.cs:42 |
+| 2026-10-20 | `uuid:uuid:1063327770` | TeDarrell | `campaigns.explain-delete.is-confirmation` | wrong_contained | 56:20 | dc-user/src/js/admin/components/campaigns/AddCampaign.js:741-747 |
+| 2026-10-20 | `uuid:uuid:1063327770` | TeDarrell | `inbox.translate.language-direction` | incomplete | 41:10 | dc-user/src/js/user/components/inbox/TaskSMS/helpers/translate.helpers.ts:11-13, dc-user/src/js/user/components/inbox/TaskSMS/MessageBubble.tsx:151-156 |
+| 2026-10-20 | `uuid:uuid:1063327770` | TeDarrell | `scheduler.unconfirmed-appointment.shopware-only` | incomplete | 47:54 | dc-server/modules/booking/confirmation.ts:55-56, dc-server/modules/booking/confirmation.ts:66-69 |
+| 2026-10-20 | `uuid:uuid:1063327770` | TeDarrell | `campaigns.auto-approve.bypasses-queue` | incomplete | 52:26 | dc-user/src/js/admin/components/campaigns/AddCampaign.js:730-738 |
+| 2026-10-20 | `uuid:uuid:1063327770` | TeDarrell | `scheduler.unconfirmed-appointment.direction` | correct | 47:58 | dc-server/modules/booking/confirmation.ts:66-69 |
+| 2026-10-20 | `uuid:uuid:1063327770` | TeDarrell | `campaigns.on-deck.card-vs-queue` | correct | 51:44 | dc-user/src/js/common/components/campaigns/OnDeckTile.js:53-55 |
+| 2026-10-20 | `uuid:uuid:1063327770` | TeDarrell | `campaigns.do-not-track.suppresses-outcome-prompt` | correct | 56:35 | dc-user/src/js/admin/components/campaigns/AddCampaign.js:749-755 |
+| 2026-10-20 | `uuid:uuid:1063327770` | TeDarrell | `campaigns.message-rotation.randomizes-order` | correct | 57:17 | dc-server/modules/campaignBuilder.js:4531-4539 |
+| 2026-10-20 | `uuid:uuid:1063327770` | TeDarrell | `campaigns.call-campaigns.no-customer-send` | correct | 59:00 | dc-server/modules/campaignBuilder.js:5659-5666, dc-server/modules/campaigns/callCampaigns.js:182-185 |
+| 2026-10-20 | `uuid:uuid:1063327770` | TeDarrell | `reviews.reply.admin-and-site-manager-only` | correct | 37:18 | dc-user/src/js/common/components/reviews/SiteReviewDetail.tsx:73 |
+| 2026-10-20 | `uuid:uuid:1063327770` | TeDarrell | `reviews.google-floor.routes-low-scores` | correct | 1:06:43 | dc-user/src/js/cust/components/reviews/ReviewCard.tsx:87-93, dc-user/src/js/admin/components/sites/integrations/google/GoogleBusinessIntegrationModal.tsx:233-238 |
+| 2026-10-20 | `uuid:uuid:1063327770` | TeDarrell | `reports.categories.seven` | correct | 1:02:48 | dc-user/src/js/common/schema/adminReports.json:1 |
+| 2026-10-20 | `uuid:uuid:1063327770` | TeDarrell | `calls.sentiment-score.admin-editable` | correct | 30:56 | dc-user/src/js/admin/components/calls/CallModalTabs/CallModalTabs.tsx:145, dc-user/src/js/admin/components/calls/CallModalTabs/CallModalTabs.tsx:615-617 |
+| 2026-10-20 | `uuid:uuid:1063327770` | TeDarrell | `campaigns.advisor-permission.needs-manage-campaigns` | correct | 51:23 | dc-user/src/js/common/schema/accountPermissions.json:2 |
+| 2026-10-20 | `uuid:uuid:1063327770` | TeDarrell | `billing.payments.no-longer-offered` | unverifiable | 37:42 | — |
+| 2026-10-22 | `uuid:uuid:1060567444` | Allie | `inbox.translate.language-direction` | correct | 21:17 | dc-user/src/js/user/components/inbox/TaskSMS/helpers/translate.helpers.ts:11-13 |
+| 2026-10-22 | `uuid:uuid:1060567444` | Allie | `admin.block-customer-permission.is-a-grant` | correct | 41:43 | dc-user/src/js/common/schema/accountPermissions.json:5 |
+| 2026-10-22 | `uuid:uuid:1060567444` | Allie | `directory.vendor-flag.excludes-from-advisoriq` | correct | 42:11 | dc-calls/src/routes/events.js:2224-2237 |
+| 2026-10-22 | `uuid:uuid:1060567444` | Allie | `reports.advisor-default-count.fourteen` | correct | 1:04:08 | dc-server/schema/defaultReportPermissions.json:12 |
+| 2026-10-22 | `uuid:uuid:1060567444` | Allie | `inbox.message-search.open-only` | correct | 18:15 | dc-server/modules/taskHelper.js:218-222, dc-server/modules/taskHelper.js:300-312 |
+| 2026-10-22 | `uuid:uuid:1060567444` | Allie | `reviews.reply.admin-and-site-manager-only` | correct | 19:03 | dc-user/src/js/common/components/reviews/SiteReviewDetail.tsx:73, dc-user/src/js/common/components/reviews/SiteReviewDetail.tsx:224 |
+| 2026-10-22 | `uuid:uuid:1060567444` | Allie | `reviews.match.available-to-advisors` | correct | 1:05:36 | dc-user/src/js/common/components/reviews/SiteReviewDetail.tsx:234-242 |
+| 2026-10-22 | `uuid:uuid:1060567444` | Allie | `inbox.task-assignment.on-click` | correct | 19:40 | dc-user/src/js/user/components/inbox/hooks/useTaskSelection.ts:75-79 |
+| 2026-10-22 | `uuid:uuid:1060567444` | Allie | `campaigns.on-deck.card-vs-queue` | correct | 38:27 | dc-user/src/js/common/components/campaigns/OnDeckTile.js:53-55 |
+| 2026-10-22 | `uuid:uuid:1060567444` | Allie | `campaigns.call-campaigns.no-customer-send` | correct | 26:24 | dc-server/modules/campaignBuilder.js:5659-5666, dc-server/modules/campaigns/callCampaigns.js:182-185 |
+| 2026-10-22 | `uuid:uuid:1060567444` | Allie | `scheduler.unconfirmed-appointment.direction` | correct | 28:00 | dc-server/modules/booking/confirmation.ts:66-69 |
+| 2026-10-22 | `uuid:uuid:1060567444` | Allie | `scheduler.unconfirmed-appointment.shopware-only` | incomplete | 27:55 | dc-server/modules/booking/confirmation.ts:55-56, dc-server/modules/booking/confirmation.ts:66-69 |
+| 2026-10-22 | `uuid:uuid:1060567444` | Allie | `scheduler.appointment-lead.phone-is-minimum` | incomplete | 29:23 | dc-server/modules/booking/confirmation.ts:66-69 |
+| 2026-10-22 | `uuid:uuid:1060567444` | Allie | `calls.all-recordings.visibility-grant` | correct | 57:44 | dc-user/src/js/common/schema/accountPermissions.json:2 |
+| 2026-10-22 | `uuid:uuid:1060567444` | Allie | `campaigns.advisor-edit.email-address-vs-sms-body` | correct | 40:09 | dc-user/src/js/common/components/campaigns/OnDeck.tsx:136-143, dc-user/src/js/common/components/campaigns/OnDeck.tsx:246-252 |
+| 2026-10-22 | `uuid:uuid:1060567444` | Allie | `calls.missed-call.definition` | correct | 24:27 | dc-calls/src/modules/utils.js:446-455, dc-calls/src/modules/callActions.js:1255 |
+| 2026-10-22 | `uuid:uuid:1060567444` | Allie | `inbox.click-to-call.needs-extension` | correct | 24:40 | dc-user/src/js/user/components/inbox/ActionMenu/ActionMenu.tsx:185-195 |
+| 2026-10-22 | `uuid:uuid:1060567444` | Allie | `billing.payments.no-longer-offered` | unverifiable | 15:16 | — |
+| 2026-10-28 | `uuid:uuid:1029392385` | Aaron | `calls.transcript-download.role-gate` | wrong_contained | 38:52 | dc-user/src/js/admin/components/calls/CallModalTabs/CallModalTabs.tsx:145, dc-user/src/js/admin/components/calls/CallModalTabs/CallModalTabs.tsx:168-172 |
+| 2026-10-28 | `uuid:uuid:1029392385` | Aaron | `scheduler.appointment-lead.phone-is-minimum` | wrong_contained | 32:39 | dc-server/modules/bookingHelper.js:635, dc-server/modules/bookingHelper.js:645-653 |
+| 2026-10-28 | `uuid:uuid:1029392385` | Aaron | `scheduler.blocker.does-not-clear-existing-bookings` | incomplete | 56:55 | dc-user/src/js/admin/components/sites/booking/BlockerModal.tsx:155-185 |
+| 2026-10-28 | `uuid:uuid:1029392385` | Aaron | `reviews.reply.admin-and-site-manager-only` | incomplete | 1:05:28 | dc-user/src/js/common/components/reviews/SiteReviewDetail.tsx:73, dc-user/src/js/common/components/reviews/SiteReviewDetail.tsx:224 |
+| 2026-10-28 | `uuid:uuid:1029392385` | Aaron | `inbox.translate.language-direction` | correct | 29:18 | dc-user/src/js/user/components/inbox/TaskSMS/MessageBubble.tsx:151-156, dc-user/src/js/user/components/inbox/TaskSMS/helpers/translate.helpers.ts:11-13 |
+| 2026-10-28 | `uuid:uuid:1029392385` | Aaron | `calls.role-access.by-extension` | correct | 38:09 | dc-user/src/js/common/schema/accountPermissions.json:2 |
+| 2026-10-28 | `uuid:uuid:1029392385` | Aaron | `calls.role-access.admin-sees-all-sites` | correct | 38:37 | dc-server/schema/defaultReportPermissions.json:32 |
+| 2026-10-28 | `uuid:uuid:1029392385` | Aaron | `advisoriq.sentiment-timeline.only-without-scorecard` | correct | 42:16 | dc-user/src/js/admin/components/calls/CallModalTabs/CallModalTabs.tsx:92-99, dc-user/src/js/admin/components/calls/CallModalTabs/CallModalTabs.tsx:174 |
+| 2026-10-28 | `uuid:uuid:1029392385` | Aaron | `directory.vendor-flag.excludes-from-advisoriq` | correct | 44:27 | dc-calls/src/routes/events.js:2224-2237 |
+| 2026-10-28 | `uuid:uuid:1029392385` | Aaron | `calls.sentiment-score.admin-editable` | correct | 41:38 | dc-user/src/js/admin/components/calls/CallModalTabs/CallModalTabs.tsx:145, dc-user/src/js/admin/components/calls/CallModalTabs/CallModalTabs.tsx:615-617 |
+| 2026-10-28 | `uuid:uuid:1029392385` | Aaron | `inbox.mark-new.removes-ownership` | correct | 36:02 | dc-user/src/js/user/components/inbox/hooks/useTaskSelection.ts:75-79 |
+| 2026-10-28 | `uuid:uuid:1029392385` | Aaron | `inbox.mark-unread.keeps-owner` | correct | 35:52 | dc-user/src/js/user/components/inbox/hooks/useTaskSelection.ts:75-79 |
+| 2026-10-28 | `uuid:uuid:1029392385` | Aaron | `inbox.task-assignment.on-click` | correct | 22:01 | dc-user/src/js/user/components/inbox/hooks/useTaskSelection.ts:75-79 |
+| 2026-10-28 | `uuid:uuid:1029392385` | Aaron | `reviews.match.available-to-advisors` | correct | 1:05:05 | dc-user/src/js/common/components/reviews/SiteReviewDetail.tsx:234-242 |
+| 2026-10-28 | `uuid:uuid:1029392385` | Aaron | `calls.advisoriq.hardcoded-rubric` | correct | 18:57 | dc-user/src/js/admin/components/calls/CallModalTabs/CallModalTabs.tsx:92-99 |
