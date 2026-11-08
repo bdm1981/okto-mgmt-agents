@@ -3745,3 +3745,50 @@ run, and pay for the full pass only on an empty day, which is what happened here
 
 Also confirmed again, twice in one run: `isTranscriptGenerated: true` is meaningless. Thirty-one of the 32
 rows report `true` and have no transcript. Only the 22 October Shop Analytics row reports an honest `false`.
+
+## The browser's Zoho session expires, and a signed-out sweep answers `other` in two different disguises (7 Nov 2026)
+
+The 28 October note established the discriminator: `msg: NOTGEN` is the page saying "No transcript generated"
+in its own words, which is what makes a zero trustworthy, while `other` with `len: NONE` means *the probe
+failed* and must be retried. Today the sweep hit a third state that note does not cover — **signed out** — and
+it wears `other`/`len:NONE` as camouflage in two different shapes:
+
+- **Permission Denied.** Three of the first four rows (`1028132163`, `1036571794`, `1046976106`) returned
+  `document.title = "Permission Denied"` over the body text *"Sign In / You do not have access to this page.
+  Please contact the owner to get access."* The probe reports `len=NONE, msg=other`.
+- **A public share view with no Transcript tab at all.** `1019113846` rendered properly — correct title,
+  24,215 characters of body, the real AI summary — but its only tabs were *Summary* and *Chapters*. No
+  Transcript tab, and therefore no "No transcript generated" string anywhere on the page. Same probe output:
+  `len=NONE, msg=other`. The inference (not directly verified) is that this recording is shared publicly and
+  the others are not, so an anonymous load gets the viewer page minus the owner-only tab.
+
+The danger is the retry rule. `other` means "retry" under the 28 October note, so a signed-out sweep that is
+retried looks like a transient failure forever, and the second shape is worse than the first: a correct page
+title is the cheapest proof the right page loaded (the 8 October anti-collision check), and here the title is
+**right** while the answer is meaningless. Title-matching does not survive being signed out.
+
+**Assert auth before sweeping, in one call.** Navigate to `https://webinar.zoho.com/meeting/796393835/files/my-recordings`
+and read `location.href`: signed out it redirects to
+`accounts.zoho.com/signin?servicename=ZohoWebinar&serviceurl=…`, which is unambiguous and costs one navigate.
+If it redirects, **stop the sweep and surface it** — do not record any row as re-checked. Signing in is a
+human's job; the audit holds no Zoho credential and must not enter one.
+
+## `1019113846` flipped every flag to true and has a real summary behind it — re-probe it first (7 Nov 2026)
+
+The 28 October CRM Overview row is the most valuable one in the gap table: five of five registrants attended,
+four of them for the full 53 minutes, and one asked four questions. It entered the table on 29 October with
+honest flags — `isTranscriptGenerated: false`, `isTranscriptionEnabled: false`, `isSummaryGenerated: false`,
+`openAIStatus: NOT_GENERATED`.
+
+Today all four read the other way: `isTranscriptGenerated: true`, `isTranscriptionEnabled: true`,
+`isSummaryGenerated: true`, `openAIStatus: SUCCESS`, with a populated `transcriptionDownloadUrl`.
+
+This table already holds the rule that a flipped flag means nothing (the 26 October note, and three rows that
+flipped with nothing behind them). What is different here is that **the summary is not just flagged, it is
+actually on the page** — rendered in the signed-out view above. Every previous liar flipped `isTranscriptGenerated`
+while the page stayed empty; a real artifact appearing alongside the flip is a stronger signal than this table
+has seen. It is still not proof: the 6 November sweep probed this row signed in and got `NOTGEN`, and today's
+signed-out page cannot show the Transcript tab either way.
+
+So it is not a recovery and must not be written up as one. It is the **first row to re-probe** on the next run
+that has a signed-in browser, ahead of the rest of the newest eight.
