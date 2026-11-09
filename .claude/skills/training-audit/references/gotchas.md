@@ -3792,3 +3792,63 @@ signed-out page cannot show the Transcript tab either way.
 
 So it is not a recovery and must not be written up as one. It is the **first row to re-probe** on the next run
 that has a signed-in browser, ahead of the rest of the newest eight.
+
+## `1019113846` was the strongest recovery signal ever recorded, and it is still NOTGEN (8 Nov 2026)
+
+The 7 November note made this row the **first to re-probe on the next run with a signed-in browser**, and said
+why: every one of its four flags flipped from honest `false` to `true`, and unlike the three earlier liars a
+**real AI summary was actually rendered on the page**, not merely flagged. "A real artifact appearing alongside
+the flip is a stronger signal than this table has seen."
+
+Probed today, signed in, with the *Transcript* tab clicked: `len=NONE`, `msg=NOTGEN`, page title
+`CRM Overview Training Wednesday 11 am cst - Recording` matching the row. **No transcript.**
+
+So the rule hardens rather than bends: **a flipped flag means nothing even when a generated summary sits beside
+it.** The summary and the transcript are produced independently — `isSummaryGenerated` and `openAIStatus:
+SUCCESS` describe the summary pipeline and say nothing about the transcript one. The only thing that has ever
+settled this question is the Transcript tab, clicked, signed in. Do not re-litigate a flag flip as evidence
+again; probe it and move on. That is seven times `isTranscriptGenerated: true` has lied.
+
+## A signed-out Zoho browser can clear itself between runs (8 Nov 2026)
+
+The 7 November run was blocked outright: the sweep hit `Permission Denied` and a public share view, and the
+run correctly stopped rather than recording 32 false `NOTGEN`s. Today the **auto-selected browser (Browser 4
+of four connected) held a live session on the first try** — no human sign-in is recorded between the two runs.
+
+Two things follow. First, **a signed-out browser is not a standing blocker and must not be treated as one**; it
+is a per-run condition, so the next run opens with the same cheap assertion rather than assuming yesterday's
+failure still holds. Second, the 23 October rule stands and was vindicated again: *which browser holds the
+session is not stable across runs, and the only reliable procedure is the title check*. Browser 4 was the
+auto-selected one today and was right; the correct answer was wrong on 23 October and right here, which is
+exactly why the check is unconditional and the browser number is never written down as advice.
+
+## A complete sweep two days ago makes a second one waste, and that is a judgement to state (8 Nov 2026)
+
+The 6 November note set the policy: "Sweep the newest eight every run, and pay for the full pass only on an
+empty day, which is what happened here." Today was also an empty day, which reads as a mandate for a second
+full pass — and it is not one.
+
+The 6 November pass covered **all 32 rows and recovered nothing**. Every row not in the newest eight is now
+**30 days old or more** and has answered `NOTGEN` on every check it has ever had. Against that, a full pass
+costs ~24 `getWebinarRecording` calls plus six browser batches. The newest eight were swept today (all
+`NOTGEN`, every page title checked); the other 24 were not.
+
+**The rule, refined:** pay for the full pass on an empty day *unless a complete pass has run within roughly a
+week and found nothing*. What makes this safe to skip is not the cost but the evidence — all three recoveries
+this table has ever seen came from the newest eight rows. What makes it honest is saying so: a partial sweep
+reported as partial is acceptable, a partial sweep reported as a sweep is not.
+
+## `pin_baseline.sh`'s fallback was correct for only the second time (8 Nov 2026)
+
+The tally now reads: stale on 5, 6, 13, 17, 18, 19, 24 and 29 October and 6 November; correct on 25 October
+and today. **Two right out of roughly two dozen runs.**
+
+Today `origin/development` in the local clone sat exactly on the true tip, `cde20b6e65` (2026-11-08) — zero
+commits behind. That is worth recording precisely because it proves nothing: the fallback is silent either
+way, and the only reason today's baseline can be trusted is that the explicit HTTPS fetch was run and
+`git rev-list --count origin/development..FETCH_HEAD` returned `0`. **Run the explicit fetch every time and
+report the count.** A fallback that is right one run in twelve is not a fallback worth believing on its own.
+
+Also note `git pull --ff-only` in `okto-mgmt-agents` failed again with `Permission denied (publickey)` — the
+23 October note already records that the task file's own HTTPS push line is the fix for pushing; the same
+applies to pulling, and the run continued on the local checkout as the task permits.
