@@ -3852,3 +3852,90 @@ report the count.** A fallback that is right one run in twelve is not a fallback
 Also note `git pull --ff-only` in `okto-mgmt-agents` failed again with `Permission denied (publickey)` — the
 23 October note already records that the task file's own HTTPS push line is the fix for pushing; the same
 applies to pulling, and the run continued on the local checkout as the task permits.
+
+## An `unverifiable` grade can go stale, and this one had been stale for nine weeks (9 Nov 2026)
+
+`billing.oktoassist.250-calls-75-cents` was graded **unverifiable five times** between 3 September and 21 October,
+always for the same stated reason: the LiftOff allowance and the overage rate are billing terms, and billing terms
+are not in the four graded repos. That was true when it was written. It is not true now.
+
+Both numbers are in code at this baseline:
+
+- `dc-server/modules/oktoAssistSettings.ts:17` — `export const LIFTOFF_INCLUDED_CALLS = 250;`
+- `dc-server/modules/oktoAssistBillingContract.ts:12` — `export const OKTO_ASSIST_OVERAGE_UNIT_AMOUNT_CENTS = 75;`
+
+So today's statement of the same claim graded **correct**, with citations, after five runs of recording it as
+ungradeable. Nothing about the claim changed; the product moved the constant.
+
+**The rule:** an `unverifiable` row in the ledger is a snapshot of what the code held on that date, not a permanent
+property of the claim. Before copying a prior `unverifiable` forward, spend one `git grep` on the actual number.
+The grep that settled this was `git grep -n '250' $OKTO_SHA -- dc-server/modules/oktoAssist*` — ten seconds against
+five runs of a false ungradeable. Claims most worth re-testing are the ones whose reason was "that lives in another
+system": allowances, rates, retention windows, plan limits. `calls.call-group-strategy.enterprise-picks-available`
+was re-tested the same way today and is still genuinely unverifiable (it is FreeSWITCH dialplan), which is what a
+real unverifiable looks like.
+
+Worth noting the same file also shows **every plan carries 250**, not just LiftOff — Countdown, Gold, Office and
+Trial are all 250. A trainer saying "included with the LiftOff plan at 250" is correct but plan-specific in a way
+the code is not; if a future session says another plan gets a different allowance, grade it against lines 17-23.
+
+## Zoho can drop the trainer's name out of the middle of the sentence that states it (9 Nov 2026)
+
+A third shape of the attribution gap, and the most frustrating because the sentence is *right there*. The 9 November
+Admin Part 2 opens at 00:18 with:
+
+> "My name is and I'll be your trainer for today's Admin 2 training"
+
+Not "the name was never stated" (the 5 of 15 August case) and not "a strong circumstantial case" (the 5 November
+note). The trainer followed the opening script exactly, the transcriber ate the one word that mattered, and the AI
+summary — checked, because it has supplied an attribution once before — opens on "the site space" and names nobody.
+
+Recorded `unidentified`, per the roster rule. **Do not try to repair this from the surrounding audio or from style.**
+The session's register is a strong match for one trainer on the bench and that is precisely the trap the 5 November
+note closed. What it does mean is that `unidentified` is now sometimes a *transcription* failure rather than a
+*trainer* failure, so "the trainer did not introduce himself" is the wrong coaching note to write — he did.
+
+## An internal `@oktorocket.com` address in the attendee report inflates `att` (9 Nov 2026)
+
+`getAttendeeReport` on the 9 November Admin Part 2 returned `count: 3`, and the index row records 3. One of the
+three is `cristina@oktorocket.com`, who joined at 15:48 and left at 16:00 — **12 minutes of a 53-minute session**.
+Two customers were in the room for essentially the whole run; the third attendee is staff.
+
+Zoom's `attendees()` never surfaced this because the old traps were about double-joins and waiting rooms, not about
+who the person is. Zoho hands over `email` and `countryName` for every attendee, so the domain is free to read.
+
+**Keep recording the raw `getAttendeeReport` count in `att`** — changing the convention mid-stream would make the
+dashboard's column mean two things across its history, which is worse than the overcount. But **read the domains and
+say so in the report's caveats** whenever a non-customer is among them, because "3 attended" and "2 shops trained"
+are different numbers and only one of them is the point of the exercise. Flagging it also protects the reverse
+reading: a staff member present is not evidence of a well-attended session.
+
+## Skipping the sweep entirely, one day after a clean one (9 Nov 2026)
+
+The 8 November note refined the rule to "pay for the full pass on an empty day *unless* a complete pass has run
+within roughly a week and found nothing". Today tests the other half of it: **the newest eight were swept yesterday**,
+all `NOTGEN`, and the complete 32-row pass ran on 6 November and recovered nothing.
+
+No sweep was run today, and today was *not* an empty day — there was a session to grade. Re-probing the same eight
+rows at a twenty-four-hour interval buys nothing: no row in this table has ever recovered on a one-day cadence, and
+all three recoveries it has seen came days apart.
+
+**The rule, extended:** skip the sweep outright when the newest eight were probed within about 48 hours and the run
+has real grading work. State it as a skip — not as a sweep, and not silently. The 4 November note's standard stands
+and is what makes this safe: *a partial sweep reported as partial is acceptable, a partial sweep reported as a sweep
+is not.* A skipped sweep reported as a skip is the same bargain.
+
+## The Past Webinars list is worth one navigate even when `getAllRecordings` looks complete (9 Nov 2026)
+
+Today's recording list carried two rows for Monday, and the weekly schedule has four Monday courses (Admin Part 1
+9 am, Advisor 11 am, CRM Overview 1 pm, Admin Part 2 3 pm). Two missing courses reads exactly like two lost
+recordings, which is the false-all-clear shape this skill exists to avoid.
+
+The Past list settled it in one navigate: **`TODAY 2`**. Only two webinars were scheduled and held — Admin Part 2
+(3 registered, 3 attended, 100%) and Admin Part 1 (1 registered, **0 attended**). The Advisor and CRM Monday
+instances were not held and were never on the calendar for today, so there is nothing missing.
+
+It also confirmed the 9 am row independently: `1020798866` is a 14-minute shell with `isTranscriptGenerated: false`
+and `count: 0` from the attendee report, and the Past list's own `0 (0%)` agrees. Three sources, one answer, and the
+`min_duration_minutes: 20` drop is right. **Run this check whenever a day's recording count is below its scheduled
+course count** — it costs one navigate against the risk of reporting a quiet day over a lost one.
