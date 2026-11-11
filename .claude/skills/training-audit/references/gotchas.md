@@ -3939,3 +3939,100 @@ It also confirmed the 9 am row independently: `1020798866` is a 14-minute shell 
 and `count: 0` from the attendee report, and the Past list's own `0 (0%)` agrees. Three sources, one answer, and the
 `min_duration_minutes: 20` drop is right. **Run this check whenever a day's recording count is below its scheduled
 course count** — it costs one navigate against the risk of reporting a quiet day over a lost one.
+
+## The translate claim has a third state now: French shipped 9 November (10 Nov 2026)
+
+`inbox.translate.language-direction` has 29 ledger rows and has been through two readings already — Spanish-only,
+then the two-way English/Spanish correction the 6 November note settled. **There is now a third.** At this baseline
+`translate.helpers.ts:4` declares `export type TranslateTarget = "es" | "fr"`, `TRANSLATE_TARGETS` carries both with
+labels, `pickTranslateTarget` returns `fr` when the customer's last inbound message was detected as French, and
+`MessageToolbar.tsx:198-207` renders a picker over `Object.keys(TRANSLATE_TARGETS)`. No feature flag gates any of it;
+`TaskSMS.tsx:1017` wires the handler unconditionally.
+
+Both of today's sessions that touched the inbox taught it as English/Spanish. **Grade that `incomplete`, never
+`wrong`, and say why in the finding:** the commit is `78993f7cbf`, merged **2026-11-09 10:53**, which is *one day*
+before both sessions. A trainer cannot be marked down for not knowing a feature that landed in `development` the
+previous morning — and `development` is not production, so it may not even have reached the shops in the room.
+
+**The general rule this makes explicit:** before grading a long-running claim_id against the pinned commit, run
+`git log -1 --format=%ci <file>` on the evidence file. If the behaviour changed within about a week of the session
+date, the finding is a *curriculum-refresh flag* addressed to whoever maintains the deck, not a coaching note
+addressed to the trainer. The 6 November note says to grade a backlog session against what shipped by the session
+date; this is the same rule running in the other direction, for code that is newer than the curriculum.
+
+## `ledger.py` silently writes blank date and `?` trainer when findings.jsonl omits them (10 Nov 2026)
+
+`findings.jsonl` as documented in SKILL.md shows only `session`, `stamp`, `claim_id`, `quote`, `grade`, `reality`,
+`evidence`, `say_instead` and `product_bug`. Written exactly that way, `ledger.py --add` reports `"appended": 27`
+and exits 0 — and every row lands as `|  | uuid:… | ? | claim_id | …`, with **an empty date column and `?` for the
+trainer**. Nothing warns. The run looks clean.
+
+That is not cosmetic: the date column is what the dashboard's Fixed and Contradictions tables sort on, and the
+trainer column is what decides *curriculum defect* versus *same trainer — coaching*. Twenty-seven rows of `?`
+would have silently degraded both tables.
+
+**Add `date` (the session's date, not today's) and `trainer` to every finding object before calling `ledger.py`.**
+The recovery, if it has already been run, is `git checkout -- references/findings-ledger.md` — the ledger is tracked
+and append-only, so reverting and re-adding is clean as long as it happens in the same run, before anything else
+touches the file.
+
+## `build_report.py` practice_notes are objects, not strings (10 Nov 2026)
+
+`nar["practice_notes"]` must be a list of `{"heading": str, "paras": [str, ...]}`. A list of plain strings dies with
+`AttributeError: 'str' object has no attribute 'get'` at line 103, after the findings have already been rendered —
+so it fails late and produces nothing. `standfirst`, `method` and `footer` *are* plain strings; only this one is not.
+
+## `min_duration_minutes` hid a real customer being sent home (10 Nov 2026)
+
+The threshold's stated purpose is to drop "a false start or a no-show, not a session". Today it dropped
+`1029560109`, Admin Part 2 at 9 am, at **16 minutes** — and that was neither.
+
+`getAttendeeReport` returns `count: 1`: Dave Bigley, joined 09:06, left 09:22, present for **the whole recording**.
+The transcript (it has one — `isTranscriptGenerated: true`) opens with the trainer saying *"I'm having a lot of
+technical difficulties here, but I got you in"*, the customer answering that he *"was stuck trying to figure out how
+to sign on for the last 10 min"*, and ends at 16:04 with the customer told *"either me or TeDarrell will be on to
+cover you in the next training"*.
+
+So: a transcript exists, so it is **not** a coverage-gap row; an attendee was present throughout, so it is **not** a
+false start. It is a customer who got a sixteen-minute Admin Part 2 because of a platform failure, and the duration
+threshold makes that invisible.
+
+**Do not override the threshold in an unattended run** — a configured rule bent by a scheduled job is worse than the
+gap it closes. **Do check `attendees()` on every recording the threshold drops, and report any with a non-zero count
+in the run output and on the dashboard.** The 9 November note already established the cheap version of this check
+for 0-attendance shells; this is the case it did not cover, and it is the more important one. Compare the 6 October
+row, where a 77-minute session was captured as a 1-minute file: both are the threshold hiding a real session, from
+opposite causes.
+
+## The Zoho transcript lives in Chrome, not in the built-in browser pane (10 Nov 2026)
+
+This session's default browser is the in-app pane (`mcp__Claude_Browser__*`), and it is **not** the browser that holds
+the Zoho session. Navigating it to `webinar.zoho.com/meeting/796393835/files/my-recordings` redirects to
+`accounts.zoho.com/signin`, which looks exactly like the expired-session failure of 7 November and is not one — it is
+the wrong browser. The signed-in session lives in `mcp__claude-in-chrome__*`; `list_connected_browsers` showed two,
+and Browser 1 held it. **Run the 7 November auth assertion in Chrome, not in the pane**, before concluding anything
+about the Zoho session. The 8 November rule still holds: which Chrome browser holds it is not stable, so check rather
+than remember.
+
+Three further mechanics, all of which cost calls today:
+
+- **`transcriptionDownloadUrl` answers 401 to `curl`.** The 11 October note records the *public* URL 403ing; the
+  private one is no better. The transcript exists only inside an authenticated browser.
+- **The page's CSP blocks `fetch` to `127.0.0.1`.** Standing up a local sink and POSTing `window.__out` to it from the
+  page fails with `TypeError: Failed to fetch`. Do not spend calls on this.
+- **`javascript_tool` truncates its result at roughly 1,000 characters**, so slicing a 70 KB transcript out through it
+  costs ~70 calls. `get_page_text` returns **50,000** and reports the true total. The cheap way to the remainder is to
+  set `document.body.textContent = window.__out.slice(i)` — anchored on a timestamp string, per the 11 October seam
+  rule — and call `get_page_text` again. Two calls per session instead of seventy. The page is only mutated locally and
+  a reload restores it; nothing is written to Zoho.
+
+Also worth keeping: the regex that splits the cue container must anchor on `(?:^|\s)(\d{1,2}:\d{2}(?::\d{2})?)\s`.
+A `\b`-anchored version splits `1:19:17` into `1:` and `19:17`, which silently truncates the last hour of a long
+session and makes a 79-minute transcript look like it ends at 19:17.
+
+## `pin_baseline.sh` fell back stale a tenth time (10 Nov 2026)
+
+Local `origin/development` was `d36d0bc942`; the true tip was `b4e4db9022`, **2 commits** ahead. The tally is now ten
+stale against two correct. Note also that the task file's push line names `bdm1981/okto-mgmt-agents`, but the
+**oktorocket** clone's org is `ShopRocket-LLC` — fetching `bdm1981/oktorocket` returns `Repository not found`, which
+reads like auth failure and is not one. The 13 October note says this; it cost a call again today.
