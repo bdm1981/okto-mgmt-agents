@@ -4036,3 +4036,85 @@ Local `origin/development` was `d36d0bc942`; the true tip was `b4e4db9022`, **2 
 stale against two correct. Note also that the task file's push line names `bdm1981/okto-mgmt-agents`, but the
 **oktorocket** clone's org is `ShopRocket-LLC` — fetching `bdm1981/oktorocket` returns `Repository not found`, which
 reads like auth failure and is not one. The 13 October note says this; it cost a call again today.
+
+## `pin_baseline.sh` fell back stale an eleventh time (11 Nov 2026)
+
+Local `origin/development` was `cf9613bc41`; the true tip was `0ccc6e62b5`, **4 commits** ahead. Eleven stale
+against two correct. The explicit HTTPS fetch against `ShopRocket-LLC/oktorocket` followed by
+`git update-ref refs/remotes/origin/development <FETCH_HEAD>` remains the only baseline step worth believing.
+
+Also re-confirmed: `git pull --ff-only` in **okto-mgmt-agents** fails with `Permission denied (publickey)`, and the
+fix is the task file's own push line used as a pull — `git -c credential.helper='!gh auth git-credential' pull
+--ff-only https://github.com/bdm1981/okto-mgmt-agents.git main`. Note the two repos live in **different orgs**:
+okto-mgmt-agents is `bdm1981`, oktorocket is `ShopRocket-LLC`. Mixing them returns `Repository not found`, which
+reads like auth failure and is not one.
+
+## `Skip to Form` is a bailout form, not a booking shortcut — and the label says nothing (11 Nov 2026)
+
+The costliest finding of this run, and a shape worth recognising. A service carrying `skipToForm` does **not**
+take a shortcut through the booking wizard. `ServiceOptions.tsx:125-127` sets the flag on the appointment,
+`CustomerInput.jsx:79` sends `stage` to `7` instead of incrementing, and `BookingStage.SkipToForm` renders
+`SkipToForm.jsx`, whose **only** submit path calls `captureBailout` and sets `bailed: true`. No appointment is
+created. Nothing reaches the calendar.
+
+Two general lessons:
+
+- **Follow a stage enum to the page it renders before grading any claim about a booking "shortcut".** The name
+  `SkipToForm` reads like a fast path and is a bailout capture. The discriminator was one grep for `captureBailout`
+  inside the page the stage maps to — cheap, and nothing short of it would have caught this.
+- **An absent label is as gradeable as a wrong one.** `product-bugs.md` has so far collected labels that *lie*
+  (`explainDelete`, `restrictAdvisorBlockCustomer`). This is the other shape: the admin toggle at
+  `dc-user/.../booking/ServiceOptions.tsx:669` is a bare `Slider label="Skip to Form"` with **no popover**, sitting
+  beside Booking Specifications controls that all carry one. Fairness rule 4 says to read the label before blaming
+  the person; when there is no label text at all, the gap belongs in the bug table too and the trainer's finding
+  keeps its grade but gains the mitigation.
+
+## Grade the same claim twice in one day when the two deliveries differ (11 Nov 2026)
+
+`scheduler.confirmation-messages.two-by-three` was taught by one trainer in both of today's sessions. In CRM Overview
+(55:51) it was flat — two channels by three customer types. In Admin Part 2 (58:23) he added *"potentially if you have
+the after-hours customer turned on"*, which is exactly the gate `AppointmentConfirmations.tsx:39-53` enforces by hiding
+the after-hours tabs. Graded `incomplete` and `correct` respectively.
+
+**Expect the dashboard's `Fixed` count to go DOWN when this happens**, and say so before someone reads it as a tooling
+bug. This claim had been sitting in Fixed as "TeDarrell, wrong through 2026-10-21, right from 2026-11-02"; an
+`incomplete` dated after that right-from date drops the row, correctly — the trainer did regress, then recover the same
+day. The honest grading is what moved the number, and a run that quietly rounded both deliveries to `correct` to protect
+the count would be worth nothing.
+
+## `min_duration_minutes` hid a real customer for the second day running (11 Nov 2026)
+
+The 10 November note established the check: run `getAttendeeReport` on every recording the threshold drops. It paid
+immediately. Today dropped two 12-minute recordings and they are **opposite cases**:
+
+- **Advisor Training 1 pm (`1048779933`)** — sole attendee `jamesoliverscotto@gmail.com`, joined 13:03, left 13:22,
+  present **19 minutes** against a 12-minute recording. A real customer, a real session, invisible.
+- **Admin Part 1 9 am (`1080217893`)** — sole attendee `katie@oktorocket.com`, 12 minutes. **Internal staff**, no
+  customer. Correctly dropped, and not a coverage gap.
+
+**The domain is what separates them, and it costs one call.** The 9 November note introduced reading attendee domains to
+avoid inflating `att`; this is the same read doing a second job. Report the customer one, say plainly why the staff one
+does not count, and do not override the threshold in an unattended run either way.
+
+## An `unverifiable` grade going stale is now a recurring pattern, not an anecdote (11 Nov 2026)
+
+`billing.oktoassist.250-calls-75-cents` carried `unverifiable` five times from 3 September on the reasoning that plan
+allowances and rates are billing terms. That stopped being true once the contract was extracted into source:
+`oktoAssistSettings.ts:17` holds `LIFTOFF_INCLUDED_CALLS = 250` and `oktoAssistBillingContract.ts:12` holds
+`OKTO_ASSIST_OVERAGE_UNIT_AMOUNT_CENTS = 75`. It was first re-graded `correct` on 9 November and again today.
+
+The 9 November note called this out once for a single claim. Two instances make it a rule: **before reusing an
+`unverifiable` claim_id, spend one grep on it.** The cost is a grep; the cost of not doing it is a claim the audit has
+silently declined to check for two months. The inverse of the 10 November curriculum-refresh rule — there, code moved
+ahead of the deck; here, code moved under a grade.
+
+## Four unverifiable rows on one claim means stop re-deriving it (11 Nov 2026)
+
+`calls.call-group-strategy.enterprise-picks-available` has now been recorded `unverifiable` on 15 Oct, 21 Oct, 9 Nov and
+today. The three ring-group strategy *names* are in `FSGroupProperties.js:14-18` and grade `correct` every time; what
+**Enterprise** actually does lives in FreeSWITCH dialplan outside the monorepo, and neither the picker nor
+`CallGroupList.js` carries help text.
+
+Re-deriving this every run is pure waste. **Surface it as a standing ask instead:** one answer from voice engineering,
+written into the deck and into this file, retires four rows and whatever follows them. A claim that has been
+unverifiable four times is not a grading problem, it is a missing piece of documentation.

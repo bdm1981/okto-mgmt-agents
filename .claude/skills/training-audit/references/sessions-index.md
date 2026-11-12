@@ -116,3 +116,5 @@ speakers and had 3 people present for the full 67 minutes.
 | 2026-11-10 | `uuid:1058968941` | Admin Part 1 | 79 | 4 | — | TeDarrell |
 | 2026-11-10 | `uuid:1040312577` | Shop Analytics | 80 | 5 | — | Aaron |
 | 2026-11-10 | `uuid:1023122294` | Advisor Training | 62 | 7 | — | Allie |
+| 2026-11-11 | `uuid:1065321401` | CRM Overview | 59 | 4 | — | TeDarrell |
+| 2026-11-11 | `uuid:1048831896` | Admin Part 2 | 89 | 4 | — | TeDarrell |

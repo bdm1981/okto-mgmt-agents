@@ -29,6 +29,8 @@ Zoom's transcription mangles spoken names. Every variant seen so far, all one pe
 | Sairio | TeDarrell |
 | Sirio | TeDarrell |
 | Dario | TeDarrell |
+| Deiro | TeDarrell |
+| Deo | TeDarrell |
 | CRM trainer | TeDarrell |
 | Ali | Allie |
 | Aldith | Allie |
