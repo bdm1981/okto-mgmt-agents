@@ -7,6 +7,14 @@
 narrative.json (authored by the reviewer, words only):
     {"title": "...", "standfirst": "...", "method": "...",
      "practice_notes": [{"heading": "...", "paras": ["..."]}],
+     "health_check": {"account": "...", "overall": "healthy|watch|at_risk|no_signal",
+                      "summary": "...",
+                      "components": {"usage"|"support"|"sentiment"|"commercial":
+                                     {"status": "...", "signals": ["..."], "source": "..."}},
+                      "followups": [{"type": "support_ticket|bug|feature_request|csm_followup|
+                                     training_followup|billing", "title": "...", "detail": "...",
+                                     "owner": "...", "priority": "high|medium|low",
+                                     "stamp": "mm:ss", "existing": "Desk #123 or ''"}]},
      "footer": "..."}
 """
 
@@ -104,6 +112,9 @@ def main():
         for p in note.get("paras", []):
             out.append(f"<p>{R.rich(p)}</p>")
         out.append("</div>")
+
+    if nar.get("health_check"):
+        out.append(R.health_check(nar["health_check"]))
 
     out.append(
         "<footer>"

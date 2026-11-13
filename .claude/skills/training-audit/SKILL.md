@@ -80,8 +80,24 @@ Append one JSON line per graded claim to `findings.jsonl` as you go — this is 
  "reality":"explainDelete=true removes the reason picker entirely; the legacy label is inverted",
  "evidence":["dc-user/src/js/common/components/campaigns/DeleteCampaignButton.js:16"],
  "say_instead":"Leave it off — off is what gives advisors Delete w/ Reason.",
+ "model_delivery":{"script":"Leave Explain Delete off. With it off, advisors get Delete w/ Reason, so every removed campaign records why.",
+   "show":["Campaigns → Settings","Leave Explain Delete unchecked","Delete a test campaign and show the reason picker"],
+   "check":"Ask: if an advisor deletes a campaign, where will you see why?"},
  "product_bug":true}
 ```
+
+Every `wrong_high`, `wrong_contained` and `incomplete` line needs `model_delivery` — a worked
+example of how the point should have been delivered (rules in `grading.md`). `ledger.py`
+refuses the line without it.
+
+### Step 4b — Customer health check and follow-ups
+
+While reading the transcript, note every signal about the account's health and every action the
+session generated: problems the customer raised, promises the trainer made, feature asks,
+billing questions, low adoption, frustration, expansion interest. Put them in the narrative under
+`health_check` (schema in `build_report.py`, rules in `grading.md`). Four components — usage,
+support, sentiment, commercial — each `healthy` / `watch` / `at_risk` / `no_signal`, and a
+`followups` list of tickets to create. Propose only; never create a ticket.
 
 `claim_id` is the join key for repeat detection. Use `<area>.<feature>.<assertion>`, reuse an existing id from the ledger whenever the same misconception recurs, and keep it stable — a renamed id breaks the repeat count.
 
@@ -108,6 +124,7 @@ Then post one Slack message to the channel named in `references/sources.md`, usi
 - session, date, trainer, duration
 - the tallies (wrong / incomplete / correct / unverifiable)
 - **any repeat or new product bug, named** — this is the part people act on
+- the account's health-check overall status and any **high-priority follow-ups**, named
 - links to the per-session report and the dashboard
 
 Keep the Slack post to a summary and let the detail live on the page. The channel should be a limited one: these reports assess named employees.

@@ -112,8 +112,13 @@ def finding(f: dict, num: str) -> str:
         parts.append(f"<p>{rich(para)}</p>")
     if f.get("product_bug"):
         parts.append('<p><span class="flag">Product bug</span></p>')
-    if f.get("say_instead"):
-        parts.append(f'<div class="fix"><b>Say instead</b>{rich(f["say_instead"])}</div>')
+    if f.get("say_instead") or f.get("model_delivery"):
+        parts.append('<div class="fix">')
+        if f.get("say_instead"):
+            parts.append(f'<b>Say instead</b>{rich(f["say_instead"])}')
+        if f.get("model_delivery"):
+            parts.append(delivery(f["model_delivery"]))
+        parts.append("</div>")
     if f.get("evidence"):
         parts.append(
             '<div class="evidence"><b>Evidence</b>' + e(" · ".join(f["evidence"])) + "</div>"
@@ -122,6 +127,103 @@ def finding(f: dict, num: str) -> str:
         parts.append('<div class="evidence"><b>Evidence</b>not settled from source</div>')
     parts.append("</div>")
     return "\n".join(parts)
+
+
+def delivery(md) -> str:
+    """`model_delivery` is a worked example of how the point should have been
+    delivered: `{"script": str, "show": [str], "check": str}`. A bare string is
+    accepted as the script."""
+    if isinstance(md, str):
+        md = {"script": md}
+    out = ['<div class="delivery"><b>How to deliver it</b>']
+    if md.get("script"):
+        out.append(f'<p class="script">{rich(md["script"])}</p>')
+    if md.get("show"):
+        out.append("<p class=\"lbl\">Show on screen</p><ol>")
+        out.extend(f"<li>{rich(step)}</li>" for step in md["show"])
+        out.append("</ol>")
+    if md.get("check"):
+        out.append(f'<p><span class="lbl">Check understanding</span> {rich(md["check"])}</p>')
+    out.append("</div>")
+    return "\n".join(out)
+
+
+HEALTH_COMPONENTS = [
+    ("usage", "Product usage & engagement"),
+    ("support", "Support & service activity"),
+    ("sentiment", "Sentiment & feedback"),
+    ("commercial", "Financial & commercial health"),
+]
+HEALTH_CLASS = {"healthy": "ok", "watch": "warn", "at_risk": "", "no_signal": "muted"}
+HEALTH_LABEL = {"healthy": "Healthy", "watch": "Watch", "at_risk": "At risk", "no_signal": "No signal"}
+FOLLOWUP_TYPE = {
+    "support_ticket": "Support ticket",
+    "bug": "Product bug",
+    "feature_request": "Feature request",
+    "csm_followup": "CSM follow-up",
+    "training_followup": "Training follow-up",
+    "billing": "Billing / commercial",
+}
+
+
+def _chip(status: str) -> str:
+    cls = HEALTH_CLASS.get(status, "muted")
+    return f'<span class="flag {cls}">{e(HEALTH_LABEL.get(status, status or "No signal"))}</span>'
+
+
+def health_check(hc: dict) -> str:
+    """Customer health check section: four signal components, then the
+    follow-ups/tickets the session generated. Proposed only — nothing here is
+    created in Desk, Sprints or CRM by the audit."""
+    out = ["<h2>Customer health check</h2>"]
+    head = []
+    if hc.get("account"):
+        head.append(f"<strong>{rich(hc['account'])}</strong>")
+    head.append(f"Overall {_chip(hc.get('overall', 'no_signal'))}")
+    out.append(f'<p class="hc-overall">{" · ".join(head)}</p>')
+    if hc.get("summary"):
+        out.append(f'<p class="sec-note">{rich(hc["summary"])}</p>')
+    comps = hc.get("components") or {}
+    out.append('<div class="hc-grid">')
+    for key, label in HEALTH_COMPONENTS:
+        c = comps.get(key) or {}
+        out.append('<div class="block">')
+        out.append(f"<h3>{e(label)} {_chip(c.get('status', 'no_signal'))}</h3>")
+        signals = c.get("signals") or []
+        if signals:
+            out.append("<ul>" + "".join(f"<li>{rich(x)}</li>" for x in signals) + "</ul>")
+        else:
+            out.append('<p class="muted">Nothing observed in this session.</p>')
+        if c.get("source"):
+            out.append(f'<p class="hc-src">Source: {rich(c["source"])}</p>')
+        out.append("</div>")
+    out.append("</div>")
+
+    fus = hc.get("followups") or []
+    out.append("<h2>Follow-ups &amp; tickets to create</h2>")
+    if not fus:
+        out.append('<p class="sec-note">No follow-up actions came out of this session.</p>')
+        return "\n".join(out)
+    out.append(
+        '<p class="sec-note">Proposed by the audit, not created. Each needs a human to open it '
+        "in the right system and assign it.</p>"
+    )
+    order = {"high": 0, "medium": 1, "low": 2}
+    fus = sorted(fus, key=lambda x: order.get(x.get("priority", "medium"), 1))
+    rows = [
+        [
+            f"{i:02d}",
+            FOLLOWUP_TYPE.get(x.get("type", ""), x.get("type", "")),
+            f"**{x.get('title', '')}**" + (f" — {x['detail']}" if x.get("detail") else ""),
+            x.get("owner", "—"),
+            (x.get("priority") or "medium").capitalize(),
+            f"`{x['stamp']}`" if x.get("stamp") else "—",
+            x.get("existing") or "None found",
+        ]
+        for i, x in enumerate(fus, 1)
+    ]
+    out.append(table(["#", "Type", "Action", "Owner", "Priority", "At", "Existing ticket"], rows))
+    return "\n".join(out)
 
 
 def table(headers, rows) -> str:

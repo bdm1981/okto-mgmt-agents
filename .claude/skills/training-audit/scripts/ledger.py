@@ -309,6 +309,12 @@ def main():
                 f"{path}:{i}: {f['claim_id']} is graded {f['grade']} with no evidence.\n"
                 "Every non-correct finding needs a path:line, or grade it 'unverifiable'."
             )
+        if f["grade"] in ("wrong_high", "wrong_contained", "incomplete") and not f.get("model_delivery"):
+            sys.exit(
+                f"{path}:{i}: {f['claim_id']} is graded {f['grade']} with no model_delivery.\n"
+                "Every wrong or incomplete finding needs a worked example of how it should be "
+                "delivered: {\"script\": ..., \"show\": [...], \"check\": ...}. See grading.md."
+            )
         findings.append(f)
 
     json.dump(append(findings, dry=bool(args.check)), sys.stdout, indent=2)

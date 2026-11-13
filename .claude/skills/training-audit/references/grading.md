@@ -40,6 +40,73 @@ which destroys the trainer's trust in the whole exercise and is worse than repor
    trainer's environment, not their knowledge. Put those in practice notes, separately from
    accuracy, and say plainly when everything taught from memory was right.
 
+## Model delivery — required on every wrong or incomplete finding
+
+A grade tells the trainer what was wrong; it does not tell them what good sounds like. Every
+`wrong_high`, `wrong_contained` and `incomplete` finding carries a `model_delivery` object, and
+`ledger.py` refuses the line without one:
+
+```json
+"model_delivery": {
+  "script": "Leave Explain Delete off. With it off, your advisors get Delete w/ Reason, so every removed campaign records why — that is what you want for reporting.",
+  "show": ["Campaigns → Settings", "Point at Explain Delete and leave it unchecked", "Delete a test campaign and show the reason picker"],
+  "check": "Ask: if an advisor deletes a campaign tomorrow, where will you see why?"
+}
+```
+
+- **`script`** — two to four sentences, in the trainer's voice, said to the customer. It states the
+  corrected fact *and* the condition the trainer missed (the off branch, the gate, the real
+  formula). It must be true on the pinned commit — the same `evidence` backs it.
+- **`show`** — the clicks that demonstrate it on screen, using the in-app labels exactly as the
+  code renders them. Omit when nothing can be shown.
+- **`check`** — one question the trainer can ask to confirm the customer understood.
+- Keep `say_instead` as the one-line headline; `model_delivery` is the worked example under it.
+- When the finding is a product bug (the label is wrong), the script says how to explain around
+  the label until it is fixed — never just "say it right".
+- Plain language, no internal jargon, no `path:line` in the script. Write it the way the best
+  trainer on the team would say it, not the way the code reads.
+
+## Health check — follow-ups that came out of the session
+
+Every report ends with a **Customer health check**: what the session revealed about the
+account across four components, and the follow-ups or tickets someone needs to create. It goes
+in the narrative under `health_check`; `build_report.py` renders it.
+
+| component key | what to look for |
+|---|---|
+| `usage` — Product usage & engagement | How often they log in, which features they actually use vs. ignore, how many of their staff are active, whether their workflow is consistent ("we only use the inbox", "nobody else has logged in", "we stopped sending campaigns") |
+| `support` — Support & service activity | Problems raised in the session, recurring issues, open tickets they mention, how long something has been broken, frustration with resolution time |
+| `sentiment` — Sentiment & feedback | Praise, frustration, NPS / CSAT comments (CSAT coming soon), direct feedback to the CSM or trainer, "we're thinking about…" |
+| `commercial` — Financial & commercial health | Payment or billing issues, renewal or contract talk, expansion interest (more locations, add-ons), whether an owner / exec attended |
+
+Status per component: `healthy`, `watch`, `at_risk`, or `no_signal`. **Most sessions give no
+signal on most components — `no_signal` is the honest default.** Never infer a status from
+silence, and never upgrade one from a single polite remark.
+
+Sources, in order:
+1. **The transcript** — always. Cite the stamp in the signal text.
+2. **Zoho Desk / Zoho CRM, read-only, if the tools are available in the run** — open tickets for
+   the account (count, severity, age) and renewal / payment status. Say which source each
+   signal came from in `source`. If not available, write "transcript only".
+3. Never query MongoDB, a customer tenant, or Zoom beyond what the audit already reads.
+
+`followups` lists every action the session generated. One row per action:
+
+| type | when |
+|---|---|
+| `support_ticket` | Customer reported something broken or misconfigured in their account |
+| `bug` | The product behaves wrong or the copy is wrong (also flagged `product_bug` in findings) |
+| `feature_request` | Customer asked for something the product does not do |
+| `csm_followup` | Account-level concern: churn risk, unhappy stakeholder, expansion interest, low adoption |
+| `training_followup` | Trainer promised to send something, re-cover a topic, or schedule another session; or a `wrong_high` finding the customer acted on and needs correcting |
+| `billing` | Invoice, payment, contract or pricing question |
+
+Each row: `title`, `detail`, `owner` (Support / Dev / CSM / Training / Billing — a team, not a
+person), `priority` (`high` if the customer is blocked, at risk, or was told something
+`wrong_high`; else `medium` / `low`), `stamp`, and `existing` (the Desk/Sprints ticket number if
+one already covers it, else empty). **Propose only — the audit never creates the ticket.** A
+promise the trainer made ("I'll send you that guide") is always a follow-up.
+
 ## Where the costly errors actually are
 
 From the seed set, ranked by how often they bit:

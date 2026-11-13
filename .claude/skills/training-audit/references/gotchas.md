@@ -609,7 +609,8 @@ guess.
 
 The SKILL.md procedure does not say so and the flag name suggests prose. Passing a `.md` file dies with
 `json.decoder.JSONDecodeError: Expecting value: line 1 column 1`. The expected keys are `title`,
-`standfirst`, `method`, `practice_notes` (a list of `{heading, paras[]}`) and `footer`. Session metadata —
+`standfirst`, `method`, `practice_notes` (a list of `{heading, paras[]}`), `health_check` (added 13 Nov 2026,
+schema in `build_report.py`) and `footer`. Session metadata —
 topic, date, trainer, duration — comes from `--sessions`, a `{"sessions":[{uuid, topic, start_time,
 trainer, duration_minutes}]}` file, which for a Zoho run you have to hand-write since
 `discover_sessions.py` is Zoom-only.
