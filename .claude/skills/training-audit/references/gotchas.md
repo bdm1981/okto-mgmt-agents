@@ -4190,3 +4190,74 @@ Local `origin/development` was `0ccc6e62b5` — *yesterday's* true tip, which is
 script to be wrong. The real tip was `3b04cb23e3`, dated today. Twelve stale against two correct. Also note
 `timeout` does not exist on this host: `timeout 300 git fetch ...` fails with `command not found` and the fetch
 never runs, which reads like a fetch that returned nothing. Use the Bash tool's own `timeout` parameter instead.
+
+## The second complete 32-row sweep, and it found nothing either (13 Nov 2026)
+
+6 November was the first complete pass and recovered nothing. Today was the second, run for the same reason —
+discovery correctly empty, nothing else to do — and it recovered nothing either. All 32 rows probed signed in with
+the Transcript tab clicked: **31 answered `len=NONE` with the page's own *No transcript generated* text present**,
+and the 6 October Admin Part 1 row (`1064758517`) returned its 287-character greeting fragment again, byte-identical.
+
+**What two clean complete passes actually license, and what they do not.** They are evidence about the *recovery*
+rate, not about the loss: 2,279 minutes and 90 customer attendances are still unchecked, and the oldest row is 65
+days open. The 2 November finding that "the newest rows are where recoveries live" still stands as the rule for a
+*partial* sweep — but this cohort now has no newest rows left to find anything in, because every row in it has been
+probed clean twice and the three recoveries this table has ever seen all landed within 15 days of their session.
+**Practical consequence: a row past ~30 days has never once recovered.** Sweeping those 24 rows a third time is
+close to pure ceremony; the eight newest-by-session-date remain worth a probe per run, and the full pass is worth
+running only when a quiet day would otherwise be idle, which is exactly what happened here.
+
+The standing ask is unchanged and is the only thing that would actually move this number: the *Generate transcript*
+button is live on every intact recording in the table, pressing it is a write, and the audit must not press it.
+
+## `browser_batch` can be refused with "Could not verify this site's safety category" — retry it (13 Nov 2026)
+
+Batch 4 of today's sweep failed on `actions[0]` with *"Could not verify this site's safety category. Blocking as a
+precaution — try again in a moment."*, `0 completed, 11 remaining`. The identical batch succeeded on a plain retry
+seconds later, against the same host that nineteen earlier navigates in the same run had already loaded.
+
+It is a transient classifier failure, not a permission decision and not a signed-out page. The tells that separate
+it from the 7 November signed-out shapes: it fails at the **navigate**, before any probe runs, and it names the
+safety category rather than returning a page. The error text also arrives with a schema dump appended, which reads
+like a malformed-input error and is not one — the call was well-formed. **Retry once before concluding anything**;
+do not treat it as a reason to stop the sweep or to re-assert auth.
+
+## The Past Webinars list is on `meeting.zoho.com`, not `webinar.zoho.com` (13 Nov 2026)
+
+`https://webinar.zoho.com/meeting/796393835/webinars/past` renders Zoho's own **"Page Not Found"**, which reads like
+a dead or moved feature and is neither. The working URL has been in this file since 4 October and uses the other
+host, with the department id in the path:
+
+```
+https://meeting.zoho.com/meeting/796393835/3764623000000012011/webinar/my-webinars/past
+```
+
+The two hosts are not interchangeable even though `webinar.zoho.com/meeting/videoprv?recordingId=…` — the recording
+page the sweep uses — is on the first one. Cost: one navigate. Worth noting because a 404 from the vendor is the
+most convincing possible argument that a route is gone.
+
+## A Friday zero is the expected shape, and still worth one navigate (13 Nov 2026)
+
+The weekly schedule runs **Monday to Thursday** — Advisor (Tue 12 pm, Wed 1 pm, Thu 2 pm), Admin Part 1 (Mon/Wed
+9 am, Tue/Thu 3 pm), Admin Part 2 (Mon/Wed 3 pm, Tue/Thu 9 am), CRM Overview (Wed 11 am), Shop Analytics (Tue 11 am,
+Thu 1 pm). No course has ever been scheduled on a Friday, so a Friday run that discovers nothing is **not** the
+suspicious weekday zero the 13 October note warns about.
+
+Check it anyway, because the check is one navigate and the failure it guards against is silent: today
+`getAllRecordings`' newest row was Thursday, the Past list's newest group header read `YESTERDAY 4`, and all four of
+Thursday's webinars were already in the ledger. Three sources agreeing is what makes "no new sessions" a finding
+rather than an absence of one. Say in the run output *which* three agreed — "discovery returned zero" alone is the
+false-all-clear this skill exists to avoid, and it looks identical whether it is true or not.
+
+## A zero-commit day, for the second time on record (13 Nov 2026)
+
+`origin/development` is `3b04cb23e3` — the same commit yesterday's run pinned, nothing landed in the intervening
+day. The 3 October note covers this: when no commit has landed the baseline is the same object, so no citation can
+have drifted and there is no diff to read. Say that explicitly rather than claiming a re-verification that did not
+happen.
+
+Note also that **no `pin_baseline.sh` tally entry was earned this run.** The explicit HTTPS fetch against
+`ShopRocket-LLC/oktorocket` was run first, as the 11 November note instructs, which updates the local ref — so
+whether the script *would* have fallen back stale a thirteenth time is now unknowable for today. The tally stands
+at twelve stale against two correct. If keeping that count matters, run the script before the explicit fetch, not
+after.
