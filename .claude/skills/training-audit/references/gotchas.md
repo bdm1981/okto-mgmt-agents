@@ -4261,3 +4261,72 @@ Note also that **no `pin_baseline.sh` tally entry was earned this run.** The exp
 whether the script *would* have fallen back stale a thirteenth time is now unknowable for today. The tally stands
 at twelve stale against two correct. If keeping that count matters, run the script before the explicit fetch, not
 after.
+
+## An instruction change lands between runs: re-render, do not re-grade (13 Nov 2026)
+
+`model_delivery` and the Customer Health Check were added to `grading.md` and `SKILL.md` at **06:34 on 13 November**
+(commit `0114670`). The 12 November run had finished at **18:18 the evening before**. Its two reports were therefore
+published without either, and Brad asked for that day to be re-run.
+
+**The instinct is to re-audit the sessions. That is the wrong move and it is actively destructive**, because
+`discover_sessions.py` drops any uuid already in the ledger and `ledger.py` refuses duplicates — those guards exist
+precisely so one session cannot be counted twice. Working around them would have doubled sixteen rows and inflated
+every repeat count and contradiction they feed.
+
+**The discriminator is what the ledger actually stores.** Its columns are `date | uuid | trainer | claim_id | grade |
+stamp | evidence` — and nothing else. `model_delivery`, `health_check` and `followups` live in `findings.jsonl` and
+the narrative, which are *render-time* inputs that were never persisted. So an additive instruction change of this
+shape touches the reports and not the record. Check the change first:
+
+- **Taxonomy or fairness rules changed** → the grades themselves may move; that is a genuine re-grade, and the only
+  clean route is `git checkout -- references/findings-ledger.md`, remove that session's rows, and re-add in the
+  same run (the 6 November ledger-repair recipe).
+- **Purely additive to the report** → rebuild `findings.jsonl` from the transcript, re-render, publish new report
+  artifacts, repoint `dashboard.md`, and **never call `ledger.py --add`**. Say in the run output that grades and
+  citations did not move, or a reader will assume a re-grade happened.
+
+Here the diff was additive, so all sixteen rows were re-verified against the pinned commit and left untouched. Note
+the re-verification is not free and is worth doing: `resolveCallsUserExtensionOverride`, `CallbackBadge`,
+`translate.helpers.ts` and `review.ts` were all re-read at `3b04cb23e3` before the model-delivery scripts were
+written, because `grading.md` requires the script to be true on the pinned commit.
+
+One practical consequence: **the per-session report is no longer a fixed record** the way the dashboard's note under
+"Per-session reports" claims. Two uuids now have two artifacts each. The old URLs still resolve and were left alone;
+`dashboard.md` was repointed at the new ones and the row says it was re-rendered. If this happens a third time,
+decide whether the old artifact should be deleted or annotated rather than quietly orphaned.
+
+## Zoho Desk is reachable from this skill, and it corroborates rather than decorates (13 Nov 2026)
+
+`grading.md` has asked for a Desk/CRM read since the health check was written, and this is the first run to do it.
+It changed the output, so it is worth the two calls every time there is a named account.
+
+Mechanics, all of which cost something today:
+
+- **`searchAccounts` returns HTTP 204 / empty** for `accountName=automotive`, and probably in general — do not
+  conclude the account is absent. `searchTickets` with `_all="<account name>"` works and returned 77 rows.
+- **The result is far too large for context** (62 KB). It lands in a tool-results file; read it with `jq` rather than
+  inline. `jq -r '.data.data[] | [.ticketNumber,.createdTime[0:10],.status,.priority,.subject] | @tsv'` is the useful shape.
+- **`accountName` and `contactName` come back null on every row** even when the subject names the account, so filter
+  on the *subject* (`test("house|encino|pasadena")`) and read the account out of `.description`.
+
+What it bought: the trainer promised a ticket on air at 37:52 and **#25812 exists, opened the same afternoon** — a
+promise kept and now verifiable rather than merely claimed. It also surfaced **#25755 Pending Customer**, the port
+blocking the texting that a quarter of the other session was spent teaching, which nobody in either transcript knew
+was stuck. And it let the support component cite severities and ages instead of hedging.
+
+**It also produced a judgement the transcript alone could not support:** #25812 is Sev 3 - Minor while covering
+employees not syncing, goals not colour-coding, and both the job/ticket toggle and RO drill-down missing. Naming a
+severity as under-rated is only possible with the ticket in hand, and it is exactly the kind of thing the health
+check exists to surface.
+
+## Two sessions, one customer, one afternoon — read them together (13 Nov 2026)
+
+Both 12 November sessions were **Greg Hwang of HOUSE Automotive**, alone, back to back: Shop Analytics at 1 pm and
+Admin Part 1 at 3 pm. Graded separately they are two tidy reports. Read together they are an account story: he asked
+for a one-to-one in the first session (02:54, and again at 03:43), did not get one booked, and asked again at the end
+of the second (1:11:01, *"Do you have anyone in your circle I can hire, just come to implement all this?"*).
+
+**When one attendee appears in consecutive sessions, write the health check once and let both reports carry it.**
+The per-session frame is right for accuracy findings and wrong for account health — a signal repeated two hours later
+is escalation, not duplication, and scoring each session in isolation hides that. The attendance column is the cheap
+tell: `att: 1` on two rows of the same date is worth one `getAttendeeReport` comparison before grading either.
