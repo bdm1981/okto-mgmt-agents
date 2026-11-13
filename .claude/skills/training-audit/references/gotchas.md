@@ -4118,3 +4118,74 @@ today. The three ring-group strategy *names* are in `FSGroupProperties.js:14-18`
 Re-deriving this every run is pure waste. **Surface it as a standing ask instead:** one answer from voice engineering,
 written into the deck and into this file, retires four rows and whatever follows them. A claim that has been
 unverifiable four times is not a grading problem, it is a missing piece of documentation.
+
+## A feature taught as unreleased is a gradeable claim, and the ledger had no id for it (12 Nov 2026)
+
+The costliest finding of this run is a shape this skill had not recorded. The customer asked the one question
+an owner most wants answered — how do I know an advisor didn't just click the task away? — and the trainer
+answered *"this I think is something our devs are working on... when it's going to be actually pushed to
+production, I'm unsure."* The green **Callback badge** shipped **27 days earlier**: TRS-I2556 (`39a21d762d`,
+16 Oct), `useCallbacks` wired unconditionally at `Inbox.tsx:343`, `CallbackBadge.tsx:26-30` rendering
+"Called back &lt;time&gt; from ext &lt;n&gt;" on every missed-call, voicemail and call-campaign row, **no feature flag**.
+
+**The general rule: grade "not yet released" and "coming soon" like any other claim.** Until now this skill has
+graded what a feature *does*; a statement about whether it *exists* is equally checkable and, as here, can be
+the most consequential thing said in the hour. The trainer's own hedge — "it was in here one week and then it
+went away the next week" — reads like someone who saw it in testing and never saw it ship. The discriminator is
+one `git log -1` on the component plus a check for a gate; both are cheap.
+
+**And it is the inverse of the 10 November curriculum-refresh rule, with the opposite verdict.** There, code
+newer than the deck by three days bought the trainer an `incomplete`. Here the gap is 27 days (Callback) and
+16 days (CARFAX reviews, TRS-I332, `66e1929aba`, 27 Oct), both well outside the ~1 week window, so both stand
+as findings. **The window is the whole test** — run `git log -1 --format=%ci` on the evidence file before
+choosing between `wrong` and a refresh flag, in either direction.
+
+## `reviews.source.google-only` was the third stale `unverifiable`, and the pattern is now a standing check (12 Nov 2026)
+
+Filed `unverifiable` on 13 Oct with no evidence on the reasoning that review sources are tenant config. CARFAX
+shipped 27 Oct: `review.ts:15-21` carries a `carfax` sub-document and a `title` field for CARFAX headlines,
+`CarfaxReviewsModal.tsx` gives admins connect / disconnect / sync, `settings.js:103` holds the per-tenant flag.
+The *tenant* question was genuinely unverifiable; the *product* question — is this Google-only — was not, and
+nobody had separated them.
+
+That is three in four days after `billing.oktoassist.250-calls-75-cents` (9 and 11 Nov) and
+`calls.call-group-strategy.enterprise-picks-available` (11 Nov). **The 11 November rule is now unconditional:
+re-grep every `unverifiable` claim_id before reusing it.** Add the discriminator this row contributes: when a
+claim mixes a product question with a tenant question, split it rather than filing the whole thing unverifiable
+— the product half is almost always checkable.
+
+## `build_report.py --sessions` wants `{"sessions": [...]}`, not a bare list (12 Nov 2026)
+
+`main()` calls `data.get("sessions", [])`, so a top-level JSON array dies with
+`AttributeError: 'list' object has no attribute 'get'` at line 43 before anything renders. The 29 October note
+records that this file is read for `start_time` rather than `date`; it does not say the array must be wrapped.
+Both are true and both are needed.
+
+## `ledger.py --add` prepends `uuid:` to whatever it is given (12 Nov 2026)
+
+Passing `"session":"uuid:1040582761"` lands `` `uuid:uuid:1040582761` `` in the ledger. It is cosmetic for
+dedupe — `discover` matches on the bare key either way, so no session is at risk of a re-audit — but the ledger
+now carries both spellings historically (`uuid:uuid:1060567444` from 22 Oct beside `uuid:1058968941` from
+10 Nov). **Pass the bare meeting key as `session`**, or fix the rows with `sed` before anything else reads the
+file. Fixed in place this run.
+
+## A 0-attendance short recording is the one short recording that is NOT a story (12 Nov 2026)
+
+Three days running the duration threshold has dropped a short recording and three days running it has meant
+something different. 10 Nov: a real customer in a 16-minute Admin Part 2 cut short by a platform failure.
+11 Nov: one real customer at 12 minutes and one internal-staff 12 minutes, told apart by email domain. Today:
+Advisor Training 2 pm (`1023282019`, 11 min) with `getAttendeeReport` returning `count: 0` **and** the Past
+Webinars list independently reporting `0 (0%)` against 2 registered.
+
+**Two sources agreeing on zero is the all-clear**, and it is worth saying out loud in the run output rather than
+staying silent, because silence here reads identically to the 10 November case. The day's fourth course,
+Admin Part 2 at 9 am, produced **no recording row at all** against 1 registered / 0 attended — the 29 October
+no-show shape, confirmed again. A held day can therefore produce four courses, three recordings and two
+gradeable sessions with nothing lost.
+
+## `pin_baseline.sh` fell back stale a twelfth time (12 Nov 2026)
+
+Local `origin/development` was `0ccc6e62b5` — *yesterday's* true tip, which is the most convincing way for this
+script to be wrong. The real tip was `3b04cb23e3`, dated today. Twelve stale against two correct. Also note
+`timeout` does not exist on this host: `timeout 300 git fetch ...` fails with `command not found` and the fetch
+never runs, which reads like a fetch that returned nothing. Use the Bash tool's own `timeout` parameter instead.
